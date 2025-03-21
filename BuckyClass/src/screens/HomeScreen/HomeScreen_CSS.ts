@@ -1,0 +1,345 @@
+import { StyleSheet, Dimensions } from "react-native";
+
+const screenWidth = Dimensions.get("window").width;
+
+const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: "#FFFFFF",
+    },
+    topBar: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 12,
+        paddingTop: 16,
+        paddingBottom: 12,
+        // backgroundColor: "#f9f9f9",
+    },
+    appName: {
+        alignSelf: "stretch",
+        fontSize: 18,
+        lineHeight: 24,
+        fontWeight: "500",
+        fontFamily: "Roboto",
+        fontStyle: "normal",
+        color: "#000",
+        textAlign: "center",
+    },
+
+    userInfoContainer: {
+        flexDirection: "row", // 변경: row로 배치
+        alignItems: "center",
+        paddingVertical: 10,
+        backgroundColor: "#fff",
+    },
+
+    userPhoto: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: "#ccc",
+        marginLeft: 12,
+    },
+
+    userTextContainer: {
+        marginLeft: 12,
+    },
+    userName: {
+        fontSize: 18,
+        fontWeight: "600",
+        color: "#333",
+    },
+    userType: {
+        fontSize: 14,
+        color: "#777",
+        marginTop: 2,
+    },
+    iconRow: {
+        flexDirection: "row",
+        paddingHorizontal: 12,
+        paddingVertical: 0,
+        alignItems: "flex-start",
+        alignSelf: "stretch",
+    },
+    iconContainer: {
+        flex: 1,
+        flexBasis: 0,
+        height: 80,
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 4,
+        marginHorizontal: 4,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: "rgba(0, 0, 0, 0.10)",
+        borderStyle: "solid",
+    },
+    icon: {
+        display: "flex",
+        width: 48,
+        flexDirection: "column",
+        justifyContent: "center",
+        flexShrink: 0,
+        aspectRatio: 1,
+        overflow: "hidden",
+        textAlign: "center",
+        fontSize: 30,
+        fontStyle: "normal",
+        fontWeight: "400",
+        lineHeight: 48 /* 160% */,
+    },
+    iconLabel: {
+        fontSize: 14,
+        color: "#333",
+        textAlign: "center",
+    },
+    scrollContainer: {
+        flex: 1,
+        paddingHorizontal: 12,
+        backgroundColor: "#fff",
+    },
+    horizontalScroll: {
+        marginBottom: 20,
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: "600",
+        color: "#444",
+        marginVertical: 15,
+    },
+    popularCoursesRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 20,
+    },
+    popularCourseCard: {
+        width: screenWidth - 24,
+        backgroundColor: "#fff",
+        borderRadius: 8,
+        padding: 0,
+        alignItems: "flex-start",
+        borderWidth: 1,
+        borderColor: "#ddd",
+    },
+    courseLabel: {
+        fontSize: 12,
+        fontWeight: "500",
+        marginBottom: 8,
+        color: "#000",
+        position: "absolute",
+        top: 4,
+        left: 4,
+    },
+    courseImagePlaceholder: {
+        width: "100%",
+        backgroundColor: "#eee",
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 8,
+        borderRadius: 6,
+        height: 164,
+        position: "relative",
+    },
+    courseImageText: {
+        color: "#000",
+        fontSize: 14,
+    },
+    courseName: {
+        fontSize: 14,
+        color: "#000",
+        textAlign: "left",
+        marginLeft: 8,
+    },
+    courseDetails: {
+        fontSize: 16,
+        fontWeight: "500",
+        color: "#333",
+        marginBottom: 0,
+        padding: 8,
+        textAlign: "left",
+    },
+    chatCard: {
+        width: 220,
+        backgroundColor: "#f9f9f9",
+        borderRadius: 8,
+        padding: 10,
+        marginRight: 15,
+    },
+    chatHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 6,
+    },
+    chatImagePlaceholder: {
+        width: 24,
+        height: 24,
+        borderRadius: 24,
+        backgroundColor: "#ccc",
+        marginRight: 8,
+    },
+    chatUser: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#333",
+    },
+    starContainer: {
+        flexDirection: "row",
+    },
+    starIcon: {
+        fontSize: 18,
+        color: "#FFD700",
+        marginRight: 2,
+    },
+    chatText: {
+        fontSize: 14,
+        color: "#555",
+        lineHeight: 18,
+    },
+
+    reviewCard: {
+        width: 220,
+        backgroundColor: "#f9f9f9",
+        borderRadius: 8,
+        padding: 10,
+        marginRight: 15,
+    },
+    reviewHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 6,
+    },
+    reviewUser: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#333",
+    },
+    starContainer: {
+        flexDirection: "row",
+    },
+    starIcon: {
+        fontSize: 18,
+        color: "#FFD700",
+        marginRight: 2,
+    },
+    reviewText: {
+        fontSize: 14,
+        color: "#555",
+        lineHeight: 18,
+    },
+    bottomNavBar: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        alignItems: "center",
+        borderTopWidth: 1,
+        borderTopColor: "#ddd",
+        backgroundColor: "#f9f9f9",
+        paddingVertical: 8,
+    },
+    bottomNavItem: {
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    bottomNavIcon: {
+        fontSize: 24,
+        color: "#4A90E2",
+        marginBottom: 2,
+    },
+    bottomNavLabel: {
+        fontSize: 12,
+        color: "#333",
+    },
+    majorContainer: {
+        marginTop: 12,
+        paddingLeft: 24,
+        paddingRight: 24,
+    },
+    majorSectionTitle: {
+        fontSize: 14,
+        fontWeight: "500",
+        color: "#000",
+        marginBottom: 4,
+        lineHeight: 20,
+    },
+    majorBox: {
+        // Removed fixed width
+        height: 36,
+        backgroundColor: "#eee",
+        borderRadius: 8,
+        marginRight: 8,
+        padding: 8, // Updated padding
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    majorText: {
+        fontSize: 14,
+        fontWeight: "400",
+        lineHeight: 20,
+        fontFamily: "Roboto",
+        color: "#333",
+    },
+    majorHelpText: {
+        marginTop: 4,
+        fontSize: 12,
+        color: "#777",
+        lineHeight: 16,
+        fontWeight: "400",
+        marginBottom: 8,
+    },
+    hotCoursesContainer: {
+        paddingHorizontal: 12,
+        marginTop: 16,
+        marginBottom: 12,
+    },
+    hotCoursesTitle: {
+        fontSize: 18,
+        fontWeight: "500",
+        color: "#000",
+        lineHeight: 24,
+        marginBottom: 8,
+    },
+    hotCourseCard: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#fff",
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: "#ddd",
+        paddingHorizontal: 8,
+        paddingVertical: 8,
+        marginBottom: 8,
+    },
+    hotCourseLeft: {
+        flexDirection: "row",
+        alignItems: "center",
+        flex: 1,
+    },
+    hotCourseImagePlaceholder: {
+        width: 24,
+        height: 24,
+        borderRadius: 24,
+        backgroundColor: "#ccc",
+        marginRight: 8,
+    },
+    hotCourseTextContainer: {
+        justifyContent: "center",
+    },
+    hotCourseName: {
+        fontSize: 14,
+        fontWeight: "500",
+        color: "#333",
+    },
+    hotCourseRank: {
+        fontSize: 12,
+        color: "#777",
+    },
+    hotCourseEllipsisIcon: {
+        fontSize: 20,
+        color: "#333",
+        marginLeft: 8,
+    },
+});
+
+export default styles;
