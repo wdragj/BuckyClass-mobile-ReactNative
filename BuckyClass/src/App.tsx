@@ -6,7 +6,7 @@ import SignIn from "./screens/SignIn/SignIn";
 import SignUp from "./screens/SignUp";
 import HomeScreen from "./screens/HomeScreen/HomeScreen";
 import ChatScreen from "./screens/ChatScreen";
-import CoursesScreen from "./screens/CoursesScreen";
+import CoursesScreen from "./screens/CoursesScreen/CoursesScreen";
 import CourseDetailsScreen from "./screens/CourseDetailsScreen";
 import CourseChatScreen from "./screens/CourseChatScreen";
 import ChatListScreen from "./screens/ChatListScreen";

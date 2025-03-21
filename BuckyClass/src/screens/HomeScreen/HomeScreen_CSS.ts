@@ -317,8 +317,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     hotCourseImagePlaceholder: {
-        width: 24,
-        height: 24,
+        width: 27,
+        height: 27,
         borderRadius: 24,
         backgroundColor: "#ccc",
         marginRight: 8,

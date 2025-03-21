@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, Alert } from "react-native";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebaseConfig";
+import { auth } from "../firebaseConfig"; // firebaseConfig.ts에서 auth 가져오기
 
 const SignUp = ({ navigation }: any) => {
     const [email, setEmail] = useState("");
@@ -9,7 +9,7 @@ const SignUp = ({ navigation }: any) => {
 
     const handleSignUp = async () => {
         try {
-            // await createUserWithEmailAndPassword(auth, email, password);
+            await createUserWithEmailAndPassword(auth, email, password); // firebase 인증 사용
             Alert.alert("Success", "Account created successfully!");
             navigation.navigate("SignIn");
         } catch (error: any) {

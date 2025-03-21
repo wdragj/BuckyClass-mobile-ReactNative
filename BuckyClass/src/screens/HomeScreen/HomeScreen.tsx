@@ -5,6 +5,7 @@ import {
     Text,
     TouchableOpacity,
     ScrollView,
+    Image,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../types/navigation";
@@ -115,11 +116,11 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                     <View style={styles.userPhoto} />
                     <View style={styles.userTextContainer}>
                         <Text style={styles.userName}>User Name</Text>
-                        <Text style={styles.userType}>Student</Text>
+                        <Text style={styles.userType}>Class of 2026</Text>
                     </View>
                 </View>
 
-                {/* 전공 선택 섹션 */}
+                {/* 전공 선택 섹션
                 <View style={styles.majorContainer}>
                     <Text style={styles.majorSectionTitle}>Choose Major</Text>
                     <ScrollView
@@ -141,12 +142,12 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                     <Text style={styles.majorHelpText}>
                         Select your preferred major
                     </Text>
-                </View>
+                </View> */}
 
                 {/* Hot Courses 섹션 */}
                 <View style={styles.hotCoursesContainer}>
                     <Text style={styles.hotCoursesTitle}>
-                        Hot Courses of the Day
+                        🔥GROWing Chat of the Day🔥
                     </Text>
                     {hotCourses.map((course, index) => (
                         <TouchableOpacity
@@ -154,7 +155,14 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                             style={styles.hotCourseCard}
                         >
                             <View style={styles.hotCourseLeft}>
-                                <View
+                                <Image
+                                    source={
+                                        index === 0
+                                            ? require("../../../assets/1st.png")
+                                            : index === 1
+                                            ? require("../../../assets/2nd.png")
+                                            : require("../../../assets/3rd.png")
+                                    }
                                     style={styles.hotCourseImagePlaceholder}
                                 />
                                 <View style={styles.hotCourseTextContainer}>
@@ -211,7 +219,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                         ))}
                     </ScrollView>
 
-                    {/* 이번주 Chat 리스트 */}
+                    {/* 이번주 Chat 리스트
                     <Text style={styles.sectionTitle}>CHAT of the WEEK</Text>
                     <ScrollView
                         horizontal
@@ -232,7 +240,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                                 <Text style={styles.chatText}>{chat.text}</Text>
                             </View>
                         ))}
-                    </ScrollView>
+                    </ScrollView> */}
 
                     {/* 최근 리뷰 섹션 */}
                     <Text style={styles.sectionTitle}>Latest Reviews</Text>
