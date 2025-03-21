@@ -13,6 +13,7 @@ const SignUp = ({ navigation }: any) => {
             Alert.alert("Success", "Account created successfully!");
             navigation.navigate("SignIn");
         } catch (error: any) {
+            console.log("SignUp error:", error); // 에러 디버깅 로그 추가
             Alert.alert("Error", error.message);
         }
     };
