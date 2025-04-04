@@ -5,7 +5,13 @@ export type RootStackParamList = {
     Home: undefined;
     ChatScreen: undefined;
     Courses: undefined;
-    CourseDetails: { courseId: string };
+    CourseDetails: {
+        course: {
+            id: string;
+            name: string;
+            views: number;
+        };
+    };
     CourseChat: { courseId: string };
     ChatList: undefined;
     PrivateChat: { chatId: string };

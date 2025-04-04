@@ -1,239 +1,339 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
-    TouchableOpacity,
-    ScrollView,
     StyleSheet,
+    ActivityIndicator,
+    ScrollView,
+    Dimensions,
 } from "react-native";
+import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../types/navigation";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import PieChart from "react-native-pie-chart";
+import { PieChart } from "react-native-chart-kit";
+import { RootStackParamList } from "../types/navigation";
 
-// 기존 타입에서 courseId 대신 course 객체를 받도록 수정
-interface Course {
-    id: string;
-    title: string;
-    category: string;
-    professor: string;
-    elective: string;
-    subject: string;
-    description: string;
-    gradeDistribution: { [grade: string]: number };
-}
-
+type CourseDetailsScreenRouteProp = RouteProp<
+    RootStackParamList,
+    "CourseDetails"
+>;
 type CourseDetailsScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
     "CourseDetails"
 >;
 
-// 예시 데이터: 최근 리뷰
-const latestReviews = [
-    {
-        user: "User1",
-        rating: 5,
-        text: "Great course, highly recommended!",
-    },
-    {
-        user: "User2",
-        rating: 4,
-        text: "Enjoyed the content, but assessments were challenging.",
-    },
-    {
-        user: "User3",
-        rating: 5,
-        text: "Very comprehensive and well structured!",
-    },
-];
+interface CourseDetailData {
+    course: {
+        id: string;
+        name: string;
+        views: number;
+    };
+    grade: {
+        course_id: string;
+        total: number;
+        a_per: string;
+        ab_per: string;
+        b_per: string;
+        bc_per: string;
+        c_per: string;
+        d_per: string;
+        f_per: string;
+        other_per: string;
+    };
+    reviews: any[];
+}
 
-export default function CourseDetailsScreen({
-    navigation,
-    route,
-}: {
+interface Props {
+    route: CourseDetailsScreenRouteProp;
     navigation: CourseDetailsScreenNavigationProp;
-    route: { params: { course: Course } };
-}) {
+}
+
+const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     const { course } = route.params;
-
-    // react-native-pie-chart 에 맞게 series 생성 (value와 color)
-    const series = Object.entries(course.gradeDistribution).map(
-        ([grade, value]) => {
-            let color = "";
-            if (grade === "A") color = "#EB6927";
-            else if (grade === "B") color = "#2D8CFF";
-            else if (grade === "C") color = "#A3A3A3";
-            else color = "#888888";
-            return { value, color };
-        }
+    const [courseDetail, setCourseDetail] = useState<CourseDetailData | null>(
+        null
     );
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const reviews = ["좋았습니다.", "듣기 어려웠어요"];
+    useEffect(() => {
+        // 강의 ID를 사용하여 강의 상세 정보 가져오기
+        const fetchCourseDetail = async () => {
+            try {
+                const response = await fetch(
+                    `https://grow-ruddy.vercel.app/api/courses/${course.id}`
+                );
+                if (!response.ok) {
+                    throw new Error("Failed to fetch course details");
+                }
+                const data = await response.json();
+                setCourseDetail(data);
+                setLoading(false);
+            } catch (err) {
+                console.error("Error fetching course details:", err);
+                setError("Failed to load course details");
+                setLoading(false);
+            }
+        };
+
+        fetchCourseDetail();
+    }, [course.id]);
+
+    if (loading) {
+        return (
+            <View style={styles.centeredContainer}>
+                <ActivityIndicator size="large" color="#0000ff" />
+                <Text>Loading course details...</Text>
+            </View>
+        );
+    }
+
+    if (error) {
+        return (
+            <View style={styles.centeredContainer}>
+                <Text style={styles.errorText}>{error}</Text>
+            </View>
+        );
+    }
+
+    if (!courseDetail) {
+        return (
+            <View style={styles.centeredContainer}>
+                <Text>No data available</Text>
+            </View>
+        );
+    }
+
+    // 모든 등급의 비율이 0인지 확인
+    const allZeroGrades =
+        parseFloat(courseDetail.grade.a_per) === 0 &&
+        parseFloat(courseDetail.grade.ab_per) === 0 &&
+        parseFloat(courseDetail.grade.b_per) === 0 &&
+        parseFloat(courseDetail.grade.bc_per) === 0 &&
+        parseFloat(courseDetail.grade.c_per) === 0 &&
+        parseFloat(courseDetail.grade.d_per) === 0 &&
+        parseFloat(courseDetail.grade.f_per) === 0 &&
+        parseFloat(courseDetail.grade.other_per) === 0;
+
+    // 차트 데이터 - 모든 비율이 0이면 A를 100%로 표시
+    const chartData = allZeroGrades
+        ? [
+              {
+                  name: "No Grades",
+                  population: 100,
+                  color: "#4CAF50",
+                  legendFontColor: "#7F7F7F",
+                  legendFontSize: 15,
+              },
+          ]
+        : [
+              {
+                  name: "A",
+                  population: parseFloat(courseDetail.grade.a_per),
+                  color: "#4CAF50",
+                  legendFontColor: "#7F7F7F",
+                  legendFontSize: 15,
+              },
+              {
+                  name: "AB",
+                  population: parseFloat(courseDetail.grade.ab_per),
+                  color: "#8BC34A",
+                  legendFontColor: "#7F7F7F",
+                  legendFontSize: 15,
+              },
+              {
+                  name: "B",
+                  population: parseFloat(courseDetail.grade.b_per),
+                  color: "#CDDC39",
+                  legendFontColor: "#7F7F7F",
+                  legendFontSize: 15,
+              },
+              {
+                  name: "BC",
+                  population: parseFloat(courseDetail.grade.bc_per),
+                  color: "#FFEB3B",
+                  legendFontColor: "#7F7F7F",
+                  legendFontSize: 15,
+              },
+              {
+                  name: "C",
+                  population: parseFloat(courseDetail.grade.c_per),
+                  color: "#FFC107",
+                  legendFontColor: "#7F7F7F",
+                  legendFontSize: 15,
+              },
+              {
+                  name: "D",
+                  population: parseFloat(courseDetail.grade.d_per),
+                  color: "#FF9800",
+                  legendFontColor: "#7F7F7F",
+                  legendFontSize: 15,
+              },
+              {
+                  name: "F",
+                  population: parseFloat(courseDetail.grade.f_per),
+                  color: "#F44336",
+                  legendFontColor: "#7F7F7F",
+                  legendFontSize: 15,
+              },
+              {
+                  name: "Other",
+                  population: parseFloat(courseDetail.grade.other_per),
+                  color: "#9E9E9E",
+                  legendFontColor: "#7F7F7F",
+                  legendFontSize: 15,
+              },
+          ];
+
+    // 빈 데이터 필터링 - 차트에서 0% 항목 제거 (시각적으로 더 깔끔)
+    const filteredChartData = allZeroGrades
+        ? chartData
+        : chartData.filter((item) => item.population > 0);
+
+    const screenWidth = Dimensions.get("window").width;
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.header}>Course Details: {course.title}</Text>
+            <Text style={styles.courseName}>{courseDetail.course.name}</Text>
+            <Text style={styles.courseViews}>
+                Views: {courseDetail.course.views}
+            </Text>
 
-            {/* react-native-pie-chart 를 사용한 원형 그래프 */}
-            <View style={{ alignItems: "center", marginVertical: 20 }}>
-                <PieChart
-                    widthAndHeight={250}
-                    series={series}
-                    // cover 옵션을 지정하면 도넛 형태로 표시 가능 (선택 사항)
-                    // cover={0.45}
-                />
-                <View style={{ flexDirection: "row", marginTop: 10 }}>
-                    {Object.entries(course.gradeDistribution).map(
-                        ([grade, value], i) => {
-                            let color = "";
-                            if (grade === "A") color = "#EB6927";
-                            else if (grade === "B") color = "#2D8CFF";
-                            else if (grade === "C") color = "#A3A3A3";
-                            else color = "#888888";
-                            return (
-                                <View
-                                    key={i}
-                                    style={{
-                                        flexDirection: "row",
-                                        alignItems: "center",
-                                        marginHorizontal: 5,
-                                    }}
-                                >
-                                    <View
-                                        style={{
-                                            width: 15,
-                                            height: 15,
-                                            backgroundColor: color,
-                                            marginRight: 3,
-                                        }}
-                                    />
-                                    <Text>{`${grade} ${value}%`}</Text>
-                                </View>
-                            );
-                        }
-                    )}
+            <View style={styles.sectionContainer}>
+                <Text style={styles.sectionTitle}>Cumulate GPA</Text>
+                <Text style={styles.totalStudents}>
+                    Total Students: {courseDetail.grade.total}
+                </Text>
+                <View style={styles.chartContainer}>
+                    <PieChart
+                        data={filteredChartData}
+                        width={screenWidth - 60}
+                        height={220}
+                        chartConfig={{
+                            backgroundColor: "#ffffff",
+                            backgroundGradientFrom: "#ffffff",
+                            backgroundGradientTo: "#ffffff",
+                            decimalPlaces: 2,
+                            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                        }}
+                        accessor="population"
+                        backgroundColor="transparent"
+                        paddingLeft="15"
+                        absolute
+                    />
+                </View>
+
+                <View style={styles.gradeDetailsContainer}>
+                    <Text style={styles.gradeDetail}>
+                        A: {courseDetail.grade.a_per}%
+                    </Text>
+                    <Text style={styles.gradeDetail}>
+                        AB: {courseDetail.grade.ab_per}%
+                    </Text>
+                    <Text style={styles.gradeDetail}>
+                        B: {courseDetail.grade.b_per}%
+                    </Text>
+                    <Text style={styles.gradeDetail}>
+                        BC: {courseDetail.grade.bc_per}%
+                    </Text>
+                    <Text style={styles.gradeDetail}>
+                        C: {courseDetail.grade.c_per}%
+                    </Text>
+                    <Text style={styles.gradeDetail}>
+                        D: {courseDetail.grade.d_per}%
+                    </Text>
+                    <Text style={styles.gradeDetail}>
+                        F: {courseDetail.grade.f_per}%
+                    </Text>
+                    <Text style={styles.gradeDetail}>
+                        Others: {courseDetail.grade.other_per}%
+                    </Text>
                 </View>
             </View>
 
-            {/* 최근 리뷰 섹션 */}
-            <Text style={styles.sectionTitle}>Latest Reviews</Text>
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.horizontalScroll}
-            >
-                {latestReviews.map((review, idx) => (
-                    <View key={idx} style={styles.reviewCard}>
-                        <View style={styles.reviewHeader}>
-                            <Text style={styles.reviewUser}>{review.user}</Text>
-                            <View style={styles.starContainer}>
-                                {Array.from({ length: 5 }, (_, i) => (
-                                    <Ionicons
-                                        key={i}
-                                        name={
-                                            i < review.rating
-                                                ? "star"
-                                                : "star-outline"
-                                        }
-                                        style={styles.starIcon}
-                                    />
-                                ))}
-                            </View>
+            <View style={styles.sectionContainer}>
+                <Text style={styles.sectionTitle}>Latest Reviews</Text>
+                {courseDetail.reviews.length > 0 ? (
+                    courseDetail.reviews.map((review, index) => (
+                        <View key={index} style={styles.reviewItem}>
+                            <Text>{review.content}</Text>
                         </View>
-                        <Text style={styles.reviewText}>{review.text}</Text>
-                    </View>
-                ))}
-            </ScrollView>
-            <TouchableOpacity
-                style={styles.chatButton}
-                onPress={() =>
-                    navigation.navigate("CourseChat", {
-                        courseId: course.id,
-                    })
-                }
-            >
-                <Text style={styles.chatButtonText}>Join Course Chat</Text>
-            </TouchableOpacity>
+                    ))
+                ) : (
+                    <Text style={styles.emptyText}>No reviews yet!</Text>
+                )}
+            </View>
         </ScrollView>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
         padding: 16,
-        backgroundColor: "#f2f2f2",
+        backgroundColor: "#f5f5f5",
     },
-    header: {
-        fontSize: 26,
+    centeredContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 20,
+    },
+    courseName: {
+        fontSize: 24,
         fontWeight: "bold",
-        marginBottom: 20,
-        color: "#333",
-    },
-    section: {
-        marginBottom: 20,
-    },
-    sectionHeader: {
-        fontSize: 18,
-        fontWeight: "600",
-        marginBottom: 10,
-        color: "#444",
-    },
-    itemCard: {
-        backgroundColor: "#fff",
-        padding: 12,
-        borderRadius: 8,
         marginBottom: 8,
+    },
+    courseViews: {
+        fontSize: 14,
+        color: "#666",
+        marginBottom: 24,
+    },
+    sectionContainer: {
+        backgroundColor: "#fff",
+        padding: 16,
+        borderRadius: 8,
+        marginBottom: 24,
         shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 2,
     },
-    itemText: {
-        fontSize: 16,
-        color: "#555",
-    },
-    chatButton: {
-        backgroundColor: "#4A90E2",
-        paddingVertical: 14,
-        borderRadius: 8,
-        alignItems: "center",
-        marginTop: 10,
-    },
-    chatButtonText: {
-        color: "#fff",
+    sectionTitle: {
         fontSize: 18,
-        fontWeight: "600",
+        fontWeight: "bold",
+        marginBottom: 16,
     },
-    // HomeScreen_CSS의 최근 리뷰 섹션 스타일 추가
-    reviewCard: {
-        width: 220,
-        backgroundColor: "#f9f9f9",
-        borderRadius: 8,
-        padding: 10,
-        marginRight: 15,
-    },
-    reviewHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 6,
-    },
-    reviewUser: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "#333",
-    },
-    starContainer: {
-        flexDirection: "row",
-    },
-    starIcon: {
-        fontSize: 18,
-        color: "#FFD700",
-        marginRight: 2,
-    },
-    reviewText: {
+    totalStudents: {
         fontSize: 14,
-        color: "#555",
-        lineHeight: 18,
+        marginBottom: 16,
+    },
+    chartContainer: {
+        alignItems: "center",
+        marginBottom: 16,
+    },
+    gradeDetailsContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+    },
+    gradeDetail: {
+        width: "48%",
+        marginBottom: 8,
+        fontSize: 14,
+    },
+    reviewItem: {
+        padding: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: "#eee",
+    },
+    emptyText: {
+        fontStyle: "italic",
+        color: "#999",
+    },
+    errorText: {
+        color: "red",
+        fontSize: 16,
     },
 });
+
+export default CourseDetailsScreen;
