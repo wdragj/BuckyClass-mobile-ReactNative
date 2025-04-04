@@ -56,7 +56,7 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        // 강의 ID를 사용하여 강의 상세 정보 가져오기
+        // 강의 ID로 강의 상세 정보 가져오기
         const fetchCourseDetail = async () => {
             try {
                 const response = await fetch(

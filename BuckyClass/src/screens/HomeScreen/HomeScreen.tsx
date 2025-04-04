@@ -195,7 +195,11 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                                 key={index}
                                 onPress={() =>
                                     navigation.navigate("CourseDetails", {
-                                        courseId: course.name,
+                                        course: {
+                                            id: course.name,
+                                            name: course.name,
+                                            views: 0,
+                                        },
                                     })
                                 }
                                 style={styles.popularCourseCard}
