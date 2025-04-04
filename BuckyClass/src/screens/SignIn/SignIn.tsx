@@ -13,6 +13,7 @@ const SignIn = ({ navigation }: any) => {
             Alert.alert("Success", "Logged in successfully!");
             navigation.navigate("Home");
         } catch (error: any) {
+            console.log("SignIn error:", error); // 에러 디버깅 로그 추가
             Alert.alert("Error", error.message);
         }
     };
