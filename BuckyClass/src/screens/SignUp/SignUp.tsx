@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, Alert } from "react-native";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebaseConfig"; // firebaseConfig.ts에서 auth 가져오기
+import { auth } from "../../firebaseConfig"; // firebaseConfig.ts에서 auth 가져오기
 
 const SignUp = ({ navigation }: any) => {
     const [email, setEmail] = useState("");

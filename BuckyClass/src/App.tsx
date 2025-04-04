@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { RootStackParamList } from "./types/navigation";
 import SignIn from "./screens/SignIn/SignIn";
-import SignUp from "./screens/SignUp";
+import SignUp from "./screens/SignUp/SignUp";
 import HomeScreen from "./screens/HomeScreen/HomeScreen";
 import ChatScreen from "./screens/ChatScreen";
 import CoursesScreen from "./screens/CoursesScreen/CoursesScreen";
