@@ -256,9 +256,14 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                         {latestReviews.map((review, idx) => (
                             <View key={idx} style={styles.reviewCard}>
                                 <View style={styles.reviewHeader}>
-                                    <Text style={styles.reviewUser}>
-                                        {review.user}
-                                    </Text>
+                                    <View style={styles.userInfoRow}>
+                                        <View
+                                            style={styles.chatImagePlaceholder}
+                                        />
+                                        <Text style={styles.reviewUser}>
+                                            {review.user}
+                                        </Text>
+                                    </View>
                                     <View style={styles.starContainer}>
                                         {Array.from({ length: 5 }, (_, i) => (
                                             <Ionicons
