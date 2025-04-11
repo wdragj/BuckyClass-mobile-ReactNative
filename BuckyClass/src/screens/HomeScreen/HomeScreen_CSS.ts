@@ -205,8 +205,8 @@ const styles = StyleSheet.create({
 
     reviewCard: {
         width: 220,
-        backgroundColor: "#f9f9f9",
-        borderRadius: 8,
+        backgroundColor: "#eee",
+        borderRadius: 24,
         padding: 10,
         marginRight: 15,
     },
@@ -215,6 +215,10 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         marginBottom: 6,
+    },
+    userInfoRow: {
+        flexDirection: "row",
+        alignItems: "center",
     },
     reviewUser: {
         fontSize: 16,
