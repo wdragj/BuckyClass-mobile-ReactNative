@@ -9,7 +9,10 @@ import {
     StyleSheet,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../types/navigation";
+import { RootStackParamList } from "../types/navigation";
+import { onValue, push, ref, set, get } from "firebase/database";
+import { getAuth } from "firebase/auth";
+import { realtimeDB } from "../firebaseConfig";
 
 type CourseChatScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -17,21 +20,78 @@ type CourseChatScreenNavigationProp = StackNavigationProp<
 >;
 
 export default function CourseChatScreen({
-    navigation,
-    route,
-}: {
+                                             navigation,
+                                             route,
+                                         }: {
     navigation: CourseChatScreenNavigationProp;
     route: { params: { courseId: string } };
 }) {
-    const [messages, setMessages] = useState<string[]>([]);
+    const [messages, setMessages] = useState<any[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const scrollViewRef = useRef<ScrollView>(null);
+    const courseId = route.params.courseId;
 
-    const sendMessage = () => {
-        if (!newMessage.trim()) return;
-        setMessages([...messages, newMessage]);
-        setNewMessage("");
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    const sendMessage = async () => {
+        if (!newMessage.trim() || !currentUser) return;
+
+        const messageRef = ref(realtimeDB, `chats/${courseId}/messages`);
+
+        const messageData = {
+            text: newMessage,
+            senderUid: currentUser.uid,
+            senderName: currentUser.displayName || "Unknown",
+            timestamp: Date.now(),
+        };
+
+        try {
+            await push(messageRef, messageData);
+            console.log("Message sent");
+            setNewMessage("");
+        } catch (err) {
+            console.error("Failed to send message:", err);
+        }
     };
+
+    const ensureChatRoomExists = async () => {
+        const roomMetaRef = ref(realtimeDB, `chats/${courseId}`);
+        const snapshot = await get(roomMetaRef);
+
+        if (!snapshot.exists()) {
+            await set(roomMetaRef, {
+                name: `${courseId} 채팅방`,
+                type: "course",
+                createdAt: Date.now(),
+                messages: {},
+            });
+            console.log(`Chatroom for ${courseId} created with type 'course'.`);
+        }
+    };
+
+    useEffect(() => {
+        ensureChatRoomExists();
+
+        const messageRef = ref(realtimeDB, `chats/${courseId}/messages`);
+        const unsubscribe = onValue(messageRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const messageList = Object.entries(data).map(([id, value]: any) => ({
+                    id,
+                    ...value,
+                }));
+                messageList.sort((a, b) => a.timestamp - b.timestamp);
+                setMessages(messageList);
+            } else {
+                setMessages([]);
+            }
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, []);
 
     useEffect(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -40,20 +100,30 @@ export default function CourseChatScreen({
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.header}>
-                <Text style={styles.headerText}>
-                    Course Chat {route.params.courseId}
-                </Text>
+                <Text style={styles.headerText}>Course Chat - {courseId}</Text>
             </View>
             <ScrollView
                 style={styles.messageContainer}
                 ref={scrollViewRef}
                 contentContainerStyle={styles.messagesContent}
             >
-                {messages.map((msg, index) => (
-                    <View key={index} style={styles.messageBubble}>
-                        <Text style={styles.messageText}>{msg}</Text>
-                    </View>
-                ))}
+                {messages.map((msg, index) => {
+                    const isMyMessage = currentUser?.uid === msg.senderUid;
+                    return (
+                        <View
+                            key={index}
+                            style={[
+                                styles.messageBubble,
+                                isMyMessage ? styles.myBubble : styles.otherBubble,
+                            ]}
+                        >
+                            {!isMyMessage && (
+                                <Text style={styles.sender}>{msg.senderName}</Text>
+                            )}
+                            <Text style={styles.messageText}>{msg.text}</Text>
+                        </View>
+                    );
+                })}
             </ScrollView>
             <View style={styles.inputContainer}>
                 <TextInput
@@ -63,10 +133,7 @@ export default function CourseChatScreen({
                     style={styles.input}
                     placeholderTextColor="#888"
                 />
-                <TouchableOpacity
-                    style={styles.sendButton}
-                    onPress={sendMessage}
-                >
+                <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
                     <Text style={styles.sendButtonText}>Send</Text>
                 </TouchableOpacity>
             </View>
@@ -81,13 +148,20 @@ const styles = StyleSheet.create({
     messageContainer: { flex: 1, padding: 16, backgroundColor: "#f9f9f9" },
     messagesContent: { paddingBottom: 20 },
     messageBubble: {
-        backgroundColor: "#4A90E2",
-        alignSelf: "flex-start",
         borderRadius: 12,
         padding: 12,
         marginBottom: 10,
         maxWidth: "80%",
     },
+    myBubble: {
+        alignSelf: "flex-end",
+        backgroundColor: "#007AFF",
+    },
+    otherBubble: {
+        alignSelf: "flex-start",
+        backgroundColor: "#4A90E2",
+    },
+    sender: { fontWeight: "bold", color: "#fff", marginBottom: 4 },
     messageText: { color: "#fff", fontSize: 16 },
     inputContainer: {
         flexDirection: "row",

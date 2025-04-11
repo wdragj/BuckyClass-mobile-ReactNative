@@ -9,7 +9,10 @@ import {
     StyleSheet,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../types/navigation";
+import { RootStackParamList } from "../types/navigation";
+import { realtimeDB } from "../firebaseConfig";
+import { ref, push, onValue, get, set } from "firebase/database";
+import { getAuth } from "firebase/auth";
 
 type PrivateChatScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -17,21 +20,74 @@ type PrivateChatScreenNavigationProp = StackNavigationProp<
 >;
 
 export default function PrivateChatScreen({
-    navigation,
-    route,
-}: {
+                                              navigation,
+                                              route,
+                                          }: {
     navigation: PrivateChatScreenNavigationProp;
     route: { params: { chatId: string } };
 }) {
-    const [messages, setMessages] = useState<string[]>([]);
+    const [messages, setMessages] = useState<any[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const scrollViewRef = useRef<ScrollView>(null);
 
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
     const sendMessage = () => {
-        if (!newMessage.trim()) return;
-        setMessages([...messages, newMessage]);
+        if (!newMessage.trim() || !currentUser) return;
+
+        const messageRef = ref(realtimeDB, `chats/${route.params.chatId}/messages`);
+        push(messageRef, {
+            text: newMessage,
+            senderUid: currentUser.uid,
+            senderName: currentUser.displayName || "Unknown",
+            timestamp: Date.now(),
+        })
+            .then(() => {
+                console.log("Message pushed to Firebase");
+            })
+            .catch((err) => {
+                console.error("Failed to send message:", err);
+            });
+
         setNewMessage("");
     };
+
+    const ensureChatRoomExists = async () => {
+        const chatRoomRef = ref(realtimeDB, `chats/${route.params.chatId}`);
+        const snapshot = await get(chatRoomRef);
+
+        if (!snapshot.exists()) {
+            await set(chatRoomRef, {
+                name: "1:1 채팅방",
+                type: "private",
+                createdAt: Date.now(),
+                messages: {},
+            });
+            console.log(`Private chatroom created with type 'private'`);
+        }
+    };
+
+    useEffect(() => {
+        ensureChatRoomExists();
+
+        const messageRef = ref(realtimeDB, `chats/${route.params.chatId}/messages`);
+        const unsubscribe = onValue(messageRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const messageList = Object.entries(data).map(([id, value]: any) => ({
+                    id,
+                    ...value,
+                }));
+                messageList.sort((a, b) => a.timestamp - b.timestamp);
+                setMessages(messageList);
+            } else {
+                setMessages([]);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     useEffect(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -49,11 +105,23 @@ export default function PrivateChatScreen({
                 ref={scrollViewRef}
                 contentContainerStyle={styles.messagesContent}
             >
-                {messages.map((msg, index) => (
-                    <View key={index} style={styles.messageBubble}>
-                        <Text style={styles.messageText}>{msg}</Text>
-                    </View>
-                ))}
+                {messages.map((msg, index) => {
+                    const isMyMessage = currentUser?.uid === msg.senderUid;
+                    return (
+                        <View
+                            key={index}
+                            style={[
+                                styles.messageBubble,
+                                isMyMessage ? styles.myBubble : styles.otherBubble,
+                            ]}
+                        >
+                            {!isMyMessage && (
+                                <Text style={styles.sender}>{msg.senderName}</Text>
+                            )}
+                            <Text style={styles.messageText}>{msg.text}</Text>
+                        </View>
+                    );
+                })}
             </ScrollView>
             <View style={styles.inputContainer}>
                 <TextInput
@@ -63,10 +131,7 @@ export default function PrivateChatScreen({
                     style={styles.input}
                     placeholderTextColor="#888"
                 />
-                <TouchableOpacity
-                    style={styles.sendButton}
-                    onPress={sendMessage}
-                >
+                <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
                     <Text style={styles.sendButtonText}>Send</Text>
                 </TouchableOpacity>
             </View>
@@ -81,13 +146,20 @@ const styles = StyleSheet.create({
     messageContainer: { flex: 1, padding: 16, backgroundColor: "#f9f9f9" },
     messagesContent: { paddingBottom: 20 },
     messageBubble: {
-        backgroundColor: "#4A90E2",
-        alignSelf: "flex-start",
         borderRadius: 12,
         padding: 12,
         marginBottom: 10,
         maxWidth: "80%",
     },
+    myBubble: {
+        alignSelf: "flex-end",
+        backgroundColor: "#007AFF",
+    },
+    otherBubble: {
+        alignSelf: "flex-start",
+        backgroundColor: "#4A90E2",
+    },
+    sender: { fontWeight: "bold", color: "#fff", marginBottom: 4 },
     messageText: { color: "#fff", fontSize: 16 },
     inputContainer: {
         flexDirection: "row",
