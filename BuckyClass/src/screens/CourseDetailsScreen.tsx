@@ -6,7 +6,9 @@ import {
     ActivityIndicator,
     ScrollView,
     Dimensions,
+
     TouchableOpacity,
+
 } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -273,6 +275,7 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
             >
                 <Text style={styles.chatButtonText}>Join the Chat</Text>
             </TouchableOpacity>
+
         </ScrollView>
     );
 };
@@ -303,6 +306,7 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 8,
         marginBottom: 12,
+
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -345,6 +349,7 @@ const styles = StyleSheet.create({
         color: "red",
         fontSize: 16,
     },
+
     chatButton: {
         backgroundColor: "#fff",
         borderRadius: 10,
@@ -365,6 +370,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "500",
     },
+
 });
 
 export default CourseDetailsScreen;
