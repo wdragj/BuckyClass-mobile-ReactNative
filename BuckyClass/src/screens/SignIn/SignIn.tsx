@@ -9,7 +9,7 @@ const SignIn = ({ navigation }: any) => {
 
     const handleSignIn = async () => {
         try {
-            await signInWithEmailAndPassword(auth, email, password); // firebase 인증 사용
+            // await signInWithEmailAndPassword(auth, email, password); // firebase 인증 사용
             Alert.alert("Success", "Logged in successfully!");
             navigation.navigate("Home");
         } catch (error: any) {

@@ -20,9 +20,9 @@ type CourseChatScreenNavigationProp = StackNavigationProp<
 >;
 
 export default function CourseChatScreen({
-                                             navigation,
-                                             route,
-                                         }: {
+    navigation,
+    route,
+}: {
     navigation: CourseChatScreenNavigationProp;
     route: { params: { courseId: string } };
 }) {
@@ -77,10 +77,12 @@ export default function CourseChatScreen({
         const unsubscribe = onValue(messageRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                const messageList = Object.entries(data).map(([id, value]: any) => ({
-                    id,
-                    ...value,
-                }));
+                const messageList = Object.entries(data).map(
+                    ([id, value]: any) => ({
+                        id,
+                        ...value,
+                    })
+                );
                 messageList.sort((a, b) => a.timestamp - b.timestamp);
                 setMessages(messageList);
             } else {
@@ -114,11 +116,15 @@ export default function CourseChatScreen({
                             key={index}
                             style={[
                                 styles.messageBubble,
-                                isMyMessage ? styles.myBubble : styles.otherBubble,
+                                isMyMessage
+                                    ? styles.myBubble
+                                    : styles.otherBubble,
                             ]}
                         >
                             {!isMyMessage && (
-                                <Text style={styles.sender}>{msg.senderName}</Text>
+                                <Text style={styles.sender}>
+                                    {msg.senderName}
+                                </Text>
                             )}
                             <Text style={styles.messageText}>{msg.text}</Text>
                         </View>
@@ -133,7 +139,10 @@ export default function CourseChatScreen({
                     style={styles.input}
                     placeholderTextColor="#888"
                 />
-                <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+                <TouchableOpacity
+                    style={styles.sendButton}
+                    onPress={sendMessage}
+                >
                     <Text style={styles.sendButtonText}>Send</Text>
                 </TouchableOpacity>
             </View>

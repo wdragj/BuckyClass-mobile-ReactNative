@@ -3,9 +3,36 @@ import { StyleSheet, Dimensions } from "react-native";
 const screenWidth = Dimensions.get("window").width;
 
 const styles = StyleSheet.create({
+    // HomeScreen과 동일한 기본 구조 스타일
+    safeArea: {
+        flex: 1,
+    },
+    gradientBackground: {
+        flex: 1,
+        backgroundColor: "rgba(232, 221, 253, 0.60)",
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.20)",
+        borderRadius: 30,
+    },
+    gradientStyle: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.20)",
+    },
+    blurOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
+        shadowColor: "rgba(0, 0, 0, 0.25)",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 1,
+        shadowRadius: 4,
+        elevation: 8,
+        paddingTop: 20,
+        paddingHorizontal: 20,
+        paddingBottom: 70, // 네비게이션 바 공간 확보
+    },
     container: {
         flex: 1,
-        backgroundColor: "#f2f2f2",
     },
 
     // 그라데이션 대체 배경 스타일
@@ -16,7 +43,7 @@ const styles = StyleSheet.create({
     // 반투명 오버레이 컨테이너
     overlayContainer: {
         flex: 1,
-        backgroundColor: "rgba(255, 255, 255, 0.5)", // 반투명 배경
+        backgroundColor: "transparent", // 불필요한 배경 제거
         // 그림자 효과
         shadowColor: "rgba(0, 0, 0, 0.30)",
         shadowOffset: { width: 0, height: 4 },
@@ -76,7 +103,6 @@ const styles = StyleSheet.create({
     courseInfo: {
         fontSize: 14,
         color: "#777",
-
     },
     categoriesContainer: {
         flexDirection: "row",
@@ -99,7 +125,6 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         backgroundColor: "#ccc",
         marginRight: 8,
-
     },
     categoryButtonText: {
         fontSize: 14,
@@ -107,7 +132,6 @@ const styles = StyleSheet.create({
         color: "#333",
     },
     enrollButton: {
-
         backgroundColor: "#000",
 
         borderRadius: 8,
@@ -168,7 +192,6 @@ const styles = StyleSheet.create({
         color: "#333",
 
         maxWidth: screenWidth - 120, // 버튼 영역과 여백을 고려한 최대 너비
-
     },
     listItemSub: {
         fontSize: 14,
@@ -209,7 +232,6 @@ const styles = StyleSheet.create({
         borderRadius: 16, // 원형 이미지를 위해 반지름을 너비/높이의 절반으로 설정
         marginRight: 12, // 이미지와 텍스트 사이 간격
     },
-
 });
 
 export default styles;

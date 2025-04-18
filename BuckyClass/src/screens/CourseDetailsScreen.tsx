@@ -6,14 +6,15 @@ import {
     ActivityIndicator,
     ScrollView,
     Dimensions,
-
     TouchableOpacity,
-
+    SafeAreaView,
 } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { PieChart } from "react-native-chart-kit";
 import { RootStackParamList } from "../types/navigation";
+import { LinearGradient } from "expo-linear-gradient";
+import BottomNavBar from "../components/BottomNavBar";
 
 type CourseDetailsScreenRouteProp = RouteProp<
     RootStackParamList,
@@ -83,26 +84,85 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 
     if (loading) {
         return (
-            <View style={styles.centeredContainer}>
-                <ActivityIndicator size="large" color="#0000ff" />
-                <Text>Loading course details...</Text>
-            </View>
+            <SafeAreaView style={styles.safeArea}>
+                <View style={styles.gradientBackground}>
+                    <LinearGradient
+                        colors={[
+                            "rgba(230, 224, 252, 0.40)",
+                            "rgba(235, 218, 255, 0.40)",
+                        ]}
+                        style={styles.gradientStyle}
+                    >
+                        <View style={styles.blurOverlay}>
+                            <View style={styles.centeredContainer}>
+                                <ActivityIndicator
+                                    size="large"
+                                    color="#8863e4"
+                                />
+                                <Text style={styles.loadingText}>
+                                    Loading course details...
+                                </Text>
+                            </View>
+                        </View>
+                        <BottomNavBar
+                            navigation={navigation}
+                            activeScreen="Courses"
+                        />
+                    </LinearGradient>
+                </View>
+            </SafeAreaView>
         );
     }
 
     if (error) {
         return (
-            <View style={styles.centeredContainer}>
-                <Text style={styles.errorText}>{error}</Text>
-            </View>
+            <SafeAreaView style={styles.safeArea}>
+                <View style={styles.gradientBackground}>
+                    <LinearGradient
+                        colors={[
+                            "rgba(230, 224, 252, 0.40)",
+                            "rgba(235, 218, 255, 0.40)",
+                        ]}
+                        style={styles.gradientStyle}
+                    >
+                        <View style={styles.blurOverlay}>
+                            <View style={styles.centeredContainer}>
+                                <Text style={styles.errorText}>{error}</Text>
+                            </View>
+                        </View>
+                        <BottomNavBar
+                            navigation={navigation}
+                            activeScreen="Courses"
+                        />
+                    </LinearGradient>
+                </View>
+            </SafeAreaView>
         );
     }
 
     if (!courseDetail) {
         return (
-            <View style={styles.centeredContainer}>
-                <Text>No data available</Text>
-            </View>
+            <SafeAreaView style={styles.safeArea}>
+                <View style={styles.gradientBackground}>
+                    <LinearGradient
+                        colors={[
+                            "rgba(230, 224, 252, 0.40)",
+                            "rgba(235, 218, 255, 0.40)",
+                        ]}
+                        style={styles.gradientStyle}
+                    >
+                        <View style={styles.blurOverlay}>
+                            <View style={styles.centeredContainer}>
+                                <Text>No data available</Text>
+                            </View>
+                        </View>
+                        <BottomNavBar
+                            navigation={navigation}
+                            activeScreen="Courses"
+                        />
+                    </LinearGradient>
+                </View>
+            </SafeAreaView>
         );
     }
 
@@ -195,95 +255,157 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     const screenWidth = Dimensions.get("window").width;
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.courseName}>{courseDetail.course.name}</Text>
-            <Text style={styles.courseViews}>
-                Views: {courseDetail.course.views}
-            </Text>
+        <SafeAreaView style={styles.safeArea}>
+            <View style={styles.gradientBackground}>
+                <LinearGradient
+                    colors={[
+                        "rgba(230, 224, 252, 0.40)",
+                        "rgba(235, 218, 255, 0.40)",
+                    ]}
+                    style={styles.gradientStyle}
+                >
+                    <View style={styles.blurOverlay}>
+                        <ScrollView
+                            contentContainerStyle={styles.scrollContent}
+                        >
+                            <Text style={styles.courseName}>
+                                {courseDetail.course.name}
+                            </Text>
+                            <Text style={styles.courseViews}>
+                                Views: {courseDetail.course.views}
+                            </Text>
 
-            <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Cumulate GPA</Text>
-                <Text style={styles.totalStudents}>
-                    Total Students: {courseDetail.grade.total}
-                </Text>
-                <View style={styles.chartContainer}>
-                    <PieChart
-                        data={filteredChartData}
-                        width={screenWidth - 60}
-                        height={220}
-                        chartConfig={{
-                            backgroundColor: "#ffffff",
-                            backgroundGradientFrom: "#ffffff",
-                            backgroundGradientTo: "#ffffff",
-                            decimalPlaces: 2,
-                            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                        }}
-                        accessor="population"
-                        backgroundColor="transparent"
-                        paddingLeft="15"
-                        absolute
+                            <View style={styles.sectionContainer}>
+                                <Text style={styles.sectionTitle}>
+                                    Cumulate GPA
+                                </Text>
+                                <Text style={styles.totalStudents}>
+                                    Total Students: {courseDetail.grade.total}
+                                </Text>
+                                <View style={styles.chartContainer}>
+                                    <PieChart
+                                        data={filteredChartData}
+                                        width={screenWidth - 60}
+                                        height={220}
+                                        chartConfig={{
+                                            backgroundColor: "#ffffff",
+                                            backgroundGradientFrom: "#ffffff",
+                                            backgroundGradientTo: "#ffffff",
+                                            decimalPlaces: 2,
+                                            color: (opacity = 1) =>
+                                                `rgba(0, 0, 0, ${opacity})`,
+                                        }}
+                                        accessor="population"
+                                        backgroundColor="transparent"
+                                        paddingLeft="15"
+                                        absolute
+                                    />
+                                </View>
+
+                                <View style={styles.gradeDetailsContainer}>
+                                    <Text style={styles.gradeDetail}>
+                                        A: {courseDetail.grade.a_per}%
+                                    </Text>
+                                    <Text style={styles.gradeDetail}>
+                                        AB: {courseDetail.grade.ab_per}%
+                                    </Text>
+                                    <Text style={styles.gradeDetail}>
+                                        B: {courseDetail.grade.b_per}%
+                                    </Text>
+                                    <Text style={styles.gradeDetail}>
+                                        BC: {courseDetail.grade.bc_per}%
+                                    </Text>
+                                    <Text style={styles.gradeDetail}>
+                                        C: {courseDetail.grade.c_per}%
+                                    </Text>
+                                    <Text style={styles.gradeDetail}>
+                                        D: {courseDetail.grade.d_per}%
+                                    </Text>
+                                    <Text style={styles.gradeDetail}>
+                                        F: {courseDetail.grade.f_per}%
+                                    </Text>
+                                    <Text style={styles.gradeDetail}>
+                                        Others: {courseDetail.grade.other_per}%
+                                    </Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.sectionContainer}>
+                                <Text style={styles.sectionTitle}>
+                                    Latest Reviews
+                                </Text>
+                                {courseDetail.reviews.length > 0 ? (
+                                    courseDetail.reviews.map(
+                                        (review, index) => (
+                                            <View
+                                                key={index}
+                                                style={styles.reviewItem}
+                                            >
+                                                <Text>{review.content}</Text>
+                                            </View>
+                                        )
+                                    )
+                                ) : (
+                                    <Text style={styles.emptyText}>
+                                        No reviews yet!
+                                    </Text>
+                                )}
+                            </View>
+
+                            <TouchableOpacity
+                                style={styles.chatButton}
+                                onPress={() => {
+                                    navigation.navigate("CourseChat", {
+                                        courseId: course.id,
+                                    });
+                                }}
+                            >
+                                <Text style={styles.chatButtonText}>
+                                    Join the Chat
+                                </Text>
+                            </TouchableOpacity>
+                        </ScrollView>
+                    </View>
+                    <BottomNavBar
+                        navigation={navigation}
+                        activeScreen="Courses"
                     />
-                </View>
-
-                <View style={styles.gradeDetailsContainer}>
-                    <Text style={styles.gradeDetail}>
-                        A: {courseDetail.grade.a_per}%
-                    </Text>
-                    <Text style={styles.gradeDetail}>
-                        AB: {courseDetail.grade.ab_per}%
-                    </Text>
-                    <Text style={styles.gradeDetail}>
-                        B: {courseDetail.grade.b_per}%
-                    </Text>
-                    <Text style={styles.gradeDetail}>
-                        BC: {courseDetail.grade.bc_per}%
-                    </Text>
-                    <Text style={styles.gradeDetail}>
-                        C: {courseDetail.grade.c_per}%
-                    </Text>
-                    <Text style={styles.gradeDetail}>
-                        D: {courseDetail.grade.d_per}%
-                    </Text>
-                    <Text style={styles.gradeDetail}>
-                        F: {courseDetail.grade.f_per}%
-                    </Text>
-                    <Text style={styles.gradeDetail}>
-                        Others: {courseDetail.grade.other_per}%
-                    </Text>
-                </View>
+                </LinearGradient>
             </View>
-
-            <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Latest Reviews</Text>
-                {courseDetail.reviews.length > 0 ? (
-                    courseDetail.reviews.map((review, index) => (
-                        <View key={index} style={styles.reviewItem}>
-                            <Text>{review.content}</Text>
-                        </View>
-                    ))
-                ) : (
-                    <Text style={styles.emptyText}>No reviews yet!</Text>
-                )}
-            </View>
-
-            {/* 채팅 버튼 추가 */}
-            <TouchableOpacity
-                style={styles.chatButton}
-                onPress={() => {
-                    navigation.navigate("CourseChat", { courseId: course.id });
-                }}
-            >
-                <Text style={styles.chatButtonText}>Join the Chat</Text>
-            </TouchableOpacity>
-
-        </ScrollView>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
+    safeArea: {
+        flex: 1,
+    },
+    gradientBackground: {
+        flex: 1,
+        backgroundColor: "rgba(232, 221, 253, 0.60)",
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.20)",
+        borderRadius: 30,
+    },
+    gradientStyle: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.20)",
+    },
+    blurOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
+        shadowColor: "rgba(0, 0, 0, 0.25)",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 1,
+        shadowRadius: 4,
+        elevation: 8,
+        paddingTop: 20,
+        paddingHorizontal: 20,
+        paddingBottom: 70,
+    },
+    scrollContent: {
         padding: 16,
-        backgroundColor: "#f5f5f5",
     },
     centeredContainer: {
         flex: 1,
@@ -291,32 +413,41 @@ const styles = StyleSheet.create({
         alignItems: "center",
         padding: 20,
     },
+    loadingText: {
+        marginTop: 10,
+        fontFamily: "Nunito",
+        color: "#555",
+    },
     courseName: {
         fontSize: 24,
         fontWeight: "bold",
         marginBottom: 8,
+        fontFamily: "Nunito-ExtraBold",
+        color: "#171717",
     },
     courseViews: {
         fontSize: 14,
-        color: "#666",
+        color: "#777",
         marginBottom: 24,
+        fontFamily: "Nunito",
     },
     sectionContainer: {
         backgroundColor: "#fff",
         padding: 16,
-        borderRadius: 8,
+        borderRadius: 24,
         marginBottom: 12,
-
-        shadowColor: "#000",
+        shadowColor: "rgba(0, 0, 0, 0.1)",
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
+        shadowRadius: 6,
+        shadowOpacity: 0.3,
+        elevation: 3,
     },
     sectionTitle: {
         fontSize: 18,
         fontWeight: "bold",
         marginBottom: 16,
+        fontFamily: "Nunito-ExtraBold",
+        color: "#171717",
     },
     totalStudents: {
         fontSize: 14,
@@ -346,31 +477,31 @@ const styles = StyleSheet.create({
         color: "#999",
     },
     errorText: {
-        color: "red",
+        color: "#F97CBD",
         fontSize: 16,
+        fontFamily: "Nunito-Bold",
     },
-
     chatButton: {
         backgroundColor: "#fff",
-        borderRadius: 10,
+        borderRadius: 24,
         padding: 10,
         marginTop: 12,
         marginBottom: 24,
         alignItems: "center",
-        shadowColor: "#000",
+        shadowColor: "rgba(0, 0, 0, 0.1)",
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
+        shadowRadius: 6,
+        shadowOpacity: 0.3,
         elevation: 3,
         borderWidth: 1,
-        borderColor: "#000",
+        borderColor: "#8863e4",
     },
     chatButtonText: {
-        color: "black",
+        color: "#8863e4",
         fontSize: 16,
         fontWeight: "500",
+        fontFamily: "Nunito-Bold",
     },
-
 });
 
 export default CourseDetailsScreen;

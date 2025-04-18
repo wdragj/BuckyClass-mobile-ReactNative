@@ -8,18 +8,17 @@ import {
     Button,
     SafeAreaView,
     ScrollView,
-
     Image,
-
+    StyleSheet,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../types/navigation";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import styles from "./CoursesScreen_CSS";
-
+import BottomNavBar from "../../components/BottomNavBar";
+import { LinearGradient } from "expo-linear-gradient";
 
 const courseImage = require("../../../assets/1st.png");
-
 
 type CoursesScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -148,7 +147,6 @@ export default function CoursesScreen({
                         </TouchableOpacity>
                     </View>
                 </View>
-
             </View>
         );
     };
@@ -170,7 +168,6 @@ export default function CoursesScreen({
                 <TextInput
                     style={styles.searchInput}
                     placeholder="Enter course name"
-
                     value={searchText}
                     onChangeText={setSearchText}
                     autoFocus
@@ -198,7 +195,6 @@ export default function CoursesScreen({
                                     numberOfLines={1}
                                     ellipsizeMode="tail"
                                 >
-
                                     {item.name}
                                 </Text>
                                 <Text style={styles.listItemSub}>
@@ -225,52 +221,49 @@ export default function CoursesScreen({
     };
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
-
-            {searchActive ? (
-                // 검색이 활성화된 경우 - FlatList를 직접 렌더링하여 중첩 방지
-                <View style={styles.container}>{renderSearchView()}</View>
-            ) : (
-                // 검색이 비활성화된 경우 - ScrollView 사용
-                <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                    <View style={styles.container}>{renderDefaultView()}</View>
-                </ScrollView>
-            )}
-
-
-            <View style={styles.bottomNavBar}>
-                <TouchableOpacity
-                    style={styles.bottomNavItem}
-                    onPress={() => navigation.navigate("Home")}
+        <SafeAreaView style={styles.safeArea}>
+            <View style={styles.gradientBackground}>
+                <LinearGradient
+                    colors={[
+                        "rgba(230, 224, 252, 0.40)",
+                        "rgba(235, 218, 255, 0.40)",
+                    ]}
+                    style={styles.gradientStyle}
                 >
-                    <Ionicons name="home" style={styles.bottomNavIcon} />
-                    <Text style={styles.bottomNavLabel}>Home</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.bottomNavItem}
-                    onPress={() => navigation.navigate("Courses")}
-                >
-                    <Ionicons name="book" style={styles.bottomNavIcon} />
-                    <Text style={styles.bottomNavLabel}>Courses</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.bottomNavItem}
-                    onPress={() => navigation.navigate("ChatList")}
-                >
-                    <Ionicons
-                        name="chatbubble-ellipses"
-                        style={styles.bottomNavIcon}
+                    <View style={styles.blurOverlay}>
+                        {searchActive ? (
+                            // 검색이 활성화된 경우
+                            <View style={styles.container}>
+                                {renderSearchView()}
+                            </View>
+                        ) : (
+                            // 검색이 비활성화된 경우
+                            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                                <View style={styles.container}>
+                                    {renderDefaultView()}
+                                </View>
+                            </ScrollView>
+                        )}
+                    </View>
+
+                    {/* 네비게이션 바 - HomeScreen, ChatListScreen과 같은 위치에 배치 */}
+                    <BottomNavBar
+                        navigation={navigation}
+                        activeScreen="Courses"
                     />
-                    <Text style={styles.bottomNavLabel}>Chat</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.bottomNavItem}
-                    onPress={() => navigation.navigate("Profile")}
-                >
-                    <Ionicons name="person" style={styles.bottomNavIcon} />
-                    <Text style={styles.bottomNavLabel}>Profile</Text>
-                </TouchableOpacity>
+                </LinearGradient>
             </View>
         </SafeAreaView>
     );
 }
+
+// 로컬 스타일 추가
+const localStyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: "#f2f2f2",
+    },
+    contentContainer: {
+        paddingBottom: 60, // 네비게이션 바 높이 + 여유 공간
+    },
+});

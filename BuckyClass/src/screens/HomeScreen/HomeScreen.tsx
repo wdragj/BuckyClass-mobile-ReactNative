@@ -11,6 +11,8 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../types/navigation";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import styles from "./HomeScreen_CSS";
+import { LinearGradient } from "expo-linear-gradient";
+import BottomNavBar from "../../components/BottomNavBar";
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 
@@ -106,220 +108,233 @@ const hotCourses = [
 export default function HomeScreen({ navigation }: HomeScreenProps) {
     return (
         <SafeAreaView style={styles.safeArea}>
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                <View style={styles.topBar}>
-                    <Text style={styles.appName}>GROW</Text>
-                </View>
-
-                {/* 사용자 정보 */}
-                <View style={styles.userInfoContainer}>
-                    <View style={styles.userPhoto} />
-                    <View style={styles.userTextContainer}>
-                        <Text style={styles.userName}>User Name</Text>
-                        <Text style={styles.userType}>Class of 2026</Text>
-                    </View>
-                </View>
-
-                {/* 전공 선택 섹션
-                <View style={styles.majorContainer}>
-                    <Text style={styles.majorSectionTitle}>Choose Major</Text>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                    >
-                        <View style={styles.majorBox}>
-                            <Text style={styles.majorText}>
-                                Computer Science
-                            </Text>
-                        </View>
-                        <View style={styles.majorBox}>
-                            <Text style={styles.majorText}>Mathematics</Text>
-                        </View>
-                        <View style={styles.majorBox}>
-                            <Text style={styles.majorText}>Physics</Text>
-                        </View>
-                    </ScrollView>
-                    <Text style={styles.majorHelpText}>
-                        Select your preferred major
-                    </Text>
-                </View> */}
-
-                {/* Hot Courses 섹션 */}
-                <View style={styles.hotCoursesContainer}>
-                    <Text style={styles.hotCoursesTitle}>
-                        🔥GROWing Chat of the Day🔥
-                    </Text>
-                    {hotCourses.map((course, index) => (
-                        <TouchableOpacity
-                            key={index}
-                            style={styles.hotCourseCard}
+            <View style={styles.gradientBackground}>
+                <LinearGradient
+                    colors={[
+                        "rgba(230, 224, 252, 0.40)",
+                        "rgba(235, 218, 255, 0.40)",
+                    ]}
+                    style={{
+                        flex: 1,
+                        borderWidth: 1,
+                        borderColor: "rgba(255, 255, 255, 0.20)",
+                    }}
+                >
+                    {/* 메인 콘텐츠 영역 */}
+                    <View style={styles.blurOverlay}>
+                        <ScrollView
+                            contentContainerStyle={styles.contentContainer}
+                            showsVerticalScrollIndicator={false}
                         >
-                            <View style={styles.hotCourseLeft}>
-                                <Image
-                                    source={
-                                        index === 0
-                                            ? require("../../../assets/1st.png")
-                                            : index === 1
-                                            ? require("../../../assets/2nd.png")
-                                            : require("../../../assets/3rd.png")
-                                    }
-                                    style={styles.hotCourseImagePlaceholder}
-                                />
-                                <View style={styles.hotCourseTextContainer}>
-                                    <Text style={styles.hotCourseName}>
-                                        {course.name}
-                                    </Text>
-                                    <Text style={styles.hotCourseRank}>
-                                        {course.top}
-                                    </Text>
-                                </View>
+                            <View style={styles.topBar}>
+                                <Text style={styles.appName}>GROW</Text>
                             </View>
-                            <Ionicons
-                                name="ellipsis-horizontal"
-                                style={styles.hotCourseEllipsisIcon}
-                            />
-                        </TouchableOpacity>
-                    ))}
-                </View>
 
-                <View style={styles.scrollContainer}>
-                    {/* 인기 강의 섹션 */}
-                    <Text style={styles.sectionTitle}>Popular Courses</Text>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.horizontalScroll}
-                    >
-                        {popularCourses.map((course, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                onPress={() =>
-                                    navigation.navigate("CourseDetails", {
-                                        course: {
-                                            id: course.name,
-                                            name: course.name,
-                                            views: 0,
-                                        },
-                                    })
-                                }
-                                style={styles.popularCourseCard}
-                            >
-                                {/* courseLabel을 내부로 이동 */}
-                                <View style={styles.courseImagePlaceholder}>
-                                    <Text style={styles.courseLabel}>
-                                        {course.label}
+                            {/* 사용자 정보 - 수정된 부분 */}
+                            <View style={styles.userInfoContainer}>
+                                <View style={styles.userTextContainer}>
+                                    <Text style={styles.userGreeting}>
+                                        Hello,
                                     </Text>
-                                    <Text style={styles.courseImageText}>
-                                        {course.imagePath}
+                                    <Text style={styles.userName}>
+                                        User Name
+                                    </Text>
+                                    <Text style={styles.userType}>
+                                        Class of 2026
                                     </Text>
                                 </View>
-                                <Text style={styles.courseName}>
-                                    {course.name}
-                                </Text>
-                                <Text style={styles.courseDetails}>
-                                    {course.details}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-
-                    {/* 이번주 Chat 리스트
-                    <Text style={styles.sectionTitle}>CHAT of the WEEK</Text>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.horizontalScroll}
-                    >
-                        {latestChats.map((chat, idx) => (
-                            <View key={idx} style={styles.chatCard}>
-                                <View style={styles.hotCourseLeft}>
-                                    <View style={styles.chatImagePlaceholder} />
-                                    <View style={styles.chatHeader}>
-                                        <Text style={styles.chatUser}>
-                                            {chat.user}
-                                        </Text>
-                                    </View>
-                                </View>
-
-                                <Text style={styles.chatText}>{chat.text}</Text>
+                                <View style={styles.userPhoto} />
                             </View>
-                        ))}
-                    </ScrollView> */}
 
-                    {/* 최근 리뷰 섹션 */}
-                    <Text style={styles.sectionTitle}>Latest Reviews</Text>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.horizontalScroll}
-                    >
-                        {latestReviews.map((review, idx) => (
-                            <View key={idx} style={styles.reviewCard}>
-                                <View style={styles.reviewHeader}>
-                                    <View style={styles.userInfoRow}>
-                                        <View
-                                            style={styles.chatImagePlaceholder}
-                                        />
-                                        <Text style={styles.reviewUser}>
-                                            {review.user}
-                                        </Text>
-                                    </View>
-                                    <View style={styles.starContainer}>
-                                        {Array.from({ length: 5 }, (_, i) => (
-                                            <Ionicons
-                                                key={i}
-                                                name={
-                                                    i < review.rating
-                                                        ? "star"
-                                                        : "star-outline"
+                            {/* Hot Courses 섹션 */}
+                            <View style={styles.hotCoursesContainer}>
+                                <Text style={styles.hotCoursesTitle}>
+                                    GROWing Chat of the Day
+                                </Text>
+                                {hotCourses.map((course, index) => (
+                                    <TouchableOpacity
+                                        key={index}
+                                        style={styles.hotCourseCard}
+                                    >
+                                        <View style={styles.hotCourseLeft}>
+                                            <Image
+                                                source={
+                                                    index === 0
+                                                        ? require("../../../assets/1st.png")
+                                                        : index === 1
+                                                        ? require("../../../assets/2nd.png")
+                                                        : require("../../../assets/3rd.png")
                                                 }
-                                                style={styles.starIcon}
+                                                style={
+                                                    styles.hotCourseImagePlaceholder
+                                                }
                                             />
-                                        ))}
-                                    </View>
-                                </View>
-                                <Text style={styles.reviewText}>
-                                    {review.text}
-                                </Text>
+                                            <View
+                                                style={
+                                                    styles.hotCourseTextContainer
+                                                }
+                                            >
+                                                <Text
+                                                    style={styles.hotCourseName}
+                                                >
+                                                    {course.name}
+                                                </Text>
+                                                <Text
+                                                    style={styles.hotCourseRank}
+                                                >
+                                                    {course.top}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                        <Ionicons
+                                            name="ellipsis-horizontal"
+                                            style={styles.hotCourseEllipsisIcon}
+                                        />
+                                    </TouchableOpacity>
+                                ))}
                             </View>
-                        ))}
-                    </ScrollView>
-                </View>
-            </ScrollView>
 
-            {/* 하단 네비게이션 바 */}
-            <View style={styles.bottomNavBar}>
-                <TouchableOpacity
-                    style={styles.bottomNavItem}
-                    onPress={() => navigation.navigate("Home")}
-                >
-                    <Ionicons name="home" style={styles.bottomNavIcon} />
-                    <Text style={styles.bottomNavLabel}>Home</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.bottomNavItem}
-                    onPress={() => navigation.navigate("Courses")}
-                >
-                    <Ionicons name="book" style={styles.bottomNavIcon} />
-                    <Text style={styles.bottomNavLabel}>Courses</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.bottomNavItem}
-                    onPress={() => navigation.navigate("ChatList")}
-                >
-                    <Ionicons
-                        name="chatbubble-ellipses"
-                        style={styles.bottomNavIcon}
-                    />
-                    <Text style={styles.bottomNavLabel}>Chat</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.bottomNavItem}
-                    onPress={() => navigation.navigate("Profile")}
-                >
-                    <Ionicons name="person" style={styles.bottomNavIcon} />
-                    <Text style={styles.bottomNavLabel}>Profile</Text>
-                </TouchableOpacity>
+                            <View style={styles.scrollContainer}>
+                                {/* 인기 강의 섹션 - 별도의 sectionContainer로 감싸기 */}
+                                <View style={styles.sectionContainer}>
+                                    <Text style={styles.sectionTitle}>
+                                        Popular Courses
+                                    </Text>
+                                    <ScrollView
+                                        horizontal
+                                        showsHorizontalScrollIndicator={false}
+                                        style={styles.horizontalScroll}
+                                    >
+                                        {popularCourses.map((course, index) => (
+                                            <TouchableOpacity
+                                                key={index}
+                                                onPress={() =>
+                                                    navigation.navigate(
+                                                        "CourseDetails",
+                                                        {
+                                                            course: {
+                                                                id: course.name,
+                                                                name: course.name,
+                                                                views: 0,
+                                                            },
+                                                        }
+                                                    )
+                                                }
+                                                style={styles.popularCourseCard}
+                                            >
+                                                {/* courseLabel을 내부로 이동 */}
+                                                <View
+                                                    style={
+                                                        styles.courseImagePlaceholder
+                                                    }
+                                                >
+                                                    <Text
+                                                        style={
+                                                            styles.courseLabel
+                                                        }
+                                                    >
+                                                        {course.label}
+                                                    </Text>
+                                                    <Text
+                                                        style={
+                                                            styles.courseImageText
+                                                        }
+                                                    >
+                                                        {course.imagePath}
+                                                    </Text>
+                                                </View>
+                                                <Text style={styles.courseName}>
+                                                    {course.name}
+                                                </Text>
+                                                <Text
+                                                    style={styles.courseDetails}
+                                                >
+                                                    {course.details}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </ScrollView>
+                                </View>
+
+                                {/* 최근 리뷰 섹션 - 마지막 섹션이므로 lastSectionContainer 적용 */}
+                                <View
+                                    style={[
+                                        styles.sectionContainer,
+                                        styles.lastSectionContainer,
+                                    ]}
+                                >
+                                    <Text style={styles.sectionTitle}>
+                                        Latest Reviews
+                                    </Text>
+                                    <ScrollView
+                                        horizontal
+                                        showsHorizontalScrollIndicator={false}
+                                        style={styles.horizontalScroll}
+                                    >
+                                        {latestReviews.map((review, idx) => (
+                                            <View
+                                                key={idx}
+                                                style={styles.reviewCard}
+                                            >
+                                                <View
+                                                    style={styles.reviewHeader}
+                                                >
+                                                    <View
+                                                        style={
+                                                            styles.userInfoRow
+                                                        }
+                                                    >
+                                                        <View
+                                                            style={
+                                                                styles.chatImagePlaceholder
+                                                            }
+                                                        />
+                                                        <Text
+                                                            style={
+                                                                styles.reviewUser
+                                                            }
+                                                        >
+                                                            {review.user}
+                                                        </Text>
+                                                    </View>
+                                                    <View
+                                                        style={
+                                                            styles.starContainer
+                                                        }
+                                                    >
+                                                        {Array.from(
+                                                            { length: 5 },
+                                                            (_, i) => (
+                                                                <Ionicons
+                                                                    key={i}
+                                                                    name={
+                                                                        i <
+                                                                        review.rating
+                                                                            ? "star"
+                                                                            : "star-outline"
+                                                                    }
+                                                                    style={
+                                                                        styles.starIcon
+                                                                    }
+                                                                />
+                                                            )
+                                                        )}
+                                                    </View>
+                                                </View>
+                                                <Text style={styles.reviewText}>
+                                                    {review.text}
+                                                </Text>
+                                            </View>
+                                        ))}
+                                    </ScrollView>
+                                </View>
+                            </View>
+                        </ScrollView>
+                    </View>
+
+                    {/* 하단 네비게이션 바 - 새 컴포넌트 사용 */}
+                    <BottomNavBar navigation={navigation} activeScreen="Home" />
+                </LinearGradient>
             </View>
         </SafeAreaView>
     );
