@@ -8,18 +8,14 @@ import {
     Button,
     SafeAreaView,
     ScrollView,
-
     Image,
-
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../types/navigation";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 import styles from "./CoursesScreen_CSS";
 
-
 const courseImage = require("../../../assets/1st.png");
-
 
 type CoursesScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -148,7 +144,6 @@ export default function CoursesScreen({
                         </TouchableOpacity>
                     </View>
                 </View>
-
             </View>
         );
     };
@@ -170,7 +165,6 @@ export default function CoursesScreen({
                 <TextInput
                     style={styles.searchInput}
                     placeholder="Enter course name"
-
                     value={searchText}
                     onChangeText={setSearchText}
                     autoFocus
@@ -198,7 +192,6 @@ export default function CoursesScreen({
                                     numberOfLines={1}
                                     ellipsizeMode="tail"
                                 >
-
                                     {item.name}
                                 </Text>
                                 <Text style={styles.listItemSub}>
@@ -226,7 +219,6 @@ export default function CoursesScreen({
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-
             {searchActive ? (
                 // 검색이 활성화된 경우 - FlatList를 직접 렌더링하여 중첩 방지
                 <View style={styles.container}>{renderSearchView()}</View>
@@ -236,7 +228,6 @@ export default function CoursesScreen({
                     <View style={styles.container}>{renderDefaultView()}</View>
                 </ScrollView>
             )}
-
 
             <View style={styles.bottomNavBar}>
                 <TouchableOpacity

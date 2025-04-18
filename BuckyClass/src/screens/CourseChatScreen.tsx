@@ -9,7 +9,7 @@ import {
     StyleSheet,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../types/navigation";
+import { RootStackParamList } from "../types/navigation";
 
 type CourseChatScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
