@@ -1,59 +1,66 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     SafeAreaView,
     ScrollView,
-    View,
     Text,
     TouchableOpacity,
     StyleSheet,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../types/navigation";
+import { RootStackParamList } from "../types/navigation";
+import { realtimeDB } from "../firebaseConfig";
+import { ref, onValue } from "firebase/database";
 
 type ChatListScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
     "ChatList"
 >;
 
+type ChatItem = {
+    id: string;
+    name: string;
+    type: "course" | "private";
+    lastMessage?: string;
+};
+
 export default function ChatListScreen({
-    navigation,
-}: {
+                                           navigation,
+                                       }: {
     navigation: ChatListScreenNavigationProp;
 }) {
-    // 채팅 데이터에 type 프로퍼티 추가 ("course" 또는 "private")
-    const chats = [
-        {
-            id: "1",
-            name: "General Chat",
-            lastMessage: "Hello everyone!",
-            type: "course",
-        },
-        {
-            id: "2",
-            name: "React Native",
-            lastMessage: "React Native is amazing.",
-            type: "course",
-        },
-        {
-            id: "3",
-            name: "Bucky Class Chat",
-            lastMessage: "Let's start today's class.",
-            type: "course",
-        },
-        {
-            id: "4",
-            name: "John Doe",
-            lastMessage: "Hey, how's it going?",
-            type: "private",
-        },
-        {
-            id: "5",
-            name: "Jane Smith",
-            lastMessage: "Let's catch up later.",
-            type: "private",
-        },
-        // ...existing chats...
-    ];
+    const [chats, setChats] = useState<ChatItem[]>([]);
+
+    useEffect(() => {
+        const chatsRef = ref(realtimeDB, "chats");
+
+        const unsubscribe = onValue(chatsRef, (snapshot) => {
+            const data = snapshot.val();
+            const chatList: ChatItem[] = [];
+
+            if (data) {
+                for (const chatId in data) {
+                    const chat = data[chatId];
+                    const messages = chat.messages
+                        ? Object.values(chat.messages)
+                        : [];
+                    const lastMessage = messages.length
+                        ? messages[messages.length - 1].text
+                        : "";
+
+                    chatList.push({
+                        id: chatId,
+                        name: chat.name || "Unnamed Chat",
+                        type: chat.type || "private", // fallback
+                        lastMessage,
+                    });
+                }
+            }
+
+            setChats(chatList);
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     const courseChats = chats.filter((chat) => chat.type === "course");
     const privateChats = chats.filter((chat) => chat.type === "private");
@@ -63,63 +70,67 @@ export default function ChatListScreen({
             <ScrollView contentContainerStyle={styles.container}>
                 <Text style={styles.header}>Chat List</Text>
 
-                {/* Course Chats 섹션 */}
-                <Text style={styles.sectionHeader}>Course Chats</Text>
-                {courseChats.map((chat) => (
-                    <TouchableOpacity
-                        key={chat.id}
-                        style={styles.card}
-                        onPress={() =>
-                            navigation.navigate("CourseChat", {
-                                chatId: chat.id,
-                            })
-                        }
-                    >
-                        <Text style={styles.chatName}>{chat.name}</Text>
-                        <Text style={styles.lastMessage}>
-                            {chat.lastMessage}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
+                {/* 🎓 Course Chats */}
+                {courseChats.length > 0 && (
+                    <>
+                        <Text style={styles.sectionTitle}>Course Chats</Text>
+                        {courseChats.map((chat) => (
+                            <TouchableOpacity
+                                key={chat.id}
+                                style={styles.card}
+                                onPress={() =>
+                                    navigation.navigate("CourseChat", { courseId: chat.id })
+                                }
+                            >
+                                <Text style={styles.chatName}>{chat.name}</Text>
+                                <Text style={styles.lastMessage}>
+                                    {chat.lastMessage || "No messages yet"}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </>
+                )}
 
-                {/* Private Chats 섹션 */}
-                <Text style={[styles.sectionHeader, { marginTop: 20 }]}>
-                    Private Chats
-                </Text>
-                {privateChats.map((chat) => (
-                    <TouchableOpacity
-                        key={chat.id}
-                        style={styles.card}
-                        onPress={() =>
-                            navigation.navigate("PrivateChat", {
-                                chatId: chat.id,
-                            })
-                        }
-                    >
-                        <Text style={styles.chatName}>{chat.name}</Text>
-                        <Text style={styles.lastMessage}>
-                            {chat.lastMessage}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
+                {/* 👥 Private Chats */}
+                {privateChats.length > 0 && (
+                    <>
+                        <Text style={styles.sectionTitle}>Private Chats</Text>
+                        {privateChats.map((chat) => (
+                            <TouchableOpacity
+                                key={chat.id}
+                                style={styles.card}
+                                onPress={() =>
+                                    navigation.navigate("PrivateChat", { chatId: chat.id })
+                                }
+                            >
+                                <Text style={styles.chatName}>{chat.name}</Text>
+                                <Text style={styles.lastMessage}>
+                                    {chat.lastMessage || "No messages yet"}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </>
+                )}
             </ScrollView>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-        backgroundColor: "#f9f9f9",
-    },
-    container: {
-        padding: 20,
-    },
+    safeArea: { flex: 1, backgroundColor: "#f9f9f9" },
+    container: { padding: 20 },
     header: {
         fontSize: 32,
         fontWeight: "bold",
         color: "#333",
         marginBottom: 20,
+    },
+    sectionTitle: {
+        fontSize: 24,
+        fontWeight: "700",
+        color: "#555",
+        marginTop: 20,
+        marginBottom: 10,
     },
     card: {
         backgroundColor: "#fff",
@@ -141,11 +152,5 @@ const styles = StyleSheet.create({
         marginTop: 8,
         fontSize: 16,
         color: "#777",
-    },
-    sectionHeader: {
-        fontSize: 24,
-        fontWeight: "bold",
-        color: "#333",
-        marginBottom: 10,
     },
 });
