@@ -102,39 +102,43 @@ const latestReviews = [
 // 예시 데이터: 핫 코스 (10일치 채팅 데이터 추가)
 const hotCourses = [
     {
-        name: "CS 400",
+        name: "COMP SCI 400",
         top: "Top 1",
-        chatData: [25, 20, 28, 32, 36, 40, 35, 30, 38, 42], // 10일치 채팅 데이터
+        chatData: [25, 24, 28, 32, 36, 40, 35, 30, 35, 42], // 10일치 채팅 데이터
     },
     {
-        name: "Music 113",
+        name: "STAT 240",
         top: "Top 2",
-        chatData: [15, 18, 12, 20, 22, 19, 26, 28, 24, 30],
+        chatData: [15, 18, 20, 20, 22, 19, 26, 28, 24, 30],
     },
     {
-        name: "ENG 100",
+        name: "MATH 535",
         top: "Top 3",
-        chatData: [10, 8, 12, 14, 9, 15, 18, 16, 20, 22],
+        chatData: [10, 11, 12, 14, 31, 15, 18, 16, 20, 19],
     },
 ];
 
 export default function HomeScreen({ navigation }: HomeScreenProps) {
-    // 그래프 설정
+    // 그래프 설정 - 모든 배경 관련 속성을 투명하게 수정
     const chartConfig = {
-        backgroundGradientFrom: "#ffffff",
-        backgroundGradientTo: "#ffffff",
-        color: (opacity = 1) => `rgba(136, 99, 228, ${opacity})`,
+        backgroundGradientFrom: "transparent",
+        backgroundGradientTo: "transparent",
+        backgroundGradientFromOpacity: 0, // 시작 그라데이션 완전 투명
+        backgroundGradientToOpacity: 0, // 끝 그라데이션 완전 투명
+        color: (opacity = 1) => "#8863E4",
         strokeWidth: 2,
         barPercentage: 0.5,
         useShadowColorFromDataset: false,
         propsForDots: {
-            r: "0", // 점 크기를 0으로 설정하여 표시하지 않음
+            r: "0",
         },
+        fillShadowGradientOpacity: 0,
+        decimalPlaces: 0,
     };
 
     // 작은 차트 너비 설정
-    const miniChartWidth = 100;
-    const miniChartHeight = 40;
+    const miniChartWidth = 80;
+    const miniChartHeight = 50;
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -190,10 +194,10 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                                             <Image
                                                 source={
                                                     index === 0
-                                                        ? require("../../../assets/1st.png")
+                                                        ? require("../../../assets/csIcon.png")
                                                         : index === 1
-                                                        ? require("../../../assets/2nd.png")
-                                                        : require("../../../assets/3rd.png")
+                                                        ? require("../../../assets/statIcon.png")
+                                                        : require("../../../assets/mathIcon.png")
                                                 }
                                                 style={
                                                     styles.hotCourseImagePlaceholder
@@ -217,37 +221,131 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                                             </View>
                                         </View>
 
-                                        {/* 미니 라인 차트 추가 */}
-                                        <View style={styles.miniChartContainer}>
-                                            <LineChart
-                                                data={{
-                                                    labels: [], // 레이블 없음
-                                                    datasets: [
-                                                        {
-                                                            data: course.chatData,
-                                                            color: (
-                                                                opacity = 1
-                                                            ) =>
-                                                                `rgba(136, 99, 228, ${opacity})`, // 핑크 -> 보라색(#8863E4)으로 변경
-                                                            strokeWidth: 2,
-                                                        },
-                                                    ],
-                                                }}
-                                                width={miniChartWidth}
-                                                height={miniChartHeight}
-                                                chartConfig={chartConfig}
-                                                bezier
-                                                withVerticalLines={false}
-                                                withHorizontalLines={false}
-                                                withDots={false}
-                                                withInnerLines={false}
-                                                withOuterLines={false}
-                                                withShadow={false}
-                                                withScrollableDot={false}
-                                                yAxisLabel=""
-                                                yAxisSuffix=""
-                                                style={styles.miniChart}
-                                            />
+                                        {/* 미니 차트와 통계 정보 */}
+                                        <View style={styles.rightContainer}>
+                                            {/* 미니 라인 차트 추가 */}
+                                            <View
+                                                style={[
+                                                    styles.miniChartContainer,
+                                                    {
+                                                        backgroundColor:
+                                                            "transparent",
+                                                    },
+                                                ]}
+                                            >
+                                                <LineChart
+                                                    data={{
+                                                        labels: [], // 레이블 없음
+                                                        datasets: [
+                                                            {
+                                                                data: course.chatData,
+                                                                color: () =>
+                                                                    "#8863E4", // 색상 직접 지정
+                                                                strokeWidth: 2,
+                                                            },
+                                                        ],
+                                                    }}
+                                                    width={miniChartWidth}
+                                                    height={miniChartHeight}
+                                                    chartConfig={chartConfig}
+                                                    bezier
+                                                    withVerticalLines={false}
+                                                    withHorizontalLines={false}
+                                                    withDots={false}
+                                                    withInnerLines={false}
+                                                    withOuterLines={false}
+                                                    withShadow={false}
+                                                    withScrollableDot={false}
+                                                    yAxisLabel=""
+                                                    yAxisSuffix=""
+                                                    style={{
+                                                        ...styles.miniChart,
+                                                        backgroundColor:
+                                                            "transparent",
+                                                    }}
+                                                    backgroundColor="transparent" // 완전히 투명하게
+                                                />
+                                            </View>
+
+                                            {/* 추가: 순위 및 변화량 정보 */}
+                                            <View style={styles.statsContainer}>
+                                                {/* 순위 정보 */}
+                                                <Text style={styles.rankText}>
+                                                    {index === 0
+                                                        ? "1st"
+                                                        : index === 1
+                                                        ? "2nd"
+                                                        : "3rd"}
+                                                </Text>
+
+                                                {/* 채팅수 변화량 */}
+                                                <View
+                                                    style={
+                                                        styles.changeContainer
+                                                    }
+                                                >
+                                                    {(() => {
+                                                        // 최근 채팅수 변화 계산 (10일째와 9일째 비교)
+                                                        const latestValue =
+                                                            course.chatData[
+                                                                course.chatData
+                                                                    .length - 1
+                                                            ];
+                                                        const previousValue =
+                                                            course.chatData[
+                                                                course.chatData
+                                                                    .length - 2
+                                                            ];
+                                                        const change =
+                                                            latestValue -
+                                                            previousValue;
+                                                        const isIncrease =
+                                                            change > 0;
+
+                                                        return (
+                                                            <>
+                                                                <Ionicons
+                                                                    name={
+                                                                        isIncrease
+                                                                            ? "triangle"
+                                                                            : "triangle"
+                                                                    }
+                                                                    style={[
+                                                                        styles.changeIcon,
+                                                                        {
+                                                                            color: isIncrease
+                                                                                ? "#4CAF50"
+                                                                                : "#F44336",
+                                                                            transform:
+                                                                                [
+                                                                                    {
+                                                                                        rotate: isIncrease
+                                                                                            ? "0deg"
+                                                                                            : "180deg",
+                                                                                    },
+                                                                                ],
+                                                                        },
+                                                                    ]}
+                                                                />
+                                                                <Text
+                                                                    style={[
+                                                                        styles.changeText,
+                                                                        {
+                                                                            color: isIncrease
+                                                                                ? "#4CAF50"
+                                                                                : "#F44336",
+                                                                        },
+                                                                    ]}
+                                                                >
+                                                                    {Math.abs(
+                                                                        change
+                                                                    )}
+                                                                </Text>
+                                                            </>
+                                                        );
+                                                    })()}
+                                                </View>
+                                            </View>
                                         </View>
                                     </TouchableOpacity>
                                 ))}
