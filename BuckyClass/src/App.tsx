@@ -72,6 +72,74 @@ function MainTabNavigator() {
     );
 }
 
+// CourseDetails 화면을 위한 탭 네비게이터 - 순서 변경
+function CourseDetailsTabNavigator({ route }) {
+    return (
+        <Tab.Navigator
+            screenOptions={({ route: tabRoute }) => ({
+                tabBarIcon: ({ focused, color, size }) => {
+                    let iconName;
+
+                    if (tabRoute.name === "Home") {
+                        iconName = focused ? "home" : "home-outline";
+                    } else if (tabRoute.name === "Courses") {
+                        iconName = focused ? "book" : "book-outline";
+                    } else if (tabRoute.name === "ChatList") {
+                        iconName = focused
+                            ? "chatbubble-ellipses"
+                            : "chatbubble-ellipses-outline";
+                    } else if (tabRoute.name === "Profile") {
+                        iconName = focused ? "person" : "person-outline";
+                    }
+
+                    return (
+                        <Ionicons name={iconName} size={size} color={color} />
+                    );
+                },
+                tabBarActiveTintColor: "#F97CBD",
+                tabBarInactiveTintColor: "#8863e4",
+                tabBarStyle: {
+                    borderTopLeftRadius: 30,
+                    borderTopRightRadius: 30,
+                    backgroundColor: "#FFF",
+                    shadowColor: "rgba(0, 0, 0, 0.12)",
+                    shadowOffset: { width: 0, height: -2 },
+                    shadowRadius: 6,
+                    shadowOpacity: 1,
+                    elevation: 8,
+                    height: 80,
+                    paddingBottom: 5,
+                },
+                tabBarShowLabel: false,
+                headerShown: false,
+            })}
+            initialRouteName="Courses" // 초기 활성 탭을 Courses로 설정
+        >
+            <Tab.Screen
+                name="Home"
+                component={HomeScreen}
+                options={{ tabBarLabel: "홈" }}
+            />
+            <Tab.Screen
+                name="Courses"
+                component={CourseDetailsScreen}
+                initialParams={{ course: route.params.course }}
+                options={{ tabBarLabel: "강의" }}
+            />
+            <Tab.Screen
+                name="ChatList"
+                component={ChatListScreen}
+                options={{ tabBarLabel: "채팅" }}
+            />
+            <Tab.Screen
+                name="Profile"
+                component={ProfileScreen}
+                options={{ tabBarLabel: "프로필" }}
+            />
+        </Tab.Navigator>
+    );
+}
+
 const App = () => {
     const [fontsLoaded, setFontsLoaded] = useState(false);
 
@@ -127,12 +195,14 @@ const App = () => {
                     options={{ headerShown: false }}
                 />
 
-                {/* 세부 화면들 */}
+                {/* CourseDetails에 탭 네비게이터 적용 */}
                 <Stack.Screen
                     name="CourseDetails"
-                    component={CourseDetailsScreen}
+                    component={CourseDetailsTabNavigator}
                     options={{ headerShown: false }}
                 />
+
+                {/* 세부 화면들 */}
                 <Stack.Screen
                     name="CourseChat"
                     component={CourseChatScreen}

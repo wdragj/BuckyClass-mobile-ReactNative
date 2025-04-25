@@ -67,13 +67,6 @@ export default function CoursesScreen({
                 >
                     <View style={styles.blurOverlay}>
                         <View style={styles.searchContainer}>
-                            {/* 상단 타이틀 영역 */}
-                            <View style={styles.searchHeader}>
-                                <Text style={styles.searchTitle}>
-                                    Search Courses
-                                </Text>
-                            </View>
-
                             {/* 검색 입력 필드 */}
                             <TextInput
                                 style={styles.searchInput}
@@ -99,10 +92,6 @@ export default function CoursesScreen({
                                             )
                                         }
                                     >
-                                        <Image
-                                            source={courseImage}
-                                            style={styles.listItemImage}
-                                        />
                                         <View style={styles.listItemContent}>
                                             <Text
                                                 style={styles.listItemTitle}

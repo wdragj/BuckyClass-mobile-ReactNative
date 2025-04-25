@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
         elevation: 8,
         paddingTop: 20,
         paddingHorizontal: 20,
-        paddingBottom: 10, // 네비게이션 바 공간 확보
+        paddingBottom: 0, // 네비게이션 바 공간 확보
     },
     container: {
         flex: 1,
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
 
     searchInput: {
         backgroundColor: "#fff",
-        borderRadius: 24,
+        borderRadius: 16,
         padding: 16,
         marginBottom: 20,
         fontSize: 16,
@@ -174,9 +174,7 @@ const styles = StyleSheet.create({
         fontFamily: "Nunito",
     },
     listItem: {
-        backgroundColor: "#fff",
         borderRadius: 16,
-
         padding: 16,
 
         marginBottom: 12,
