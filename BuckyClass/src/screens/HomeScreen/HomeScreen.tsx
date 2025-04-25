@@ -6,12 +6,14 @@ import {
     TouchableOpacity,
     ScrollView,
     Image,
+    Dimensions,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../types/navigation";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import styles from "./HomeScreen_CSS";
 import { LinearGradient } from "expo-linear-gradient";
+import { LineChart } from "react-native-chart-kit";
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 
@@ -97,14 +99,43 @@ const latestReviews = [
     },
 ];
 
-// 예시 데이터: 핫 코스
+// 예시 데이터: 핫 코스 (10일치 채팅 데이터 추가)
 const hotCourses = [
-    { name: "CS 400", top: "Top 1" },
-    { name: "Music 113", top: "Top 2" },
-    { name: "ENG 100", top: "Top 3" },
+    {
+        name: "CS 400",
+        top: "Top 1",
+        chatData: [25, 20, 28, 32, 36, 40, 35, 30, 38, 42], // 10일치 채팅 데이터
+    },
+    {
+        name: "Music 113",
+        top: "Top 2",
+        chatData: [15, 18, 12, 20, 22, 19, 26, 28, 24, 30],
+    },
+    {
+        name: "ENG 100",
+        top: "Top 3",
+        chatData: [10, 8, 12, 14, 9, 15, 18, 16, 20, 22],
+    },
 ];
 
 export default function HomeScreen({ navigation }: HomeScreenProps) {
+    // 그래프 설정
+    const chartConfig = {
+        backgroundGradientFrom: "#ffffff",
+        backgroundGradientTo: "#ffffff",
+        color: (opacity = 1) => `rgba(136, 99, 228, ${opacity})`,
+        strokeWidth: 2,
+        barPercentage: 0.5,
+        useShadowColorFromDataset: false,
+        propsForDots: {
+            r: "0", // 점 크기를 0으로 설정하여 표시하지 않음
+        },
+    };
+
+    // 작은 차트 너비 설정
+    const miniChartWidth = 100;
+    const miniChartHeight = 40;
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.gradientBackground}>
@@ -185,10 +216,39 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                                                 </Text>
                                             </View>
                                         </View>
-                                        <Ionicons
-                                            name="ellipsis-horizontal"
-                                            style={styles.hotCourseEllipsisIcon}
-                                        />
+
+                                        {/* 미니 라인 차트 추가 */}
+                                        <View style={styles.miniChartContainer}>
+                                            <LineChart
+                                                data={{
+                                                    labels: [], // 레이블 없음
+                                                    datasets: [
+                                                        {
+                                                            data: course.chatData,
+                                                            color: (
+                                                                opacity = 1
+                                                            ) =>
+                                                                `rgba(136, 99, 228, ${opacity})`, // 핑크 -> 보라색(#8863E4)으로 변경
+                                                            strokeWidth: 2,
+                                                        },
+                                                    ],
+                                                }}
+                                                width={miniChartWidth}
+                                                height={miniChartHeight}
+                                                chartConfig={chartConfig}
+                                                bezier
+                                                withVerticalLines={false}
+                                                withHorizontalLines={false}
+                                                withDots={false}
+                                                withInnerLines={false}
+                                                withOuterLines={false}
+                                                withShadow={false}
+                                                withScrollableDot={false}
+                                                yAxisLabel=""
+                                                yAxisSuffix=""
+                                                style={styles.miniChart}
+                                            />
+                                        </View>
                                     </TouchableOpacity>
                                 ))}
                             </View>

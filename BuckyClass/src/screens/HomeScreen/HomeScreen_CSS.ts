@@ -378,6 +378,7 @@ const styles = StyleSheet.create({
     hotCourseCard: {
         flexDirection: "row",
         alignItems: "center",
+        justifyContent: "space-between", // 변경: 양쪽 끝에 요소 배치
         backgroundColor: "#fff",
         borderRadius: 24,
         borderWidth: 1,
@@ -389,7 +390,19 @@ const styles = StyleSheet.create({
     hotCourseLeft: {
         flexDirection: "row",
         alignItems: "center",
-        flex: 1,
+        flex: 1, // 변경: 좌측 요소가 사용할 공간
+    },
+    // 미니 차트 관련 스타일 추가
+    miniChartContainer: {
+        marginLeft: 8,
+        height: 40,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    miniChart: {
+        marginLeft: -20, // 차트 내부 여백 조정
+        paddingRight: 0,
+        borderRadius: 16,
     },
     hotCourseImagePlaceholder: {
         width: 27,
