@@ -186,6 +186,8 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         shadowOpacity: 0.2,
         elevation: 2,
+        borderBottomWidth: 1, // 하단 경계선 추가
+        borderBottomColor: "rgba(0, 0, 0, 0.1)", // 얇은 회색 색상
     },
 
     listItemContent: {
