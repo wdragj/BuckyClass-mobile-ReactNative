@@ -227,12 +227,6 @@ export default function CoursesScreen({
                             </ScrollView>
                         )}
                     </View>
-
-                    {/* 네비게이션 바 - HomeScreen, ChatListScreen과 같은 위치에 배치 */}
-                    <BottomNavBar
-                        navigation={navigation}
-                        activeScreen="Courses"
-                    />
                 </LinearGradient>
             </View>
         </SafeAreaView>

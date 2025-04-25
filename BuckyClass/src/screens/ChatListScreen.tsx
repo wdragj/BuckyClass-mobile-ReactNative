@@ -145,10 +145,6 @@ export default function ChatListScreen({
                             )}
                         </ScrollView>
                     </View>
-                    <BottomNavBar
-                        navigation={navigation}
-                        activeScreen="ChatList"
-                    />
                 </LinearGradient>
             </View>
         </SafeAreaView>
@@ -181,7 +177,7 @@ const styles = StyleSheet.create({
         elevation: 8,
         paddingTop: 20,
         paddingHorizontal: 20,
-        paddingBottom: 70,
+        paddingBottom: 0,
     },
     container: {
         padding: 20,

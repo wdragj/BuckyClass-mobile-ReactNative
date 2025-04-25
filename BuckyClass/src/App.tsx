@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { RootStackParamList } from "./types/navigation";
 import SignIn from "./screens/SignIn/SignIn";
 import SignUp from "./screens/SignUp/SignUp";
@@ -12,10 +13,64 @@ import CourseChatScreen from "./screens/CourseChatScreen";
 import ChatListScreen from "./screens/ChatListScreen";
 import PrivateChatScreen from "./screens/PrivateChatScreen";
 import WelcomeScreen from "./screens/WelcomeScreen";
+import ProfileScreen from "./screens/ProfileScreen";
 import * as Font from "expo-font";
 import { View, Text } from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
-const Stack = createStackNavigator<RootStackParamList>();
+// 단순화된 네비게이터 (타입 제약 제거)
+const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
+
+// 탭 네비게이터 컴포넌트 정의
+function MainTabNavigator() {
+    return (
+        <Tab.Navigator
+            screenOptions={({ route }) => ({
+                tabBarIcon: ({ focused, color, size }) => {
+                    let iconName;
+
+                    if (route.name === "Home") {
+                        iconName = focused ? "home" : "home-outline";
+                    } else if (route.name === "Courses") {
+                        iconName = focused ? "book" : "book-outline";
+                    } else if (route.name === "ChatList") {
+                        iconName = focused
+                            ? "chatbubble-ellipses"
+                            : "chatbubble-ellipses-outline";
+                    } else if (route.name === "Profile") {
+                        iconName = focused ? "person" : "person-outline";
+                    }
+
+                    return (
+                        <Ionicons name={iconName} size={size} color={color} />
+                    );
+                },
+                tabBarActiveTintColor: "#F97CBD",
+                tabBarInactiveTintColor: "#8863e4",
+                tabBarStyle: {
+                    borderTopLeftRadius: 30,
+                    borderTopRightRadius: 30,
+                    backgroundColor: "#FFF",
+                    shadowColor: "rgba(0, 0, 0, 0.12)",
+                    shadowOffset: { width: 0, height: -2 },
+                    shadowRadius: 6,
+                    shadowOpacity: 1,
+                    elevation: 8,
+                    height: 80,
+                    paddingBottom: 5,
+                },
+                tabBarShowLabel: false,
+                headerShown: false,
+            })}
+        >
+            <Tab.Screen name="Home" component={HomeScreen} />
+            <Tab.Screen name="Courses" component={CoursesScreen} />
+            <Tab.Screen name="ChatList" component={ChatListScreen} />
+            <Tab.Screen name="Profile" component={ProfileScreen} />
+        </Tab.Navigator>
+    );
+}
 
 const App = () => {
     const [fontsLoaded, setFontsLoaded] = useState(false);
@@ -54,36 +109,44 @@ const App = () => {
                     component={WelcomeScreen}
                     options={{ headerShown: false }}
                 />
-                <Stack.Screen name="SignIn" component={SignIn} />
-                <Stack.Screen name="SignUp" component={SignUp} />
                 <Stack.Screen
-                    name="Home"
-                    component={HomeScreen}
-                    options={{ headerShown: false }}
+                    name="SignIn"
+                    component={SignIn}
+                    options={{ headerTitle: "로그인" }}
                 />
                 <Stack.Screen
-                    name="Courses"
-                    component={CoursesScreen}
+                    name="SignUp"
+                    component={SignUp}
+                    options={{ headerTitle: "회원가입" }}
+                />
+
+                {/* MainTabs는 이제 더 이상 중첩된 네비게이터가 아닌 단일 Tab Navigator */}
+                <Stack.Screen
+                    name="MainTabs"
+                    component={MainTabNavigator}
                     options={{ headerShown: false }}
                 />
+
+                {/* 세부 화면들 */}
                 <Stack.Screen
                     name="CourseDetails"
                     component={CourseDetailsScreen}
+                    options={{ headerTitle: "강의 상세" }}
                 />
                 <Stack.Screen
                     name="CourseChat"
                     component={CourseChatScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="ChatList"
-                    component={ChatListScreen}
-                    options={{ headerShown: false }}
+                    options={{ headerTitle: "강의 채팅" }}
                 />
                 <Stack.Screen
                     name="PrivateChat"
                     component={PrivateChatScreen}
-                    options={{ headerShown: false }}
+                    options={{ headerTitle: "개인 채팅" }}
+                />
+                <Stack.Screen
+                    name="ChatScreen"
+                    component={ChatScreen}
+                    options={{ headerTitle: "채팅" }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

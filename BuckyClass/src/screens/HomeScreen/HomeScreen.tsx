@@ -12,7 +12,6 @@ import { RootStackParamList } from "../../types/navigation";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import styles from "./HomeScreen_CSS";
 import { LinearGradient } from "expo-linear-gradient";
-import BottomNavBar from "../../components/BottomNavBar";
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 
@@ -331,9 +330,6 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                             </View>
                         </ScrollView>
                     </View>
-
-                    {/* 하단 네비게이션 바 - 새 컴포넌트 사용 */}
-                    <BottomNavBar navigation={navigation} activeScreen="Home" />
                 </LinearGradient>
             </View>
         </SafeAreaView>

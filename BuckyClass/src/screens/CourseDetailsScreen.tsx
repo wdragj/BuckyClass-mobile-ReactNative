@@ -366,10 +366,6 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                             </TouchableOpacity>
                         </ScrollView>
                     </View>
-                    <BottomNavBar
-                        navigation={navigation}
-                        activeScreen="Courses"
-                    />
                 </LinearGradient>
             </View>
         </SafeAreaView>
@@ -402,7 +398,7 @@ const styles = StyleSheet.create({
         elevation: 8,
         paddingTop: 20,
         paddingHorizontal: 20,
-        paddingBottom: 70,
+        paddingBottom: 0,
     },
     scrollContent: {
         padding: 16,

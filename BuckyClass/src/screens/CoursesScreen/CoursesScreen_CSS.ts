@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
         elevation: 8,
         paddingTop: 20,
         paddingHorizontal: 20,
-        paddingBottom: 70, // 네비게이션 바 공간 확보
+        paddingBottom: 10, // 네비게이션 바 공간 확보
     },
     container: {
         flex: 1,

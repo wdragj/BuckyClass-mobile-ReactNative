@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
         elevation: 8, // Android 그림자 강화
         paddingTop: 20, // 상단 패딩
         paddingHorizontal: 20, // 좌우 패딩
-        paddingBottom: 70, // 하단 패딩 (네비게이션 바 높이 + 여유공간)
+        paddingBottom: 0, // 하단 패딩 (네비게이션 바 높이 + 여유공간)
     },
     // 콘텐츠 영역 컨테이너 - 패딩 축소
     contentContainer: {
