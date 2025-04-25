@@ -9,9 +9,9 @@ const SignIn = ({ navigation }: any) => {
 
     const handleSignIn = async () => {
         try {
-            await signInWithEmailAndPassword(auth, email, password); // firebase 인증 사용
+            await signInWithEmailAndPassword(auth, email, password);
             Alert.alert("Success", "Logged in successfully!");
-            navigation.navigate("Home");
+            navigation.navigate("UserInfo");
         } catch (error: any) {
             console.log("SignIn error:", error); // 에러 디버깅 로그 추가
             Alert.alert("Error", error.message);
