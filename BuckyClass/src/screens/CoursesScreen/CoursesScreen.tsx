@@ -64,89 +64,71 @@ export default function CoursesScreen({
             course.name.toLowerCase().includes(searchText.toLowerCase())
     );
 
-    // 기본 화면
+    // 기본 화면 - 중복 배경 레이어 제거
     const renderDefaultView = () => {
         return (
-            <View style={styles.gradientBackground}>
-                <View style={styles.overlayContainer}>
-                    <View style={styles.defaultContainer}>
-                        {/* 상단 영역 */}
-                        <Text style={styles.searchTitle}>Search Courses</Text>
-                        <TouchableOpacity
-                            style={styles.searchBar}
-                            onPress={() => setSearchActive(true)}
-                        >
-                            <Text style={styles.searchBarPlaceholder}>
-                                Enter course name
-                            </Text>
-                        </TouchableOpacity>
+            <View style={styles.defaultContainer}>
+                {/* 상단 영역 */}
+                <Text style={styles.searchTitle}>Search Courses</Text>
+                <TouchableOpacity
+                    style={styles.searchBar}
+                    onPress={() => setSearchActive(true)}
+                >
+                    <Text style={styles.searchBarPlaceholder}>
+                        Enter course name
+                    </Text>
+                </TouchableOpacity>
 
-                        {/* My Classes 섹션 */}
-                        <Text style={styles.sectionTitle}>My Classes</Text>
-                        <TouchableOpacity
-                            style={styles.myClassItem}
-                            onPress={() =>
-                                navigation.navigate("CourseDetails", {
-                                    course: courses.find((c) => c.id === "1"),
-                                })
-                            }
-                        >
-                            <View style={styles.classImagePlaceholder} />
-                            <View style={styles.classTextContainer}>
-                                <Text style={styles.courseTitle}>
-                                    Course Title
-                                </Text>
-                                <Text style={styles.courseInfo}>
-                                    Class Time
-                                </Text>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.myClassItem}
-                            onPress={() =>
-                                navigation.navigate("CourseDetails", {
-                                    course: courses.find((c) => c.id === "2"),
-                                })
-                            }
-                        >
-                            <View style={styles.classImagePlaceholder} />
-                            <View style={styles.classTextContainer}>
-                                <Text style={styles.courseTitle}>
-                                    Course Title
-                                </Text>
-                                <Text style={styles.courseInfo}>
-                                    Class Time
-                                </Text>
-                            </View>
-                        </TouchableOpacity>
-
-                        {/* 카테고리 섹션 */}
-                        <Text style={styles.sectionTitle}>
-                            Course Categories
-                        </Text>
-                        <View style={styles.categoriesContainer}>
-                            <TouchableOpacity style={styles.categoryButton}>
-                                <View style={styles.categoryImagePlaceholder} />
-                                <Text style={styles.categoryButtonText}>
-                                    Computer Science
-                                </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.categoryButton}>
-                                <View style={styles.categoryImagePlaceholder} />
-                                <Text style={styles.categoryButtonText}>
-                                    Mathematics
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* 등록 버튼 */}
-                        <TouchableOpacity style={styles.enrollButton}>
-                            <Text style={styles.enrollButtonText}>
-                                Enroll Now
-                            </Text>
-                        </TouchableOpacity>
+                {/* My Classes 섹션 */}
+                <Text style={styles.sectionTitle}>My Classes</Text>
+                <TouchableOpacity
+                    style={styles.myClassItem}
+                    onPress={() =>
+                        navigation.navigate("CourseDetails", {
+                            course: courses.find((c) => c.id === "1"),
+                        })
+                    }
+                >
+                    <View style={styles.classImagePlaceholder} />
+                    <View style={styles.classTextContainer}>
+                        <Text style={styles.courseTitle}>Course Title</Text>
+                        <Text style={styles.courseInfo}>Class Time</Text>
                     </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.myClassItem}
+                    onPress={() =>
+                        navigation.navigate("CourseDetails", {
+                            course: courses.find((c) => c.id === "2"),
+                        })
+                    }
+                >
+                    <View style={styles.classImagePlaceholder} />
+                    <View style={styles.classTextContainer}>
+                        <Text style={styles.courseTitle}>Course Title</Text>
+                        <Text style={styles.courseInfo}>Class Time</Text>
+                    </View>
+                </TouchableOpacity>
+
+                {/* 카테고리 섹션 */}
+                <Text style={styles.sectionTitle}>Course Categories</Text>
+                <View style={styles.categoriesContainer}>
+                    <TouchableOpacity style={styles.categoryButton}>
+                        <View style={styles.categoryImagePlaceholder} />
+                        <Text style={styles.categoryButtonText}>Physics</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.categoryButton}>
+                        <View style={styles.categoryImagePlaceholder} />
+                        <Text style={styles.categoryButtonText}>
+                            Mathematics
+                        </Text>
+                    </TouchableOpacity>
                 </View>
+
+                {/* 등록 버튼 */}
+                <TouchableOpacity style={styles.enrollButton}>
+                    <Text style={styles.enrollButtonText}>Enroll Now</Text>
+                </TouchableOpacity>
             </View>
         );
     };

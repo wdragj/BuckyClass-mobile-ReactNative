@@ -70,7 +70,11 @@ const App = () => {
                     name="CourseDetails"
                     component={CourseDetailsScreen}
                 />
-                <Stack.Screen name="CourseChat" component={CourseChatScreen} />
+                <Stack.Screen
+                    name="CourseChat"
+                    component={CourseChatScreen}
+                    options={{ headerShown: false }}
+                />
                 <Stack.Screen
                     name="ChatList"
                     component={ChatListScreen}
@@ -79,6 +83,7 @@ const App = () => {
                 <Stack.Screen
                     name="PrivateChat"
                     component={PrivateChatScreen}
+                    options={{ headerShown: false }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

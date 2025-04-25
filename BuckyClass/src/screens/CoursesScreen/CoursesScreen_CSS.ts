@@ -35,21 +35,10 @@ const styles = StyleSheet.create({
         flex: 1,
     },
 
-    // 그라데이션 대체 배경 스타일
-    gradientBackground: {
-        flex: 1,
-        backgroundColor: "#e8daf1", // 밝은 보라색 배경(그라데이션을 단색으로 대체)
-    },
-    // 반투명 오버레이 컨테이너
+    // 반투명 오버레이 컨테이너 - 중복 배경 제거
     overlayContainer: {
         flex: 1,
-        backgroundColor: "transparent", // 불필요한 배경 제거
-        // 그림자 효과
-        shadowColor: "rgba(0, 0, 0, 0.30)",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.5,
-        shadowRadius: 8,
-        elevation: 6, // Android 그림자
+        backgroundColor: "transparent",
     },
 
     // 기본 화면
