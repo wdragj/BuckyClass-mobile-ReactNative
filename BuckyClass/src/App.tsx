@@ -131,7 +131,7 @@ const App = () => {
                 <Stack.Screen
                     name="CourseDetails"
                     component={CourseDetailsScreen}
-                    options={{ headerTitle: "강의 상세" }}
+                    options={{ headerShown: false }}
                 />
                 <Stack.Screen
                     name="CourseChat"
