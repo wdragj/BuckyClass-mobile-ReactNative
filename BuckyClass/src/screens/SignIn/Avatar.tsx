@@ -1,9 +1,22 @@
-import React, { useState, useRef } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  FlatList,
+  Dimensions,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
+import * as Font from "expo-font";
+import { Ionicons } from '@expo/vector-icons'; // For the back arrow icon
 
-const { width } = Dimensions.get("window");
-const AVATAR_WIDTH = width * 0.65; // Avatar width to maintain the same proportion for the larger avatar
+const { width, height } = Dimensions.get("window");
+const AVATAR_WIDTH = width * 0.65;
 const SPACING = (width - AVATAR_WIDTH) / 2;
 
 const avatars = [
@@ -17,22 +30,36 @@ const AvatarScreen = () => {
   const navigation = useNavigation();
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
 
-  // To limit the avatar list to only the 4 avatars (no infinite loop)
-  const extendedAvatars = avatars; // No need to extend the list anymore
+  useEffect(() => {
+    const loadFonts = async () => {
+      await Font.loadAsync({
+        "Nunito-ExtraBold": require("../../../assets/fonts/Nunito-ExtraBold.ttf"),
+        "Nunito-Bold": require("../../../assets/fonts/Nunito-Bold.ttf"),
+        "Nunito": require("../../../assets/fonts/Nunito-Regular.ttf"),
+      });
+      setFontsLoaded(true);
+    };
 
-  // Handle scrolling and calculating the index
+    loadFonts();
+  }, []);
+
+  if (!fontsLoaded) {
+    return <Text>Loading Fonts...</Text>;
+  }
+
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(offsetX / AVATAR_WIDTH);
-    const actualIndex = Math.min(index, avatars.length - 1); // Ensure it doesn't scroll past the last avatar
+    const actualIndex = Math.min(index, avatars.length - 1);
     setCurrentIndex(actualIndex);
   };
 
   const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(offsetX / AVATAR_WIDTH);
-    const actualIndex = Math.min(index, avatars.length - 1); // Ensure it doesn't scroll past the last avatar
+    const actualIndex = Math.min(index, avatars.length - 1);
     setCurrentIndex(actualIndex);
   };
 
@@ -44,42 +71,49 @@ const AvatarScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Adjusted title position */}
+      {/* Back Button */}
+      <TouchableOpacity 
+        style={styles.backButton} 
+        onPress={() => navigation.goBack()}
+      >
+        <Ionicons name="arrow-back" size={24} color="#3E4766" />
+      </TouchableOpacity>
+
       <Text style={styles.title}>What GROW Are You?</Text>
 
-      {/* FlatList to render avatars */}
-      <FlatList
-        ref={flatListRef}
-        horizontal
-        data={extendedAvatars}
-        keyExtractor={(_, index) => index.toString()}
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={AVATAR_WIDTH}
-        decelerationRate="fast"
-        contentContainerStyle={{ paddingHorizontal: SPACING }}
-        getItemLayout={getItemLayout}
-        onMomentumScrollEnd={handleScrollEnd}
-        onScroll={handleScroll}
-        renderItem={({ item, index }) => {
-          const isCurrent =
-            index === currentIndex;
-          return (
-            <View
-              style={[
-                styles.avatarContainer,
-                {
-                  opacity: isCurrent ? 1 : 0.4,
-                  transform: [{ scale: isCurrent ? 1 : 0.85 }],
-                },
-              ]}
-            >
-              <Image source={item.image} style={styles.avatarImage} />
-            </View>
-          );
-        }}
-      />
+      <View style={styles.avatarWrapper}>
+        <FlatList
+          ref={flatListRef}
+          horizontal
+          data={avatars}
+          keyExtractor={(_, index) => index.toString()}
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={AVATAR_WIDTH}
+          decelerationRate="fast"
+          contentContainerStyle={{ paddingHorizontal: SPACING }}
+          getItemLayout={getItemLayout}
+          onMomentumScrollEnd={handleScrollEnd}
+          onScroll={handleScroll}
+          renderItem={({ item, index }) => {
+            const isCurrent = index === currentIndex;
+            return (
+              <View
+                style={[
+                  styles.avatarContainer,
+                  {
+                    opacity: isCurrent ? 1 : 0.4,
+                    transform: [{ scale: isCurrent ? 1 : 0.85 }],
+                  },
+                ]}
+              >
+                <Image source={item.image} style={styles.avatarImage} />
+              </View>
+            );
+          }}
+        />
+      </View>
 
-      {/* Adjusted pagination dots position */}
+      {/* Dots */}
       <View style={styles.dotsContainer}>
         {avatars.map((_, index) => (
           <View
@@ -92,12 +126,19 @@ const AvatarScreen = () => {
         ))}
       </View>
 
-      {/* Adjusted button position and functionality */}
+      {/* Save Button with Gradient */}
       <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate("Home")} // Changed to navigate to homepage
+        style={styles.buttonWrapper}
+        onPress={() => navigation.navigate("Home")}
       >
-        <Text style={styles.buttonText}>Save</Text> {/* Changed text to "Save" */}
+        <LinearGradient
+          colors={["#F97CBD", "#DD94F7", "#A79CFF"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.gradientButton}
+        >
+          <Text style={styles.buttonText}>Save</Text>
+        </LinearGradient>
       </TouchableOpacity>
     </View>
   );
@@ -108,14 +149,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F4EDFE",
     alignItems: "center",
-    paddingTop: 40, // Reduced top padding for the title and avatar positioning
+    paddingTop: 60, // Increased from 40 to move everything down
+    paddingBottom: 40,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 60, // Positioned below the new paddingTop
+    left: 20,
+    zIndex: 1,
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#3E4766",
-    marginBottom: 60, // Increased marginBottom to bring the title lower
     textAlign: "center",
+    marginTop: 90, // Reduced from 100 to move down less
+    fontFamily: "Nunito-ExtraBold",
+  },
+  avatarWrapper: {
+    height: 400,
+    justifyContent: "center",
+    marginTop: 40, // Increased from 20
   },
   avatarContainer: {
     width: AVATAR_WIDTH,
@@ -123,15 +177,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   avatarImage: {
-    width: 330, // 1.5 times bigger
+    width: 330,
     height: 330,
-    borderRadius: 165, // 1.5 times bigger, so half of 330px is 165px
+    borderRadius: 165,
   },
   dotsContainer: {
+    marginTop: -10, // Increased from 20
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 20, // Reduced marginTop to bring dots higher
+    marginBottom: 40, // Increased from 20
   },
   dot: {
     width: 10,
@@ -148,15 +203,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#D1B2FF",
     opacity: 0.6,
   },
-  button: {
-    backgroundColor: "#A79CFF",
-    padding: 12,
-    borderRadius: 10,
-    marginTop: 20, // Reduced marginTop to bring the button higher
+  buttonWrapper: {
+    borderRadius: 30,
+    overflow: "hidden",
+    marginTop: 0,
+    alignSelf: "center",
+    width: "90%",
+    marginBottom: 40, // Increased from 20
+  },
+  gradientButton: {
+    paddingVertical: 15,
+    alignItems: "center",
+    borderRadius: 30,
   },
   buttonText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 24,
+    fontWeight: "bold",
+    fontFamily: "Nunito-ExtraBold",
   },
 });
 

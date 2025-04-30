@@ -83,9 +83,9 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         paddingHorizontal: 20,
-        paddingBottom: 10, // 여분 공간 추가
+        paddingBottom: 10, // Extra space at the bottom
         zIndex: 1000,
-        pointerEvents: "box-none", // 컨테이너는 터치 이벤트를 하위로 전달
+        pointerEvents: "box-none", // Pass touch events down to the underlying view
     },
     bottomNavBar: {
         flexDirection: "row",
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
         elevation: 8,
         paddingVertical: 8,
         justifyContent: "space-around",
-        maxWidth: width - 40, // 화면 양쪽에 20px 여백
+        maxWidth: width - 40, // 20px padding on both sides
     },
     bottomNavItem: {
         alignItems: "center",
@@ -113,8 +113,8 @@ const styles = StyleSheet.create({
         marginBottom: 0,
     },
     activeIcon: {
-        color: "#F97CBD", // 활성화된 아이콘 색상
-        fontSize: 28, // 활성화된 아이콘 크기 증가
+        color: "#F97CBD", // Active icon color
+        fontSize: 28, // Increase size of active icon
     },
 });
 

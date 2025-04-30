@@ -5,6 +5,8 @@ export type RootStackParamList = {
     Home: undefined; // Home screen doesn't require any params
     ChatScreen: undefined; // ChatScreen doesn't require any params
     Courses: undefined; // Courses screen doesn't require any params
+    Profile: undefined;
+    EditProfile: undefined;
     CourseDetails: {
       course: {
         id: string;  // Course id is a string
