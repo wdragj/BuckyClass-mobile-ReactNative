@@ -7,54 +7,89 @@ import {
     TouchableOpacity,
     ScrollView,
     StyleSheet,
+    Image,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../types/navigation";
-import { realtimeDB } from "../firebaseConfig";
-import { ref, push, onValue, get, set } from "firebase/database";
+import { realtimeDB, storage } from "../firebaseConfig"; // Storage import 필요!
+import { ref as dbRef, push, onValue, get, set } from "firebase/database";
+import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getAuth } from "firebase/auth";
+import { launchImageLibrary } from "react-native-image-picker";
 
 type PrivateChatScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
     "PrivateChat"
 >;
 
+type Message = {
+    id: string;
+    text?: string;
+    imageUrl?: string;
+    senderUid: string;
+    senderName: string;
+    timestamp: number;
+};
+
 export default function PrivateChatScreen({
-                                              navigation,
-                                              route,
-                                          }: {
+    navigation,
+    route,
+}: {
     navigation: PrivateChatScreenNavigationProp;
     route: { params: { chatId: string } };
 }) {
-    const [messages, setMessages] = useState<any[]>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const scrollViewRef = useRef<ScrollView>(null);
 
     const auth = getAuth();
     const currentUser = auth.currentUser;
 
-    const sendMessage = () => {
+    const sendMessage = async () => {
         if (!newMessage.trim() || !currentUser) return;
 
-        const messageRef = ref(realtimeDB, `chats/${route.params.chatId}/messages`);
-        push(messageRef, {
+        const messageRef = dbRef(realtimeDB, `chats/${route.params.chatId}/messages`);
+        await push(messageRef, {
             text: newMessage,
             senderUid: currentUser.uid,
             senderName: currentUser.displayName || "Unknown",
             timestamp: Date.now(),
-        })
-            .then(() => {
-                console.log("Message pushed to Firebase");
-            })
-            .catch((err) => {
-                console.error("Failed to send message:", err);
-            });
+        });
 
         setNewMessage("");
     };
 
+    const sendImage = async () => {
+        if (!currentUser) return;
+
+        const result = await launchImageLibrary({ mediaType: "photo" });
+
+        if (result.didCancel || !result.assets || result.assets.length === 0) {
+            return;
+        }
+
+        const asset = result.assets[0];
+        if (!asset.uri) return;
+
+        const response = await fetch(asset.uri);
+        const blob = await response.blob();
+
+        const imageRef = storageRef(storage, `chatImages/${Date.now()}_${currentUser.uid}`);
+        await uploadBytes(imageRef, blob);
+
+        const downloadURL = await getDownloadURL(imageRef);
+
+        const messageRef = dbRef(realtimeDB, `chats/${route.params.chatId}/messages`);
+        await push(messageRef, {
+            imageUrl: downloadURL,
+            senderUid: currentUser.uid,
+            senderName: currentUser.displayName || "Unknown",
+            timestamp: Date.now(),
+        });
+    };
+
     const ensureChatRoomExists = async () => {
-        const chatRoomRef = ref(realtimeDB, `chats/${route.params.chatId}`);
+        const chatRoomRef = dbRef(realtimeDB, `chats/${route.params.chatId}`);
         const snapshot = await get(chatRoomRef);
 
         if (!snapshot.exists()) {
@@ -71,11 +106,11 @@ export default function PrivateChatScreen({
     useEffect(() => {
         ensureChatRoomExists();
 
-        const messageRef = ref(realtimeDB, `chats/${route.params.chatId}/messages`);
+        const messageRef = dbRef(realtimeDB, `chats/${route.params.chatId}/messages`);
         const unsubscribe = onValue(messageRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                const messageList = Object.entries(data).map(([id, value]: any) => ({
+                const messageList: Message[] = Object.entries(data).map(([id, value]: any) => ({
                     id,
                     ...value,
                 }));
@@ -93,6 +128,11 @@ export default function PrivateChatScreen({
         scrollViewRef.current?.scrollToEnd({ animated: true });
     }, [messages]);
 
+    const formatTime = (timestamp: number) => {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    };
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.header}>
@@ -105,11 +145,11 @@ export default function PrivateChatScreen({
                 ref={scrollViewRef}
                 contentContainerStyle={styles.messagesContent}
             >
-                {messages.map((msg, index) => {
+                {messages.map((msg) => {
                     const isMyMessage = currentUser?.uid === msg.senderUid;
                     return (
                         <View
-                            key={index}
+                            key={msg.id}
                             style={[
                                 styles.messageBubble,
                                 isMyMessage ? styles.myBubble : styles.otherBubble,
@@ -118,7 +158,11 @@ export default function PrivateChatScreen({
                             {!isMyMessage && (
                                 <Text style={styles.sender}>{msg.senderName}</Text>
                             )}
-                            <Text style={styles.messageText}>{msg.text}</Text>
+                            {msg.text && <Text style={styles.messageText}>{msg.text}</Text>}
+                            {msg.imageUrl && (
+                                <Image source={{ uri: msg.imageUrl }} style={styles.image} />
+                            )}
+                            <Text style={styles.timestamp}>{formatTime(msg.timestamp)}</Text>
                         </View>
                     );
                 })}
@@ -133,6 +177,9 @@ export default function PrivateChatScreen({
                 />
                 <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
                     <Text style={styles.sendButtonText}>Send</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.imageButton} onPress={sendImage}>
+                    <Text style={styles.sendButtonText}>+</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -161,12 +208,20 @@ const styles = StyleSheet.create({
     },
     sender: { fontWeight: "bold", color: "#fff", marginBottom: 4 },
     messageText: { color: "#fff", fontSize: 16 },
+    timestamp: { marginTop: 4, fontSize: 12, color: "#ddd", alignSelf: "flex-end" },
+    image: {
+        width: 200,
+        height: 200,
+        borderRadius: 8,
+        marginTop: 8,
+    },
     inputContainer: {
         flexDirection: "row",
         padding: 16,
         borderTopWidth: 1,
         borderTopColor: "#ddd",
         backgroundColor: "#fff",
+        alignItems: "center",
     },
     input: {
         flex: 1,
@@ -184,6 +239,15 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         paddingVertical: 10,
         paddingHorizontal: 20,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    imageButton: {
+        marginLeft: 5,
+        backgroundColor: "#4A90E2",
+        borderRadius: 20,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
         justifyContent: "center",
         alignItems: "center",
     },
