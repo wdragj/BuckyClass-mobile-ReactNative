@@ -229,7 +229,7 @@ const App = () => {
                 <Stack.Screen
                     name="EditProfile"
                     component={EditProfileScreen}
-                    options={{ headerTitle: "Edit Profile" }}
+                    options={{ headerShown: false }}
                 />
                 
             </Stack.Navigator>
