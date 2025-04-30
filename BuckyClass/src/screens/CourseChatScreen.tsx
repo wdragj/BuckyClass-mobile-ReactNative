@@ -7,14 +7,29 @@ import {
     TouchableOpacity,
     ScrollView,
     StyleSheet,
+    Image,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../types/navigation";
+import { RootStackParamList } from "../types/navigation";
+import { onValue, push, ref } from "firebase/database";
+import { getAuth } from "firebase/auth";
+import { realtimeDB, storage } from "../firebaseConfig";
+import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import * as ImagePicker from "expo-image-picker";
 
 type CourseChatScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
     "CourseChat"
 >;
+
+type Message = {
+    id: string;
+    text?: string;
+    imageUrl?: string;
+    senderUid: string;
+    senderName: string;
+    timestamp: number;
+};
 
 export default function CourseChatScreen({
     navigation,
@@ -23,19 +38,127 @@ export default function CourseChatScreen({
     navigation: CourseChatScreenNavigationProp;
     route: { params: { courseId: string } };
 }) {
+<<<<<<< HEAD
     const [messages, setMessages] = useState<string[]>([]);
+=======
+    const [messages, setMessages] = useState<Message[]>([]);
+>>>>>>> 7d616054ba19c3751ddc15a6939ce405654ac747
     const [newMessage, setNewMessage] = useState("");
     const scrollViewRef = useRef<ScrollView>(null);
 
+<<<<<<< HEAD
     const sendMessage = () => {
         if (!newMessage.trim()) return;
         setMessages([...messages, newMessage]);
         setNewMessage("");
     };
 
+=======
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    const sendMessage = async () => {
+        if (!newMessage.trim() || !currentUser) return;
+
+        const messageRef = ref(realtimeDB, `chats/${courseId}/messages`);
+        const messageData = {
+            text: newMessage,
+            senderUid: currentUser.uid,
+            senderName: currentUser.displayName || "Unknown",
+            timestamp: Date.now(),
+        };
+
+        try {
+            await push(messageRef, messageData);
+            setNewMessage("");
+        } catch (err) {
+            console.error("Failed to send message:", err);
+        }
+    };
+
+
+const sendImage = async () => {
+    if (!currentUser) return;
+
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+        alert("사진 접근 권한이 필요합니다.");
+        return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.7,
+        allowsEditing: false,
+    });
+
+    if (!result.assets || result.assets.length === 0) {
+        console.log("사용자가 사진 선택을 취소했거나 결과가 없음");
+        return;
+    }
+
+    const asset = result.assets[0];
+    const uri = asset.uri;
+    const name = asset.fileName || `image_${Date.now()}.jpg`;
+
+    try {
+        console.log("선택된 URI:", uri);
+
+        const response = await fetch(uri);
+        const blob = await response.blob();
+
+        const imageRef = storageRef(storage, `courseChatImages/${Date.now()}_${name}`);
+        console.log("업로드 시작");
+        await uploadBytes(imageRef, blob);
+        console.log("업로드 완료");
+
+        const downloadURL = await getDownloadURL(imageRef);
+        console.log("다운로드 URL:", downloadURL);
+
+        const messageRef = ref(realtimeDB, `chats/${courseId}/messages`);
+        await push(messageRef, {
+            imageUrl: downloadURL,
+            senderUid: currentUser.uid,
+            senderName: currentUser.displayName || "Unknown",
+            timestamp: Date.now(),
+        });
+
+        console.log("메시지 전송 완료");
+    } catch (err) {
+        console.error("이미지 전송 실패:", err);
+    }
+};
+
+    useEffect(() => {
+        const messageRef = ref(realtimeDB, `chats/${courseId}/messages`);
+        const unsubscribe = onValue(messageRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const messageList: Message[] = Object.entries(data).map(([id, value]: any) => ({
+                    id,
+                    ...value,
+                }));
+                messageList.sort((a, b) => a.timestamp - b.timestamp);
+                setMessages(messageList);
+            } else {
+                setMessages([]);
+            }
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, []);
+
+>>>>>>> 7d616054ba19c3751ddc15a6939ce405654ac747
     useEffect(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
     }, [messages]);
+
+    const formatTime = (timestamp: number) => {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    };
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -49,11 +172,35 @@ export default function CourseChatScreen({
                 ref={scrollViewRef}
                 contentContainerStyle={styles.messagesContent}
             >
+<<<<<<< HEAD
                 {messages.map((msg, index) => (
                     <View key={index} style={styles.messageBubble}>
                         <Text style={styles.messageText}>{msg}</Text>
                     </View>
                 ))}
+=======
+                {messages.map((msg) => {
+                    const isMyMessage = currentUser?.uid === msg.senderUid;
+                    return (
+                        <View
+                            key={msg.id}
+                            style={[
+                                styles.messageBubble,
+                                isMyMessage ? styles.myBubble : styles.otherBubble,
+                            ]}
+                        >
+                            {!isMyMessage && (
+                                <Text style={styles.sender}>{msg.senderName}</Text>
+                            )}
+                            {msg.text && <Text style={styles.messageText}>{msg.text}</Text>}
+                            {msg.imageUrl && (
+                                <Image source={{ uri: msg.imageUrl }} style={styles.image} />
+                            )}
+                            <Text style={styles.timestamp}>{formatTime(msg.timestamp)}</Text>
+                        </View>
+                    );
+                })}
+>>>>>>> 7d616054ba19c3751ddc15a6939ce405654ac747
             </ScrollView>
             <View style={styles.inputContainer}>
                 <TextInput
@@ -68,6 +215,9 @@ export default function CourseChatScreen({
                     onPress={sendMessage}
                 >
                     <Text style={styles.sendButtonText}>Send</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.imageButton} onPress={sendImage}>
+                    <Text style={styles.sendButtonText}>📷</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -89,12 +239,20 @@ const styles = StyleSheet.create({
         maxWidth: "80%",
     },
     messageText: { color: "#fff", fontSize: 16 },
+    timestamp: { marginTop: 4, fontSize: 12, color: "#ddd", alignSelf: "flex-end" },
+    image: {
+        width: 200,
+        height: 200,
+        borderRadius: 8,
+        marginTop: 8,
+    },
     inputContainer: {
         flexDirection: "row",
         padding: 16,
         borderTopWidth: 1,
         borderTopColor: "#ddd",
         backgroundColor: "#fff",
+        alignItems: "center",
     },
     input: {
         flex: 1,
@@ -112,6 +270,15 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         paddingVertical: 10,
         paddingHorizontal: 20,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    imageButton: {
+        marginLeft: 5,
+        backgroundColor: "#4A90E2",
+        borderRadius: 20,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
         justifyContent: "center",
         alignItems: "center",
     },

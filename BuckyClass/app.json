@@ -13,7 +13,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "NSPhotoLibraryUsageDescription": "이 앱은 채팅 이미지 업로드를 위해 사진 접근 권한이 필요합니다."
     },
     "android": {
       "adaptiveIcon": {
