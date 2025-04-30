@@ -20,9 +20,9 @@ type PrivateChatScreenNavigationProp = StackNavigationProp<
 >;
 
 export default function PrivateChatScreen({
-                                              navigation,
-                                              route,
-                                          }: {
+    navigation,
+    route,
+}: {
     navigation: PrivateChatScreenNavigationProp;
     route: { params: { chatId: string } };
 }) {
@@ -36,7 +36,10 @@ export default function PrivateChatScreen({
     const sendMessage = () => {
         if (!newMessage.trim() || !currentUser) return;
 
-        const messageRef = ref(realtimeDB, `chats/${route.params.chatId}/messages`);
+        const messageRef = ref(
+            realtimeDB,
+            `chats/${route.params.chatId}/messages`
+        );
         push(messageRef, {
             text: newMessage,
             senderUid: currentUser.uid,
@@ -71,14 +74,19 @@ export default function PrivateChatScreen({
     useEffect(() => {
         ensureChatRoomExists();
 
-        const messageRef = ref(realtimeDB, `chats/${route.params.chatId}/messages`);
+        const messageRef = ref(
+            realtimeDB,
+            `chats/${route.params.chatId}/messages`
+        );
         const unsubscribe = onValue(messageRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                const messageList = Object.entries(data).map(([id, value]: any) => ({
-                    id,
-                    ...value,
-                }));
+                const messageList = Object.entries(data).map(
+                    ([id, value]: any) => ({
+                        id,
+                        ...value,
+                    })
+                );
                 messageList.sort((a, b) => a.timestamp - b.timestamp);
                 setMessages(messageList);
             } else {
@@ -112,11 +120,15 @@ export default function PrivateChatScreen({
                             key={index}
                             style={[
                                 styles.messageBubble,
-                                isMyMessage ? styles.myBubble : styles.otherBubble,
+                                isMyMessage
+                                    ? styles.myBubble
+                                    : styles.otherBubble,
                             ]}
                         >
                             {!isMyMessage && (
-                                <Text style={styles.sender}>{msg.senderName}</Text>
+                                <Text style={styles.sender}>
+                                    {msg.senderName}
+                                </Text>
                             )}
                             <Text style={styles.messageText}>{msg.text}</Text>
                         </View>
@@ -131,7 +143,10 @@ export default function PrivateChatScreen({
                     style={styles.input}
                     placeholderTextColor="#888"
                 />
-                <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+                <TouchableOpacity
+                    style={styles.sendButton}
+                    onPress={sendMessage}
+                >
                     <Text style={styles.sendButtonText}>Send</Text>
                 </TouchableOpacity>
             </View>

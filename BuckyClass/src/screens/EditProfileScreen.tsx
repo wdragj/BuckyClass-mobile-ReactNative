@@ -100,8 +100,6 @@ const EditProfileScreen = () => {
         </LinearGradient>
       </View>
 
-      {/* Bottom Navigation Bar */}
-      <BottomNavBar navigation={navigation} activeScreen="EditProfile" />
     </SafeAreaView>
   );
 };

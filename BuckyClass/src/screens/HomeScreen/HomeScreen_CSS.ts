@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
         elevation: 8, // Android 그림자 강화
         paddingTop: 20, // 상단 패딩
         paddingHorizontal: 20, // 좌우 패딩
-        paddingBottom: 70, // 하단 패딩 (네비게이션 바 높이 + 여유공간)
+        paddingBottom: 0, // 하단 패딩 (네비게이션 바 높이 + 여유공간)
     },
     // 콘텐츠 영역 컨테이너 - 패딩 축소
     contentContainer: {
@@ -373,12 +373,13 @@ const styles = StyleSheet.create({
         color: "#000",
         lineHeight: 24,
         marginBottom: 8,
-        fontFamily: "Nunito-ExtraBold",
+        fontFamily: "Nunito-Bold",
     },
     hotCourseCard: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "#fff",
+        justifyContent: "space-between",
+        backgroundColor: "rgba(232, 221, 253, 0.5)", // 두 그라데이션 색상의 중간값
         borderRadius: 24,
         borderWidth: 1,
         borderColor: "#ddd",
@@ -391,19 +392,64 @@ const styles = StyleSheet.create({
         alignItems: "center",
         flex: 1,
     },
+
+    // 우측 컨테이너 추가
+    rightContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+
+    // 미니 차트 관련 스타일 수정
+    miniChartContainer: {
+        height: 50,
+        justifyContent: "center",
+        marginRight: 10,
+    },
+    miniChart: {
+        marginLeft: -20,
+        paddingRight: 0,
+        borderRadius: 16,
+    },
+
+    // 통계 정보 컨테이너 스타일
+    statsContainer: {
+        alignItems: "flex-end",
+        marginRight: 8,
+        height: 40,
+        justifyContent: "space-between",
+    },
+    rankText: {
+        fontSize: 12,
+        fontWeight: "bold",
+        color: "#03314B",
+        fontFamily: "Nunito-Bold",
+    },
+    changeContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    changeIcon: {
+        fontSize: 10,
+        marginRight: 4,
+    },
+    changeText: {
+        fontSize: 11,
+        fontWeight: "500",
+        fontFamily: "Nunito-Bold",
+    },
     hotCourseImagePlaceholder: {
-        width: 27,
-        height: 27,
+        width: 55,
+        height: 55,
         borderRadius: 24,
-        backgroundColor: "#ccc",
+
         marginRight: 8,
     },
     hotCourseTextContainer: {
         justifyContent: "center",
     },
     hotCourseName: {
-        fontSize: 14,
-        fontWeight: "500",
+        fontSize: 16,
+        fontWeight: "800",
         color: "#333",
         fontFamily: "Nunito-ExtraBold",
     },

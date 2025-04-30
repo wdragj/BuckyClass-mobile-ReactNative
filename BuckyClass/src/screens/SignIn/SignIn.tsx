@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, Alert } from "react-native";
+import { View, Text, TextInput, Button, Alert, StyleSheet } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebaseConfig"; // firebaseConfig.ts에서 auth 가져오기
+import { auth } from "../../firebaseConfig";
 
 const SignIn = ({ navigation }: any) => {
     const [email, setEmail] = useState("");
@@ -13,25 +13,27 @@ const SignIn = ({ navigation }: any) => {
             Alert.alert("Success", "Logged in successfully!");
             navigation.navigate("UserInfo");
         } catch (error: any) {
-            console.log("SignIn error:", error); // 에러 디버깅 로그 추가
+            console.log("SignIn error:", error);
             Alert.alert("Error", error.message);
         }
     };
 
     return (
-        <View style={{ flex: 1, justifyContent: "center", padding: 20 }}>
-            <Text>Email</Text>
+        <View style={styles.container}>
+            <Text style={styles.label}>Email</Text>
             <TextInput
                 value={email}
                 onChangeText={setEmail}
-                style={{ borderBottomWidth: 1, marginBottom: 10 }}
+                style={styles.input}
+                keyboardType="email-address"
+                autoCapitalize="none"
             />
-            <Text>Password</Text>
+            <Text style={styles.label}>Password</Text>
             <TextInput
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
-                style={{ borderBottomWidth: 1, marginBottom: 10 }}
+                style={styles.input}
             />
             <Button title="Sign In" onPress={handleSignIn} />
             <Button
@@ -41,5 +43,23 @@ const SignIn = ({ navigation }: any) => {
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        padding: 20,
+    },
+    label: {
+        marginBottom: 5,
+        fontFamily: "Nunito",
+    },
+    input: {
+        borderBottomWidth: 1,
+        marginBottom: 20,
+        paddingVertical: 5,
+        fontFamily: "Nunito",
+    },
+});
 
 export default SignIn;

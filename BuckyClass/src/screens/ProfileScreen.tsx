@@ -108,8 +108,6 @@ const ProfileScreen = ({ navigation }) => {
         </LinearGradient>
       </View>
 
-      {/* Bottom Navigation Bar */}
-      <BottomNavBar navigation={navigation} activeScreen="Profile" />
     </SafeAreaView>
   );
 };

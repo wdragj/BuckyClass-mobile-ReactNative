@@ -29,27 +29,16 @@ const styles = StyleSheet.create({
         elevation: 8,
         paddingTop: 20,
         paddingHorizontal: 20,
-        paddingBottom: 70, // 네비게이션 바 공간 확보
+        paddingBottom: 0, // 네비게이션 바 공간 확보
     },
     container: {
         flex: 1,
     },
 
-    // 그라데이션 대체 배경 스타일
-    gradientBackground: {
-        flex: 1,
-        backgroundColor: "#e8daf1", // 밝은 보라색 배경(그라데이션을 단색으로 대체)
-    },
-    // 반투명 오버레이 컨테이너
+    // 반투명 오버레이 컨테이너 - 중복 배경 제거
     overlayContainer: {
         flex: 1,
-        backgroundColor: "transparent", // 불필요한 배경 제거
-        // 그림자 효과
-        shadowColor: "rgba(0, 0, 0, 0.30)",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.5,
-        shadowRadius: 8,
-        elevation: 6, // Android 그림자
+        backgroundColor: "transparent",
     },
 
     // 기본 화면
@@ -58,9 +47,10 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     searchTitle: {
-        fontSize: 20,
-        fontWeight: "600",
-        marginBottom: 8,
+        fontSize: 24,
+        fontWeight: "800",
+        color: "#171717",
+        fontFamily: "Nunito-ExtraBold",
     },
     searchBar: {
         backgroundColor: "#fff",
@@ -153,7 +143,7 @@ const styles = StyleSheet.create({
     searchHeader: {
         flexDirection: "row",
         alignItems: "center",
-        marginBottom: 8,
+        marginBottom: 16,
     },
     backButton: {
         padding: 4,
@@ -162,23 +152,42 @@ const styles = StyleSheet.create({
 
     searchInput: {
         backgroundColor: "#fff",
-        borderRadius: 8,
-        padding: 12,
-        marginBottom: 16,
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 20,
+        fontSize: 16,
+        fontFamily: "Nunito",
+        shadowColor: "rgba(0, 0, 0, 0.1)",
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+        shadowOpacity: 0.3,
+        elevation: 2,
     },
     flatListContent: {
-        paddingBottom: 16,
+        paddingBottom: 20,
+    },
+    emptyResultText: {
+        textAlign: "center",
+        marginTop: 40,
+        fontSize: 16,
+        color: "#777",
+        fontFamily: "Nunito",
     },
     listItem: {
-        backgroundColor: "#fff",
-        borderRadius: 8,
-
-        padding: 12,
+        borderRadius: 16,
+        padding: 16,
 
         marginBottom: 12,
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
+        shadowColor: "rgba(0, 0, 0, 0.1)",
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+        shadowOpacity: 0.2,
+        elevation: 2,
+        borderBottomWidth: 1, // 하단 경계선 추가
+        borderBottomColor: "rgba(0, 0, 0, 0.1)", // 얇은 회색 색상
     },
 
     listItemContent: {
@@ -190,17 +199,17 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "600",
         color: "#333",
-
-        maxWidth: screenWidth - 120, // 버튼 영역과 여백을 고려한 최대 너비
+        fontFamily: "Nunito-Bold",
+        maxWidth: screenWidth - 140, // 버튼 영역과 여백을 고려한 최대 너비
     },
     listItemSub: {
         fontSize: 14,
         color: "#666",
         marginTop: 4,
+        fontFamily: "Nunito",
     },
     listButtonGroup: {
-        justifyContent: "space-between",
-        height: 70,
+        justifyContent: "center",
     },
     bottomNavBar: {
         flexDirection: "row",
@@ -227,10 +236,10 @@ const styles = StyleSheet.create({
 
     // 리스트 아이템 이미지 스타일 추가
     listItemImage: {
-        width: 32,
-        height: 32,
-        borderRadius: 16, // 원형 이미지를 위해 반지름을 너비/높이의 절반으로 설정
-        marginRight: 12, // 이미지와 텍스트 사이 간격
+        width: 40,
+        height: 40,
+        borderRadius: 20, // 원형 이미지를 위해 반지름을 너비/높이의 절반으로 설정
+        marginRight: 16, // 이미지와 텍스트 사이 간격
     },
 });
 

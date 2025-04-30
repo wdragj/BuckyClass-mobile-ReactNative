@@ -129,7 +129,8 @@ const AvatarScreen = () => {
       {/* Save Button with Gradient */}
       <TouchableOpacity
         style={styles.buttonWrapper}
-        onPress={() => navigation.navigate("Home")}
+        onPress={() => navigation.navigate("MainTabs", { screen: "Home" })}
+  // This line ensures it navigates to the Home screen
       >
         <LinearGradient
           colors={["#F97CBD", "#DD94F7", "#A79CFF"]}

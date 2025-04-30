@@ -6,13 +6,14 @@ import {
     TouchableOpacity,
     ScrollView,
     Image,
+    Dimensions,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../types/navigation";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import styles from "./HomeScreen_CSS";
 import { LinearGradient } from "expo-linear-gradient";
-import BottomNavBar from "../../components/BottomNavBar";
+import { LineChart } from "react-native-chart-kit";
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 
@@ -98,14 +99,47 @@ const latestReviews = [
     },
 ];
 
-// 예시 데이터: 핫 코스
+// 예시 데이터: 핫 코스 (10일치 채팅 데이터 추가)
 const hotCourses = [
-    { name: "CS 400", top: "Top 1" },
-    { name: "Music 113", top: "Top 2" },
-    { name: "ENG 100", top: "Top 3" },
+    {
+        name: "COMP SCI 400",
+        top: "Top 1",
+        chatData: [25, 24, 28, 32, 36, 40, 35, 30, 35, 42], // 10일치 채팅 데이터
+    },
+    {
+        name: "STAT 240",
+        top: "Top 2",
+        chatData: [15, 18, 20, 20, 22, 19, 26, 28, 24, 30],
+    },
+    {
+        name: "MATH 535",
+        top: "Top 3",
+        chatData: [10, 11, 12, 14, 31, 15, 18, 16, 20, 19],
+    },
 ];
 
 export default function HomeScreen({ navigation }: HomeScreenProps) {
+    // 그래프 설정 - 모든 배경 관련 속성을 투명하게 수정
+    const chartConfig = {
+        backgroundGradientFrom: "transparent",
+        backgroundGradientTo: "transparent",
+        backgroundGradientFromOpacity: 0, // 시작 그라데이션 완전 투명
+        backgroundGradientToOpacity: 0, // 끝 그라데이션 완전 투명
+        color: (opacity = 1) => "#8863E4",
+        strokeWidth: 2,
+        barPercentage: 0.5,
+        useShadowColorFromDataset: false,
+        propsForDots: {
+            r: "0",
+        },
+        fillShadowGradientOpacity: 0,
+        decimalPlaces: 0,
+    };
+
+    // 작은 차트 너비 설정
+    const miniChartWidth = 80;
+    const miniChartHeight = 50;
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.gradientBackground}>
@@ -160,10 +194,10 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                                             <Image
                                                 source={
                                                     index === 0
-                                                        ? require("../../../assets/1st.png")
+                                                        ? require("../../../assets/csIcon.png")
                                                         : index === 1
-                                                        ? require("../../../assets/2nd.png")
-                                                        : require("../../../assets/3rd.png")
+                                                        ? require("../../../assets/statIcon.png")
+                                                        : require("../../../assets/mathIcon.png")
                                                 }
                                                 style={
                                                     styles.hotCourseImagePlaceholder
@@ -186,10 +220,133 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                                                 </Text>
                                             </View>
                                         </View>
-                                        <Ionicons
-                                            name="ellipsis-horizontal"
-                                            style={styles.hotCourseEllipsisIcon}
-                                        />
+
+                                        {/* 미니 차트와 통계 정보 */}
+                                        <View style={styles.rightContainer}>
+                                            {/* 미니 라인 차트 추가 */}
+                                            <View
+                                                style={[
+                                                    styles.miniChartContainer,
+                                                    {
+                                                        backgroundColor:
+                                                            "transparent",
+                                                    },
+                                                ]}
+                                            >
+                                                <LineChart
+                                                    data={{
+                                                        labels: [], // 레이블 없음
+                                                        datasets: [
+                                                            {
+                                                                data: course.chatData,
+                                                                color: () =>
+                                                                    "#8863E4", // 색상 직접 지정
+                                                                strokeWidth: 2,
+                                                            },
+                                                        ],
+                                                    }}
+                                                    width={miniChartWidth}
+                                                    height={miniChartHeight}
+                                                    chartConfig={chartConfig}
+                                                    bezier
+                                                    withVerticalLines={false}
+                                                    withHorizontalLines={false}
+                                                    withDots={false}
+                                                    withInnerLines={false}
+                                                    withOuterLines={false}
+                                                    withShadow={false}
+                                                    withScrollableDot={false}
+                                                    yAxisLabel=""
+                                                    yAxisSuffix=""
+                                                    style={{
+                                                        ...styles.miniChart,
+                                                        backgroundColor:
+                                                            "transparent",
+                                                    }}
+                                                    backgroundColor="transparent" // 완전히 투명하게
+                                                />
+                                            </View>
+
+                                            {/* 추가: 순위 및 변화량 정보 */}
+                                            <View style={styles.statsContainer}>
+                                                {/* 순위 정보 */}
+                                                <Text style={styles.rankText}>
+                                                    {index === 0
+                                                        ? "1st"
+                                                        : index === 1
+                                                        ? "2nd"
+                                                        : "3rd"}
+                                                </Text>
+
+                                                {/* 채팅수 변화량 */}
+                                                <View
+                                                    style={
+                                                        styles.changeContainer
+                                                    }
+                                                >
+                                                    {(() => {
+                                                        // 최근 채팅수 변화 계산 (10일째와 9일째 비교)
+                                                        const latestValue =
+                                                            course.chatData[
+                                                                course.chatData
+                                                                    .length - 1
+                                                            ];
+                                                        const previousValue =
+                                                            course.chatData[
+                                                                course.chatData
+                                                                    .length - 2
+                                                            ];
+                                                        const change =
+                                                            latestValue -
+                                                            previousValue;
+                                                        const isIncrease =
+                                                            change > 0;
+
+                                                        return (
+                                                            <>
+                                                                <Ionicons
+                                                                    name={
+                                                                        isIncrease
+                                                                            ? "triangle"
+                                                                            : "triangle"
+                                                                    }
+                                                                    style={[
+                                                                        styles.changeIcon,
+                                                                        {
+                                                                            color: isIncrease
+                                                                                ? "#4CAF50"
+                                                                                : "#F44336",
+                                                                            transform:
+                                                                                [
+                                                                                    {
+                                                                                        rotate: isIncrease
+                                                                                            ? "0deg"
+                                                                                            : "180deg",
+                                                                                    },
+                                                                                ],
+                                                                        },
+                                                                    ]}
+                                                                />
+                                                                <Text
+                                                                    style={[
+                                                                        styles.changeText,
+                                                                        {
+                                                                            color: isIncrease
+                                                                                ? "#4CAF50"
+                                                                                : "#F44336",
+                                                                        },
+                                                                    ]}
+                                                                >
+                                                                    {Math.abs(
+                                                                        change
+                                                                    )}
+                                                                </Text>
+                                                            </>
+                                                        );
+                                                    })()}
+                                                </View>
+                                            </View>
+                                        </View>
                                     </TouchableOpacity>
                                 ))}
                             </View>
@@ -331,9 +488,6 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                             </View>
                         </ScrollView>
                     </View>
-
-                    {/* 하단 네비게이션 바 - 새 컴포넌트 사용 */}
-                    <BottomNavBar navigation={navigation} activeScreen="Home" />
                 </LinearGradient>
             </View>
         </SafeAreaView>
