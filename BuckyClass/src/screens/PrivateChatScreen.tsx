@@ -48,16 +48,8 @@ export default function PrivateChatScreen({
     const sendMessage = async () => {
         if (!newMessage.trim() || !currentUser) return;
 
-<<<<<<< HEAD
-        const messageRef = ref(
-            realtimeDB,
-            `chats/${route.params.chatId}/messages`
-        );
-        push(messageRef, {
-=======
         const messageRef = dbRef(realtimeDB, `chats/${route.params.chatId}/messages`);
         await push(messageRef, {
->>>>>>> 7d616054ba19c3751ddc15a6939ce405654ac747
             text: newMessage,
             senderUid: currentUser.uid,
             senderName: currentUser.displayName || "Unknown",
@@ -114,21 +106,6 @@ export default function PrivateChatScreen({
     useEffect(() => {
         ensureChatRoomExists();
 
-<<<<<<< HEAD
-        const messageRef = ref(
-            realtimeDB,
-            `chats/${route.params.chatId}/messages`
-        );
-        const unsubscribe = onValue(messageRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                const messageList = Object.entries(data).map(
-                    ([id, value]: any) => ({
-                        id,
-                        ...value,
-                    })
-                );
-=======
         const messageRef = dbRef(realtimeDB, `chats/${route.params.chatId}/messages`);
         const unsubscribe = onValue(messageRef, (snapshot) => {
             const data = snapshot.val();
@@ -137,7 +114,6 @@ export default function PrivateChatScreen({
                     id,
                     ...value,
                 }));
->>>>>>> 7d616054ba19c3751ddc15a6939ce405654ac747
                 messageList.sort((a, b) => a.timestamp - b.timestamp);
                 setMessages(messageList);
             } else {

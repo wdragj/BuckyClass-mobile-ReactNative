@@ -38,22 +38,10 @@ export default function CourseChatScreen({
     navigation: CourseChatScreenNavigationProp;
     route: { params: { courseId: string } };
 }) {
-<<<<<<< HEAD
-    const [messages, setMessages] = useState<string[]>([]);
-=======
     const [messages, setMessages] = useState<Message[]>([]);
->>>>>>> 7d616054ba19c3751ddc15a6939ce405654ac747
     const [newMessage, setNewMessage] = useState("");
     const scrollViewRef = useRef<ScrollView>(null);
 
-<<<<<<< HEAD
-    const sendMessage = () => {
-        if (!newMessage.trim()) return;
-        setMessages([...messages, newMessage]);
-        setNewMessage("");
-    };
-
-=======
     const auth = getAuth();
     const currentUser = auth.currentUser;
 
@@ -150,7 +138,6 @@ const sendImage = async () => {
         };
     }, []);
 
->>>>>>> 7d616054ba19c3751ddc15a6939ce405654ac747
     useEffect(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
     }, [messages]);
@@ -172,13 +159,6 @@ const sendImage = async () => {
                 ref={scrollViewRef}
                 contentContainerStyle={styles.messagesContent}
             >
-<<<<<<< HEAD
-                {messages.map((msg, index) => (
-                    <View key={index} style={styles.messageBubble}>
-                        <Text style={styles.messageText}>{msg}</Text>
-                    </View>
-                ))}
-=======
                 {messages.map((msg) => {
                     const isMyMessage = currentUser?.uid === msg.senderUid;
                     return (
@@ -200,7 +180,6 @@ const sendImage = async () => {
                         </View>
                     );
                 })}
->>>>>>> 7d616054ba19c3751ddc15a6939ce405654ac747
             </ScrollView>
             <View style={styles.inputContainer}>
                 <TextInput
