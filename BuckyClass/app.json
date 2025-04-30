@@ -24,6 +24,27 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "fonts": [
+      {
+        "asset": "./assets/fonts/Nunito-Regular.ttf",
+        "family": "Nunito"
+      },
+      {
+        "asset": "./assets/fonts/Nunito-Bold.ttf",
+        "family": "Nunito-Bold"
+      },
+      {
+        "asset": "./assets/fonts/Nunito-ExtraBold.ttf",
+        "family": "Nunito-ExtraBold"
+      },
+      {
+        "asset": "./assets/fonts/Nunito-SemiBold.ttf",
+        "family": "Nunito-SemiBold"
+      }
+    ],
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
