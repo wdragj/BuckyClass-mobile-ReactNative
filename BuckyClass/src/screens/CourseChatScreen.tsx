@@ -41,7 +41,6 @@ export default function CourseChatScreen({
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const scrollViewRef = useRef<ScrollView>(null);
-    const courseId = route.params.courseId;
 
     const auth = getAuth();
     const currentUser = auth.currentUser;
@@ -151,7 +150,9 @@ const sendImage = async () => {
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.header}>
-                <Text style={styles.headerText}>Course Chat - {courseId}</Text>
+                <Text style={styles.headerText}>
+                    Course Chat {route.params.courseId}
+                </Text>
             </View>
             <ScrollView
                 style={styles.messageContainer}
@@ -188,7 +189,10 @@ const sendImage = async () => {
                     style={styles.input}
                     placeholderTextColor="#888"
                 />
-                <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+                <TouchableOpacity
+                    style={styles.sendButton}
+                    onPress={sendMessage}
+                >
                     <Text style={styles.sendButtonText}>Send</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.imageButton} onPress={sendImage}>
@@ -206,20 +210,13 @@ const styles = StyleSheet.create({
     messageContainer: { flex: 1, padding: 16, backgroundColor: "#f9f9f9" },
     messagesContent: { paddingBottom: 20 },
     messageBubble: {
+        backgroundColor: "#4A90E2",
+        alignSelf: "flex-start",
         borderRadius: 12,
         padding: 12,
         marginBottom: 10,
         maxWidth: "80%",
     },
-    myBubble: {
-        alignSelf: "flex-end",
-        backgroundColor: "#007AFF",
-    },
-    otherBubble: {
-        alignSelf: "flex-start",
-        backgroundColor: "#4A90E2",
-    },
-    sender: { fontWeight: "bold", color: "#fff", marginBottom: 4 },
     messageText: { color: "#fff", fontSize: 16 },
     timestamp: { marginTop: 4, fontSize: 12, color: "#ddd", alignSelf: "flex-end" },
     image: {

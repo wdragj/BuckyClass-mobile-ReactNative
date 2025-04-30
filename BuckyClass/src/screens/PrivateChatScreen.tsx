@@ -152,11 +152,15 @@ export default function PrivateChatScreen({
                             key={msg.id}
                             style={[
                                 styles.messageBubble,
-                                isMyMessage ? styles.myBubble : styles.otherBubble,
+                                isMyMessage
+                                    ? styles.myBubble
+                                    : styles.otherBubble,
                             ]}
                         >
                             {!isMyMessage && (
-                                <Text style={styles.sender}>{msg.senderName}</Text>
+                                <Text style={styles.sender}>
+                                    {msg.senderName}
+                                </Text>
                             )}
                             {msg.text && <Text style={styles.messageText}>{msg.text}</Text>}
                             {msg.imageUrl && (
@@ -175,7 +179,10 @@ export default function PrivateChatScreen({
                     style={styles.input}
                     placeholderTextColor="#888"
                 />
-                <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+                <TouchableOpacity
+                    style={styles.sendButton}
+                    onPress={sendMessage}
+                >
                     <Text style={styles.sendButtonText}>Send</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.imageButton} onPress={sendImage}>
