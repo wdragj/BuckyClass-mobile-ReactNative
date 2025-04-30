@@ -22,6 +22,10 @@ type ChatItem = {
     type: "course" | "private";
     lastMessage?: string;
 };
+type Message = {
+    text: string;
+    timestamp: number;
+};
 
 export default function ChatListScreen({
                                            navigation,
@@ -41,16 +45,19 @@ export default function ChatListScreen({
                 for (const chatId in data) {
                     const chat = data[chatId];
                     const messages = chat.messages
-                        ? Object.values(chat.messages)
-                        : [];
-                    const lastMessage = messages.length
-                        ? messages[messages.length - 1].text
-                        : "";
+                    ? (Object.values(chat.messages) as Message[])
+                    : [];
+                let lastMessage = "";
+    
+                if (messages.length) {
+                    messages.sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0));
+                    lastMessage = messages[messages.length - 1]?.text || "";
+                }
 
                     chatList.push({
                         id: chatId,
                         name: chat.name || "Unnamed Chat",
-                        type: chat.type || "private", // fallback
+                        type: chat.type || "private",
                         lastMessage,
                     });
                 }
