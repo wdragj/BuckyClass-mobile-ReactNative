@@ -231,7 +231,6 @@ const App = () => {
                     component={EditProfileScreen}
                     options={{ headerShown: false }}
                 />
-                
             </Stack.Navigator>
         </NavigationContainer>
     );

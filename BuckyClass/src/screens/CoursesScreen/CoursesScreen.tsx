@@ -206,22 +206,12 @@ export default function CoursesScreen({
                                                     Views: {item.views}
                                                 </Text>
                                             </View>
-                                            <View
-                                                style={styles.listButtonGroup}
-                                            >
-                                                <Button
-                                                    title="Details"
-                                                    onPress={() =>
-                                                        navigation.navigate(
-                                                            "CourseDetails",
-                                                            {
-                                                                course: item,
-                                                            }
-                                                        )
-                                                    }
-                                                    color="#000"
-                                                />
-                                            </View>
+                                            <Ionicons
+                                                name="chevron-forward"
+                                                size={24}
+                                                color="#8863e4"
+                                                style={styles.arrowIcon}
+                                            />
                                         </TouchableOpacity>
                                     )}
                                     contentContainerStyle={

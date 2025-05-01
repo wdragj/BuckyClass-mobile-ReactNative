@@ -15,6 +15,8 @@ import { PieChart } from "react-native-chart-kit";
 import { RootStackParamList } from "../types/navigation";
 import { LinearGradient } from "expo-linear-gradient";
 import BottomNavBar from "../components/BottomNavBar";
+import { getAuth } from "firebase/auth"; // Firebase Auth 가져오기
+import Ionicons from "react-native-vector-icons/Ionicons"; // 별점을 위한 아이콘
 
 type CourseDetailsScreenRouteProp = RouteProp<
     RootStackParamList,
@@ -25,25 +27,37 @@ type CourseDetailsScreenNavigationProp = StackNavigationProp<
     "CourseDetails"
 >;
 
+// API 응답 형식에 맞게 인터페이스 업데이트
 interface CourseDetailData {
     course: {
         id: string;
         name: string;
+        number: number;
         views: number;
     };
     grade: {
         course_id: string;
         total: number;
-        a_per: string;
-        ab_per: string;
-        b_per: string;
-        bc_per: string;
-        c_per: string;
-        d_per: string;
-        f_per: string;
-        other_per: string;
+        a_per: number;
+        ab_per: number;
+        b_per: number;
+        bc_per: number;
+        c_per: number;
+        d_per: number;
+        f_per: number;
+        other_per: number;
     };
-    reviews: any[];
+    reviews: Review[];
+}
+
+interface Review {
+    course_id: string;
+    user_id: string;
+    rating: number;
+    comment: string;
+    edited: boolean;
+    created_at: string;
+    like_count: number;
 }
 
 interface Props {
@@ -58,23 +72,46 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     );
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [authenticated, setAuthenticated] = useState(false);
 
     useEffect(() => {
         // 강의 ID로 강의 상세 정보 가져오기
         const fetchCourseDetail = async () => {
+            setLoading(true);
+
+            const auth = getAuth();
+            const currentUser = auth.currentUser;
+
+            if (!currentUser) {
+                setLoading(false);
+                setError("로그인이 필요합니다. 로그인 후 다시 시도해주세요.");
+                return;
+            }
+
             try {
+                // Firebase ID 토큰 가져오기
+                const idToken = await currentUser.getIdToken(true);
+                setAuthenticated(true);
+
                 const response = await fetch(
-                    `https://grow-ruddy.vercel.app/api/courses/${course.id}`
+                    `https://grow-ruddy.vercel.app/api/courses/${course.id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${idToken}`,
+                        },
+                    }
                 );
+
                 if (!response.ok) {
-                    throw new Error("Failed to fetch course details");
+                    throw new Error(`API 요청 실패: ${response.status}`);
                 }
+
                 const data = await response.json();
                 setCourseDetail(data);
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching course details:", err);
-                setError("Failed to load course details");
+                setError("강의 상세 정보를 불러오는데 실패했습니다.");
                 setLoading(false);
             }
         };
@@ -104,10 +141,6 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                 </Text>
                             </View>
                         </View>
-                        <BottomNavBar
-                            navigation={navigation}
-                            activeScreen="Courses"
-                        />
                     </LinearGradient>
                 </View>
             </SafeAreaView>
@@ -128,12 +161,22 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                         <View style={styles.blurOverlay}>
                             <View style={styles.centeredContainer}>
                                 <Text style={styles.errorText}>{error}</Text>
+
+                                {/* 로그인 필요 시 로그인 버튼 표시 */}
+                                {!authenticated && error.includes("로그인") && (
+                                    <TouchableOpacity
+                                        style={styles.loginButton}
+                                        onPress={() =>
+                                            navigation.navigate("SignIn")
+                                        }
+                                    >
+                                        <Text style={styles.loginButtonText}>
+                                            로그인하러 가기
+                                        </Text>
+                                    </TouchableOpacity>
+                                )}
                             </View>
                         </View>
-                        <BottomNavBar
-                            navigation={navigation}
-                            activeScreen="Courses"
-                        />
                     </LinearGradient>
                 </View>
             </SafeAreaView>
@@ -168,14 +211,14 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 
     // 모든 등급의 비율이 0인지 확인
     const allZeroGrades =
-        parseFloat(courseDetail.grade.a_per) === 0 &&
-        parseFloat(courseDetail.grade.ab_per) === 0 &&
-        parseFloat(courseDetail.grade.b_per) === 0 &&
-        parseFloat(courseDetail.grade.bc_per) === 0 &&
-        parseFloat(courseDetail.grade.c_per) === 0 &&
-        parseFloat(courseDetail.grade.d_per) === 0 &&
-        parseFloat(courseDetail.grade.f_per) === 0 &&
-        parseFloat(courseDetail.grade.other_per) === 0;
+        courseDetail.grade.a_per === 0 &&
+        courseDetail.grade.ab_per === 0 &&
+        courseDetail.grade.b_per === 0 &&
+        courseDetail.grade.bc_per === 0 &&
+        courseDetail.grade.c_per === 0 &&
+        courseDetail.grade.d_per === 0 &&
+        courseDetail.grade.f_per === 0 &&
+        courseDetail.grade.other_per === 0;
 
     // 차트 데이터 - 모든 비율이 0이면 A를 100%로 표시
     const chartData = allZeroGrades
@@ -191,56 +234,56 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
         : [
               {
                   name: "A",
-                  population: parseFloat(courseDetail.grade.a_per),
+                  population: courseDetail.grade.a_per,
                   color: "#4CAF50",
                   legendFontColor: "#7F7F7F",
                   legendFontSize: 15,
               },
               {
                   name: "AB",
-                  population: parseFloat(courseDetail.grade.ab_per),
+                  population: courseDetail.grade.ab_per,
                   color: "#8BC34A",
                   legendFontColor: "#7F7F7F",
                   legendFontSize: 15,
               },
               {
                   name: "B",
-                  population: parseFloat(courseDetail.grade.b_per),
+                  population: courseDetail.grade.b_per,
                   color: "#CDDC39",
                   legendFontColor: "#7F7F7F",
                   legendFontSize: 15,
               },
               {
                   name: "BC",
-                  population: parseFloat(courseDetail.grade.bc_per),
+                  population: courseDetail.grade.bc_per,
                   color: "#FFEB3B",
                   legendFontColor: "#7F7F7F",
                   legendFontSize: 15,
               },
               {
                   name: "C",
-                  population: parseFloat(courseDetail.grade.c_per),
+                  population: courseDetail.grade.c_per,
                   color: "#FFC107",
                   legendFontColor: "#7F7F7F",
                   legendFontSize: 15,
               },
               {
                   name: "D",
-                  population: parseFloat(courseDetail.grade.d_per),
+                  population: courseDetail.grade.d_per,
                   color: "#FF9800",
                   legendFontColor: "#7F7F7F",
                   legendFontSize: 15,
               },
               {
                   name: "F",
-                  population: parseFloat(courseDetail.grade.f_per),
+                  population: courseDetail.grade.f_per,
                   color: "#F44336",
                   legendFontColor: "#7F7F7F",
                   legendFontSize: 15,
               },
               {
                   name: "Other",
-                  population: parseFloat(courseDetail.grade.other_per),
+                  population: courseDetail.grade.other_per,
                   color: "#9E9E9E",
                   legendFontColor: "#7F7F7F",
                   legendFontSize: 15,
@@ -253,6 +296,16 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
         : chartData.filter((item) => item.population > 0);
 
     const screenWidth = Dimensions.get("window").width;
+
+    // 날짜 포맷팅 함수
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("ko-KR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+    };
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -271,9 +324,14 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                             <Text style={styles.courseName}>
                                 {courseDetail.course.name}
                             </Text>
-                            <Text style={styles.courseViews}>
-                                Views: {courseDetail.course.views}
-                            </Text>
+                            <View style={styles.courseInfoRow}>
+                                <Text style={styles.courseInfoText}>
+                                    Course Number: {courseDetail.course.number}
+                                </Text>
+                                <Text style={styles.courseInfoText}>
+                                    Views: {courseDetail.course.views}
+                                </Text>
+                            </View>
 
                             <View style={styles.sectionContainer}>
                                 <Text style={styles.sectionTitle}>
@@ -341,7 +399,82 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                                 key={index}
                                                 style={styles.reviewItem}
                                             >
-                                                <Text>{review.content}</Text>
+                                                <View
+                                                    style={styles.reviewHeader}
+                                                >
+                                                    <View
+                                                        style={
+                                                            styles.ratingContainer
+                                                        }
+                                                    >
+                                                        {/* 별점 표시 */}
+                                                        {[1, 2, 3, 4, 5].map(
+                                                            (star) => (
+                                                                <Ionicons
+                                                                    key={star}
+                                                                    name={
+                                                                        star <=
+                                                                        review.rating
+                                                                            ? "star"
+                                                                            : "star-outline"
+                                                                    }
+                                                                    size={16}
+                                                                    color="#FFD700"
+                                                                    style={
+                                                                        styles.starIcon
+                                                                    }
+                                                                />
+                                                            )
+                                                        )}
+                                                        <Text
+                                                            style={
+                                                                styles.ratingText
+                                                            }
+                                                        >
+                                                            {review.rating.toFixed(
+                                                                1
+                                                            )}
+                                                        </Text>
+                                                    </View>
+                                                    <Text
+                                                        style={
+                                                            styles.reviewDate
+                                                        }
+                                                    >
+                                                        {formatDate(
+                                                            review.created_at
+                                                        )}
+                                                        {review.edited &&
+                                                            " (edited)"}
+                                                    </Text>
+                                                </View>
+                                                <Text
+                                                    style={styles.reviewComment}
+                                                >
+                                                    {review.comment}
+                                                </Text>
+                                                <View
+                                                    style={styles.reviewFooter}
+                                                >
+                                                    <View
+                                                        style={
+                                                            styles.likeContainer
+                                                        }
+                                                    >
+                                                        <Ionicons
+                                                            name="heart"
+                                                            size={14}
+                                                            color="#F97CBD"
+                                                        />
+                                                        <Text
+                                                            style={
+                                                                styles.likeCount
+                                                            }
+                                                        >
+                                                            {review.like_count}
+                                                        </Text>
+                                                    </View>
+                                                </View>
                                             </View>
                                         )
                                     )
@@ -421,10 +554,14 @@ const styles = StyleSheet.create({
         fontFamily: "Nunito-ExtraBold",
         color: "#171717",
     },
-    courseViews: {
+    courseInfoRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 24,
+    },
+    courseInfoText: {
         fontSize: 14,
         color: "#777",
-        marginBottom: 24,
         fontFamily: "Nunito",
     },
     sectionContainer: {
@@ -467,6 +604,50 @@ const styles = StyleSheet.create({
         padding: 12,
         borderBottomWidth: 1,
         borderBottomColor: "#eee",
+        marginBottom: 12,
+    },
+    reviewHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 8,
+    },
+    ratingContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    starIcon: {
+        marginRight: 2,
+    },
+    ratingText: {
+        marginLeft: 4,
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#333",
+    },
+    reviewDate: {
+        fontSize: 12,
+        color: "#999",
+        fontStyle: "italic",
+    },
+    reviewComment: {
+        fontSize: 14,
+        color: "#333",
+        lineHeight: 20,
+        marginBottom: 8,
+    },
+    reviewFooter: {
+        flexDirection: "row",
+        justifyContent: "flex-end",
+    },
+    likeContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    likeCount: {
+        marginLeft: 4,
+        fontSize: 12,
+        color: "#666",
     },
     emptyText: {
         fontStyle: "italic",
@@ -476,6 +657,8 @@ const styles = StyleSheet.create({
         color: "#F97CBD",
         fontSize: 16,
         fontFamily: "Nunito-Bold",
+        textAlign: "center",
+        marginBottom: 20,
     },
     chatButton: {
         backgroundColor: "#fff",
@@ -496,6 +679,20 @@ const styles = StyleSheet.create({
         color: "#8863e4",
         fontSize: 16,
         fontWeight: "500",
+        fontFamily: "Nunito-Bold",
+    },
+    loginButton: {
+        backgroundColor: "#F97CBD",
+        borderRadius: 24,
+        padding: 12,
+        marginTop: 20,
+        alignItems: "center",
+        alignSelf: "center",
+        paddingHorizontal: 40,
+    },
+    loginButtonText: {
+        color: "#FFF",
+        fontSize: 16,
         fontFamily: "Nunito-Bold",
     },
 });
