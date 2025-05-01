@@ -241,6 +241,22 @@ const styles = StyleSheet.create({
         borderRadius: 20, // 원형 이미지를 위해 반지름을 너비/높이의 절반으로 설정
         marginRight: 16, // 이미지와 텍스트 사이 간격
     },
+
+    loginButton: {
+        backgroundColor: "#F97CBD",
+        borderRadius: 24,
+        padding: 12,
+        marginTop: 20,
+        marginBottom: 20,
+        alignItems: "center",
+        alignSelf: "center",
+        paddingHorizontal: 40,
+    },
+    loginButtonText: {
+        color: "#FFF",
+        fontSize: 16,
+        fontFamily: "Nunito-Bold",
+    },
 });
 
 export default styles;

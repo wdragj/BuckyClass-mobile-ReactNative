@@ -9,12 +9,14 @@ import {
     SafeAreaView,
     Image,
     StyleSheet,
+    Alert,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../types/navigation";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import styles from "./CoursesScreen_CSS";
 import { LinearGradient } from "expo-linear-gradient";
+import { getAuth } from "firebase/auth"; // Firebase Auth 가져오기
 
 const courseImage = require("../../../assets/1st.png");
 
@@ -39,21 +41,82 @@ export default function CoursesScreen({
     const [searchText, setSearchText] = useState("");
     // 강의 목록 상태
     const [courses, setCourses] = useState<Course[]>([]);
+    // 로딩 상태 추가
+    const [loading, setLoading] = useState(true);
+    // 에러 상태 추가
+    const [error, setError] = useState<string | null>(null);
+    // 인증 상태 추가
+    const [authenticated, setAuthenticated] = useState(false);
 
     useEffect(() => {
         // 백엔드 API로부터 강의 목록을 조회
-        fetch("https://grow-ruddy.vercel.app/api/courses")
-            .then((response) => response.json())
-            .then((data) => setCourses(data))
-            .catch((error) => console.error("Error fetching courses:", error));
+        setLoading(true);
+
+        const auth = getAuth();
+        const currentUser = auth.currentUser;
+
+        if (!currentUser) {
+            setLoading(false);
+            setError("로그인이 필요합니다. 로그인 후 다시 시도해주세요.");
+            return;
+        }
+
+        // Firebase ID 토큰 가져오기
+        currentUser
+            .getIdToken(true)
+            .then((idToken) => {
+                setAuthenticated(true);
+
+                // 토큰을 헤더에 추가하여 API 요청
+                fetch("https://grow-ruddy.vercel.app/api/courses", {
+                    headers: {
+                        Authorization: `Bearer ${idToken}`,
+                    },
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error(
+                                `API 요청 실패: ${response.status}`
+                            );
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        // API 응답이 배열인지 확인
+                        if (Array.isArray(data)) {
+                            setCourses(data);
+                        } else {
+                            console.error("API 응답이 배열이 아닙니다:", data);
+                            setCourses([]);
+                            setError("API 응답 형식이 잘못되었습니다.");
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching courses:", error);
+                        setError("강의 목록을 불러오는데 실패했습니다.");
+                        setCourses([]);
+                    })
+                    .finally(() => {
+                        setLoading(false);
+                    });
+            })
+            .catch((error) => {
+                console.error("ID 토큰 가져오기 실패:", error);
+                setLoading(false);
+                setError(
+                    "인증 토큰을 가져오는데 실패했습니다. 로그아웃 후 다시 로그인해주세요."
+                );
+            });
     }, []);
 
-    // 검색 필터링 - name 필드로 검색
-    const filteredCourses = courses.filter(
-        (course) =>
-            course.name &&
-            course.name.toLowerCase().includes(searchText.toLowerCase())
-    );
+    // 검색 필터링 - 안전하게 처리
+    const filteredCourses = Array.isArray(courses)
+        ? courses.filter(
+              (course) =>
+                  course.name &&
+                  course.name.toLowerCase().includes(searchText.toLowerCase())
+          )
+        : [];
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -76,58 +139,102 @@ export default function CoursesScreen({
                                 autoFocus={false}
                             />
 
-                            {/* 리스트 영역 */}
-                            <FlatList
-                                data={filteredCourses}
-                                keyExtractor={(item) => item.id}
-                                renderItem={({ item }) => (
+                            {/* 로그인 필요 시 로그인 버튼 표시 */}
+                            {!authenticated &&
+                                error &&
+                                error.includes("로그인") && (
                                     <TouchableOpacity
-                                        style={styles.listItem}
+                                        style={styles.loginButton}
                                         onPress={() =>
-                                            navigation.navigate(
-                                                "CourseDetails",
-                                                {
-                                                    course: item,
-                                                }
-                                            )
+                                            navigation.navigate("SignIn")
                                         }
                                     >
-                                        <View style={styles.listItemContent}>
-                                            <Text
-                                                style={styles.listItemTitle}
-                                                numberOfLines={1}
-                                                ellipsizeMode="tail"
-                                            >
-                                                {item.name}
-                                            </Text>
-                                            <Text style={styles.listItemSub}>
-                                                Views: {item.views}
-                                            </Text>
-                                        </View>
-                                        <View style={styles.listButtonGroup}>
-                                            <Button
-                                                title="Details"
-                                                onPress={() =>
-                                                    navigation.navigate(
-                                                        "CourseDetails",
-                                                        {
-                                                            course: item,
-                                                        }
-                                                    )
-                                                }
-                                                color="#000"
-                                            />
-                                        </View>
+                                        <Text style={styles.loginButtonText}>
+                                            로그인하러 가기
+                                        </Text>
                                     </TouchableOpacity>
                                 )}
-                                contentContainerStyle={styles.flatListContent}
-                                ListEmptyComponent={
-                                    <Text style={styles.emptyResultText}>
-                                        No courses found. Try another search
-                                        term.
-                                    </Text>
-                                }
-                            />
+
+                            {/* 로딩 중이거나 에러 발생 시 표시 */}
+                            {loading && (
+                                <Text style={styles.emptyResultText}>
+                                    Loading courses...
+                                </Text>
+                            )}
+
+                            {error && (
+                                <Text
+                                    style={[
+                                        styles.emptyResultText,
+                                        { color: "red" },
+                                    ]}
+                                >
+                                    {error}
+                                </Text>
+                            )}
+
+                            {/* 리스트 영역 */}
+                            {!loading && !error && (
+                                <FlatList
+                                    data={filteredCourses}
+                                    keyExtractor={(item) => item.id}
+                                    renderItem={({ item }) => (
+                                        <TouchableOpacity
+                                            style={styles.listItem}
+                                            onPress={() =>
+                                                navigation.navigate(
+                                                    "CourseDetails",
+                                                    {
+                                                        course: item,
+                                                    }
+                                                )
+                                            }
+                                        >
+                                            <View
+                                                style={styles.listItemContent}
+                                            >
+                                                <Text
+                                                    style={styles.listItemTitle}
+                                                    numberOfLines={1}
+                                                    ellipsizeMode="tail"
+                                                >
+                                                    {item.name}
+                                                </Text>
+                                                <Text
+                                                    style={styles.listItemSub}
+                                                >
+                                                    Views: {item.views}
+                                                </Text>
+                                            </View>
+                                            <View
+                                                style={styles.listButtonGroup}
+                                            >
+                                                <Button
+                                                    title="Details"
+                                                    onPress={() =>
+                                                        navigation.navigate(
+                                                            "CourseDetails",
+                                                            {
+                                                                course: item,
+                                                            }
+                                                        )
+                                                    }
+                                                    color="#000"
+                                                />
+                                            </View>
+                                        </TouchableOpacity>
+                                    )}
+                                    contentContainerStyle={
+                                        styles.flatListContent
+                                    }
+                                    ListEmptyComponent={
+                                        <Text style={styles.emptyResultText}>
+                                            No courses found. Try another search
+                                            term.
+                                        </Text>
+                                    }
+                                />
+                            )}
                         </View>
                     </View>
                 </LinearGradient>
