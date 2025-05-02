@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
-    StyleSheet,
     ActivityIndicator,
     ScrollView,
     Dimensions,
@@ -12,11 +11,12 @@ import {
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { PieChart } from "react-native-chart-kit";
-import { RootStackParamList } from "../types/navigation";
+import { RootStackParamList } from "../../types/navigation";
 import { LinearGradient } from "expo-linear-gradient";
-import BottomNavBar from "../components/BottomNavBar";
+import BottomNavBar from "../../components/BottomNavBar";
 import { getAuth } from "firebase/auth"; // Firebase Auth 가져오기
 import Ionicons from "react-native-vector-icons/Ionicons"; // 별점을 위한 아이콘
+import styles from "./CourseDetailsScreen_CSS"; // 스타일 임포트
 
 type CourseDetailsScreenRouteProp = RouteProp<
     RootStackParamList,
@@ -435,162 +435,234 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                         }}
                                         accessor="population"
                                         backgroundColor="transparent"
-                                        paddingLeft="15"
+                                        paddingLeft="25"
                                         absolute
                                     />
                                 </View>
-
-                                <View style={styles.gradeDetailsContainer}>
-                                    <Text style={styles.gradeDetail}>
-                                        A: {courseDetail?.grade.a_per}%
-                                    </Text>
-                                    <Text style={styles.gradeDetail}>
-                                        AB: {courseDetail?.grade.ab_per}%
-                                    </Text>
-                                    <Text style={styles.gradeDetail}>
-                                        B: {courseDetail?.grade.b_per}%
-                                    </Text>
-                                    <Text style={styles.gradeDetail}>
-                                        BC: {courseDetail?.grade.bc_per}%
-                                    </Text>
-                                    <Text style={styles.gradeDetail}>
-                                        C: {courseDetail?.grade.c_per}%
-                                    </Text>
-                                    <Text style={styles.gradeDetail}>
-                                        D: {courseDetail?.grade.d_per}%
-                                    </Text>
-                                    <Text style={styles.gradeDetail}>
-                                        F: {courseDetail?.grade.f_per}%
-                                    </Text>
-                                    <Text style={styles.gradeDetail}>
-                                        Others: {courseDetail?.grade.other_per}%
-                                    </Text>
-                                </View>
                             </View>
 
-                            {/* 리뷰 섹션 */}
+                            {/* 리뷰 섹션 - 새로운 디자인 */}
                             <View style={styles.sectionContainer}>
-                                <Text style={styles.sectionTitle}>Reviews</Text>
+                                <Text style={styles.sectionTitle}>
+                                    Latest Reviews
+                                </Text>
+
                                 {reviewsLoading ? (
                                     <ActivityIndicator
                                         size="small"
                                         color="#8863e4"
                                     />
                                 ) : reviews.length > 0 ? (
-                                    reviews.map((review, index) => (
-                                        <View
-                                            key={`${review.user_id}-${index}`}
-                                            style={styles.reviewItem}
-                                        >
-                                            <View style={styles.reviewHeader}>
+                                    <View style={styles.reviewsContainer}>
+                                        {reviews.map((review, index) => (
+                                            <View
+                                                key={`${review.user_id}-${index}`}
+                                                style={[
+                                                    styles.reviewCard,
+                                                    index ===
+                                                        reviews.length - 1 && {
+                                                        marginBottom: 0,
+                                                    },
+                                                ]}
+                                            >
                                                 <View
                                                     style={
-                                                        styles.ratingContainer
+                                                        styles.reviewCardHeader
                                                     }
                                                 >
-                                                    {/* 별점 표시 */}
-                                                    {[1, 2, 3, 4, 5].map(
-                                                        (star) => (
-                                                            <Ionicons
-                                                                key={`star-${star}-${index}`}
-                                                                name={
-                                                                    star <=
-                                                                    parseFloat(
-                                                                        review.rating as string
-                                                                    )
-                                                                        ? "star"
-                                                                        : "star-outline"
-                                                                }
-                                                                size={16}
-                                                                color="#FFD700"
-                                                                style={
-                                                                    styles.starIcon
-                                                                }
-                                                            />
-                                                        )
-                                                    )}
-                                                    <Text
+                                                    <View
                                                         style={
-                                                            styles.ratingText
+                                                            styles.reviewUser
                                                         }
                                                     >
-                                                        {parseFloat(
-                                                            review.rating as string
-                                                        ).toFixed(1)}
-                                                    </Text>
-                                                </View>
-                                                <Text style={styles.reviewDate}>
-                                                    {formatDate(
-                                                        review.created_at
-                                                    )}
-                                                    {review.edited &&
-                                                        " (edited)"}
-                                                </Text>
-                                            </View>
-                                            {review.username && (
-                                                <Text
-                                                    style={
-                                                        styles.reviewUsername
-                                                    }
-                                                >
-                                                    {review.username}
-                                                </Text>
-                                            )}
-                                            <Text style={styles.reviewComment}>
-                                                {review.comment}
-                                            </Text>
-                                            <View style={styles.reviewFooter}>
-                                                <View
-                                                    style={styles.likeContainer}
-                                                >
-                                                    <Ionicons
-                                                        name="heart"
-                                                        size={14}
-                                                        color="#F97CBD"
-                                                    />
-                                                    <Text
-                                                        style={styles.likeCount}
+                                                        <View
+                                                            style={
+                                                                styles.reviewUserAvatar
+                                                            }
+                                                        >
+                                                            <Text
+                                                                style={
+                                                                    styles.reviewUserAvatarText
+                                                                }
+                                                            >
+                                                                {review.username
+                                                                    ? review.username
+                                                                          .charAt(
+                                                                              0
+                                                                          )
+                                                                          .toUpperCase()
+                                                                    : "U"}
+                                                            </Text>
+                                                        </View>
+                                                        <View>
+                                                            <Text
+                                                                style={
+                                                                    styles.reviewUsername
+                                                                }
+                                                            >
+                                                                {review.username ||
+                                                                    "Anonymous User"}
+                                                            </Text>
+                                                            <Text
+                                                                style={
+                                                                    styles.reviewDate
+                                                                }
+                                                            >
+                                                                {formatDate(
+                                                                    review.created_at
+                                                                )}
+                                                                {review.edited &&
+                                                                    " (edited)"}
+                                                            </Text>
+                                                        </View>
+                                                    </View>
+                                                    <View
+                                                        style={
+                                                            styles.ratingContainer
+                                                        }
                                                     >
-                                                        {review.like_count || 0}
-                                                    </Text>
+                                                        {[1, 2, 3, 4, 5].map(
+                                                            (star) => (
+                                                                <Ionicons
+                                                                    key={`star-${star}-${index}`}
+                                                                    name={
+                                                                        star <=
+                                                                        parseFloat(
+                                                                            review.rating as string
+                                                                        )
+                                                                            ? "star"
+                                                                            : "star-outline"
+                                                                    }
+                                                                    size={14}
+                                                                    color="#FFD700"
+                                                                    style={
+                                                                        styles.starIcon
+                                                                    }
+                                                                />
+                                                            )
+                                                        )}
+                                                        <Text
+                                                            style={
+                                                                styles.ratingText
+                                                            }
+                                                        >
+                                                            {parseFloat(
+                                                                review.rating as string
+                                                            ).toFixed(1)}
+                                                        </Text>
+                                                    </View>
+                                                </View>
+
+                                                <Text
+                                                    style={styles.reviewComment}
+                                                >
+                                                    {review.comment}
+                                                </Text>
+
+                                                <View
+                                                    style={styles.reviewFooter}
+                                                >
+                                                    <TouchableOpacity
+                                                        style={
+                                                            styles.reviewAction
+                                                        }
+                                                    >
+                                                        <Ionicons
+                                                            name="heart-outline"
+                                                            size={18}
+                                                            color="#777"
+                                                        />
+                                                        <Text
+                                                            style={
+                                                                styles.reviewActionText
+                                                            }
+                                                        >
+                                                            {review.like_count ||
+                                                                0}
+                                                        </Text>
+                                                    </TouchableOpacity>
+
+                                                    <TouchableOpacity
+                                                        style={
+                                                            styles.reviewAction
+                                                        }
+                                                    >
+                                                        <Ionicons
+                                                            name="chatbubble-outline"
+                                                            size={18}
+                                                            color="#777"
+                                                        />
+                                                        <Text
+                                                            style={
+                                                                styles.reviewActionText
+                                                            }
+                                                        >
+                                                            Reply
+                                                        </Text>
+                                                    </TouchableOpacity>
                                                 </View>
                                             </View>
-                                        </View>
-                                    ))
+                                        ))}
+                                    </View>
                                 ) : (
-                                    <Text style={styles.emptyText}>
-                                        No reviews yet!
-                                    </Text>
+                                    <View style={styles.emptyReviewsContainer}>
+                                        <Ionicons
+                                            name="chatbubble-ellipses-outline"
+                                            size={48}
+                                            color="#ddd"
+                                        />
+                                        <Text style={styles.emptyText}>
+                                            No reviews yet!
+                                        </Text>
+                                        <Text style={styles.emptySubText}>
+                                            Be the first to share your
+                                            experience
+                                        </Text>
+                                    </View>
                                 )}
+                            </View>
 
-                                {/* 리뷰 작성 버튼 */}
+                            {/* 버튼 섹션 - 수평 배치 */}
+                            <View style={styles.buttonsContainer}>
                                 <TouchableOpacity
-                                    style={styles.writeReviewButton}
+                                    style={styles.actionButton}
                                     onPress={() => {
-                                        // 리뷰 작성 화면으로 이동하는 로직 (향후 구현)
+                                        navigation.navigate("CourseChat", {
+                                            courseId: course.id,
+                                        });
+                                    }}
+                                >
+                                    <Ionicons
+                                        name="chatbubbles"
+                                        size={20}
+                                        color="#8863e4"
+                                    />
+                                    <Text style={styles.actionButtonText}>
+                                        Chat
+                                    </Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={[
+                                        styles.actionButton,
+                                        styles.reviewButton,
+                                    ]}
+                                    onPress={() => {
                                         alert(
                                             "리뷰 작성 기능은 준비 중입니다."
                                         );
                                     }}
                                 >
-                                    <Text style={styles.writeReviewButtonText}>
-                                        Write a Review
+                                    <Ionicons
+                                        name="star"
+                                        size={20}
+                                        color="#fff"
+                                    />
+                                    <Text style={styles.reviewButtonText}>
+                                        Review
                                     </Text>
                                 </TouchableOpacity>
                             </View>
-
-                            <TouchableOpacity
-                                style={styles.chatButton}
-                                onPress={() => {
-                                    navigation.navigate("CourseChat", {
-                                        courseId: course.id,
-                                    });
-                                }}
-                            >
-                                <Text style={styles.chatButtonText}>
-                                    Join the Chat
-                                </Text>
-                            </TouchableOpacity>
                         </ScrollView>
                     </View>
                 </LinearGradient>
@@ -598,230 +670,5 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
         </SafeAreaView>
     );
 };
-
-const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-    },
-    gradientBackground: {
-        flex: 1,
-        backgroundColor: "rgba(232, 221, 253, 0.60)",
-        borderWidth: 1,
-        borderColor: "rgba(255, 255, 255, 0.20)",
-        borderRadius: 30,
-    },
-    gradientStyle: {
-        flex: 1,
-        borderWidth: 1,
-        borderColor: "rgba(255, 255, 255, 0.20)",
-    },
-    blurOverlay: {
-        flex: 1,
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
-        shadowColor: "rgba(0, 0, 0, 0.25)",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 1,
-        shadowRadius: 4,
-        elevation: 8,
-        paddingTop: 20,
-        paddingHorizontal: 20,
-        paddingBottom: 0,
-    },
-    scrollContent: {
-        padding: 16,
-    },
-    centeredContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 20,
-    },
-    loadingText: {
-        marginTop: 10,
-        fontFamily: "Nunito",
-        color: "#555",
-    },
-    courseName: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 8,
-        fontFamily: "Nunito-ExtraBold",
-        color: "#171717",
-    },
-    courseInfoRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginBottom: 24,
-    },
-    courseInfoText: {
-        fontSize: 14,
-        color: "#777",
-        fontFamily: "Nunito",
-    },
-    sectionContainer: {
-        backgroundColor: "#fff",
-        padding: 16,
-        borderRadius: 24,
-        marginBottom: 12,
-        shadowColor: "rgba(0, 0, 0, 0.1)",
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 6,
-        shadowOpacity: 0.3,
-        elevation: 3,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 16,
-        fontFamily: "Nunito-ExtraBold",
-        color: "#171717",
-    },
-    totalStudents: {
-        fontSize: 14,
-        marginBottom: 16,
-    },
-    chartContainer: {
-        alignItems: "center",
-        marginBottom: 16,
-    },
-    gradeDetailsContainer: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "space-between",
-    },
-    gradeDetail: {
-        width: "48%",
-        marginBottom: 8,
-        fontSize: 14,
-    },
-    reviewItem: {
-        padding: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: "#eee",
-        marginBottom: 12,
-    },
-    reviewHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 8,
-    },
-    ratingContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    starIcon: {
-        marginRight: 2,
-    },
-    ratingText: {
-        marginLeft: 4,
-        fontSize: 14,
-        fontWeight: "bold",
-        color: "#333",
-    },
-    reviewDate: {
-        fontSize: 12,
-        color: "#999",
-        fontStyle: "italic",
-    },
-    reviewComment: {
-        fontSize: 14,
-        color: "#333",
-        lineHeight: 20,
-        marginBottom: 8,
-    },
-    reviewFooter: {
-        flexDirection: "row",
-        justifyContent: "flex-end",
-    },
-    likeContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
-    likeCount: {
-        marginLeft: 4,
-        fontSize: 12,
-        color: "#666",
-    },
-    emptyText: {
-        fontStyle: "italic",
-        color: "#999",
-    },
-    errorText: {
-        color: "#F97CBD",
-        fontSize: 16,
-        fontFamily: "Nunito-Bold",
-        textAlign: "center",
-        marginBottom: 20,
-    },
-    chatButton: {
-        backgroundColor: "#fff",
-        borderRadius: 24,
-        padding: 10,
-        marginTop: 12,
-        marginBottom: 24,
-        alignItems: "center",
-        shadowColor: "rgba(0, 0, 0, 0.1)",
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 6,
-        shadowOpacity: 0.3,
-        elevation: 3,
-        borderWidth: 1,
-        borderColor: "#8863e4",
-    },
-    chatButtonText: {
-        color: "#8863e4",
-        fontSize: 16,
-        fontWeight: "500",
-        fontFamily: "Nunito-Bold",
-    },
-    loginButton: {
-        backgroundColor: "#F97CBD",
-        borderRadius: 24,
-        padding: 12,
-        marginTop: 20,
-        alignItems: "center",
-        alignSelf: "center",
-        paddingHorizontal: 40,
-    },
-    loginButtonText: {
-        color: "#FFF",
-        fontSize: 16,
-        fontFamily: "Nunito-Bold",
-    },
-    averageGpa: {
-        fontSize: 16,
-        fontWeight: "bold",
-        color: "#4CAF50",
-        marginTop: 16,
-        fontFamily: "Nunito-Bold",
-    },
-    instructorName: {
-        fontSize: 14,
-        marginBottom: 8,
-        color: "#555",
-        fontFamily: "Nunito",
-    },
-    reviewUsername: {
-        fontSize: 14,
-        fontWeight: "bold",
-        color: "#555",
-        marginBottom: 4,
-        fontFamily: "Nunito-Bold",
-    },
-    writeReviewButton: {
-        backgroundColor: "#F97CBD",
-        borderRadius: 20,
-        padding: 10,
-        marginTop: 16,
-        alignItems: "center",
-    },
-    writeReviewButtonText: {
-        color: "#fff",
-        fontSize: 14,
-        fontWeight: "500",
-        fontFamily: "Nunito-Bold",
-    },
-});
 
 export default CourseDetailsScreen;

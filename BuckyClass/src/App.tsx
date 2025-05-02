@@ -10,7 +10,7 @@ import AvatarScreen from "./screens/SignIn/Avatar";
 import HomeScreen from "./screens/HomeScreen/HomeScreen";
 import ChatScreen from "./screens/ChatScreen";
 import CoursesScreen from "./screens/CoursesScreen/CoursesScreen";
-import CourseDetailsScreen from "./screens/CourseDetailsScreen";
+import CourseDetailsScreen from "./screens/CourseDetail/CourseDetailsScreen";
 import CourseChatScreen from "./screens/CourseChatScreen";
 import ChatListScreen from "./screens/ChatListScreen/ChatListScreen";
 import PrivateChatScreen from "./screens/PrivateChatScreen";
