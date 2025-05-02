@@ -29,4 +29,10 @@ export type RootStackParamList = {
     CourseChat: { courseId: string };
     PrivateChat: { chatId: string };
     ChatScreen: undefined;
+
+    // 리뷰 화면
+    Review: {
+        courseId: string;
+        courseName: string;
+    };
 };

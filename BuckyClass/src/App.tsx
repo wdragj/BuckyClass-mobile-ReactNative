@@ -17,6 +17,7 @@ import PrivateChatScreen from "./screens/PrivateChatScreen";
 import WelcomeScreen from "./screens/WelcomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import EditProfileScreen from "./screens/EditProfileScreen";
+import ReviewScreen from "./screens/ReviewScreen";
 import * as Font from "expo-font";
 import { View, Text } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -224,6 +225,11 @@ const App = () => {
                     name="ChatScreen"
                     component={ChatScreen}
                     options={{ headerTitle: "채팅" }}
+                />
+                <Stack.Screen
+                    name="Review"
+                    component={ReviewScreen}
+                    options={{ headerShown: false }}
                 />
                 {/* EditProfileScreen */}
                 <Stack.Screen

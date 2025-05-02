@@ -792,9 +792,11 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                         styles.reviewButton,
                                     ]}
                                     onPress={() => {
-                                        alert(
-                                            "리뷰 작성 기능은 준비 중입니다."
-                                        );
+                                        navigation.navigate("Review", {
+                                            courseId: course.id,
+                                            courseName:
+                                                courseDetail.course.name,
+                                        });
                                     }}
                                 >
                                     <Ionicons

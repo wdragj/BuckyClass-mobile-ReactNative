@@ -219,13 +219,6 @@ export default function CoursesScreen({
                                                         }{" "}
                                                         {item.number}
                                                     </Text>
-                                                    <Text
-                                                        style={
-                                                            styles.listItemSub
-                                                        }
-                                                    >
-                                                        Views: {item.views}
-                                                    </Text>
                                                 </View>
                                             </View>
                                             <Ionicons
