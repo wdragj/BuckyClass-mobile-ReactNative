@@ -12,7 +12,7 @@ import ChatScreen from "./screens/ChatScreen";
 import CoursesScreen from "./screens/CoursesScreen/CoursesScreen";
 import CourseDetailsScreen from "./screens/CourseDetailsScreen";
 import CourseChatScreen from "./screens/CourseChatScreen";
-import ChatListScreen from "./screens/ChatListScreen";
+import ChatListScreen from "./screens/ChatListScreen/ChatListScreen";
 import PrivateChatScreen from "./screens/PrivateChatScreen";
 import WelcomeScreen from "./screens/WelcomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
