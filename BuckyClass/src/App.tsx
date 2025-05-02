@@ -214,12 +214,12 @@ const App = () => {
                 <Stack.Screen
                     name="CourseChat"
                     component={CourseChatScreen}
-                    options={{ headerTitle: "강의 채팅" }}
+                    options={{ headerShown: false }}
                 />
                 <Stack.Screen
                     name="PrivateChat"
                     component={PrivateChatScreen}
-                    options={{ headerTitle: "개인 채팅" }}
+                    options={{ headerShown: false }}
                 />
                 <Stack.Screen
                     name="ChatScreen"

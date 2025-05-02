@@ -283,8 +283,7 @@ export default function CourseChatScreen({
                         ☰
                     </Text>
                 </TouchableOpacity>
-                <Text style={styles.headerText}>{courseName}</Text>{" "}
-                {/* 코스 ID 대신 코스 이름 표시 */}
+                <Text style={styles.headerText}>{courseName}</Text>
                 <TouchableOpacity onPress={leaveCourseChat}>
                     <Text style={{ color: "#fff", fontSize: 16 }}>나가기</Text>
                 </TouchableOpacity>

@@ -771,10 +771,11 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                 <TouchableOpacity
                                     style={styles.actionButton}
                                     onPress={() => {
+                                        // 이름 형식을 "subject_abbreviation number" 형식으로 변경
+                                        const chatRoomName = `${course.subject_abbreviation} ${courseDetail.course.number}`;
                                         navigation.navigate("CourseChat", {
                                             courseId: course.id,
-                                            courseName:
-                                                courseDetail.course.name, // 코스 이름 추가
+                                            courseName: chatRoomName, // 형식 변경
                                         });
                                     }}
                                 >
