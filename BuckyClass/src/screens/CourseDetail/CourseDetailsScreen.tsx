@@ -489,16 +489,54 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                                 style={{ padding: 20 }}
                                             />
                                         ) : sections.length > 0 ? (
-                                            <FlatList
-                                                data={sections}
-                                                renderItem={renderSectionItem}
-                                                keyExtractor={(item) => item.id}
-                                                maxToRenderPerBatch={10}
-                                                initialNumToRender={5}
-                                                showsVerticalScrollIndicator={
-                                                    true
+                                            <ScrollView
+                                                style={
+                                                    styles.sectionsScrollContainer
                                                 }
-                                            />
+                                                nestedScrollEnabled={true}
+                                            >
+                                                {sections.map((item) => (
+                                                    <View
+                                                        key={item.id}
+                                                        style={
+                                                            styles.sectionItem
+                                                        }
+                                                    >
+                                                        <View
+                                                            style={[
+                                                                styles.sectionTypeTag,
+                                                                item.section_type ===
+                                                                    "LAB" &&
+                                                                    styles.labTypeTag,
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={
+                                                                    styles.sectionTypeText
+                                                                }
+                                                            >
+                                                                {
+                                                                    item.section_type
+                                                                }
+                                                            </Text>
+                                                        </View>
+                                                        <Text
+                                                            style={
+                                                                styles.sectionNumberText
+                                                            }
+                                                        >
+                                                            #{item.number}
+                                                        </Text>
+                                                        <Text
+                                                            style={
+                                                                styles.sectionTimeText
+                                                            }
+                                                        >
+                                                            {item.meeting_time}
+                                                        </Text>
+                                                    </View>
+                                                ))}
+                                            </ScrollView>
                                         ) : (
                                             <Text style={styles.noSectionsText}>
                                                 No sections available
