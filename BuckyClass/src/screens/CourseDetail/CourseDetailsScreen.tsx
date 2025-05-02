@@ -7,6 +7,7 @@ import {
     Dimensions,
     TouchableOpacity,
     SafeAreaView,
+    FlatList,
 } from "react-native";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -63,6 +64,14 @@ interface Review {
     username: string | null;
 }
 
+interface Section {
+    id: string;
+    number: number;
+    section_type: string;
+    courseoffering_id: string;
+    meeting_time: string;
+}
+
 interface Props {
     route: CourseDetailsScreenRouteProp;
     navigation: CourseDetailsScreenNavigationProp;
@@ -74,16 +83,21 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
         null
     );
     const [reviews, setReviews] = useState<Review[]>([]);
+    const [sections, setSections] = useState<Section[]>([]);
     const [loading, setLoading] = useState(true);
     const [reviewsLoading, setReviewsLoading] = useState(true);
+    const [sectionsLoading, setSectionsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [authenticated, setAuthenticated] = useState(false);
+    const [showSections, setShowSections] = useState(false);
+    const [showMoreSections, setShowMoreSections] = useState(false);
 
     useEffect(() => {
         // 강의 상세 정보와 리뷰를 별도로 가져오기
         const fetchCourseData = async () => {
             setLoading(true);
             setReviewsLoading(true);
+            setSectionsLoading(true);
 
             const auth = getAuth();
             const currentUser = auth.currentUser;
@@ -91,6 +105,7 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
             if (!currentUser) {
                 setLoading(false);
                 setReviewsLoading(false);
+                setSectionsLoading(false);
                 setError("로그인이 필요합니다. 로그인 후 다시 시도해주세요.");
                 return;
             }
@@ -139,12 +154,36 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                     const reviewsData = await reviewsResponse.json();
                     setReviews(Array.isArray(reviewsData) ? reviewsData : []);
                 }
+
+                // 3. 강의 섹션 정보 가져오기
+                const sectionsResponse = await fetch(
+                    `https://grow-ruddy.vercel.app/api/courses/sections/${course.id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${idToken}`,
+                        },
+                    }
+                );
+
+                if (!sectionsResponse.ok) {
+                    console.warn(
+                        `섹션 API 요청 실패: ${sectionsResponse.status}`
+                    );
+                    setSections([]);
+                } else {
+                    const sectionsData = await sectionsResponse.json();
+                    setSections(
+                        Array.isArray(sectionsData) ? sectionsData : []
+                    );
+                }
             } catch (err) {
                 console.error("Error fetching course data:", err);
                 setError("강의 정보를 불러오는데 실패했습니다.");
                 setReviews([]);
+                setSections([]);
             } finally {
                 setReviewsLoading(false);
+                setSectionsLoading(false);
             }
         };
 
@@ -272,7 +311,7 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                           courseDetail.grade.a_per as string
                       ),
                       color: "#4CAF50",
-                      legendFontColor: "#7F7F7F",
+                      legendFontColor: "#000",
                       legendFontSize: 15,
                   },
                   {
@@ -281,7 +320,7 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                           courseDetail.grade.ab_per as string
                       ),
                       color: "#8BC34A",
-                      legendFontColor: "#7F7F7F",
+                      legendFontColor: "#000",
                       legendFontSize: 15,
                   },
                   {
@@ -290,7 +329,7 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                           courseDetail.grade.b_per as string
                       ),
                       color: "#CDDC39",
-                      legendFontColor: "#7F7F7F",
+                      legendFontColor: "#000",
                       legendFontSize: 15,
                   },
                   {
@@ -299,7 +338,7 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                           courseDetail.grade.bc_per as string
                       ),
                       color: "#FFEB3B",
-                      legendFontColor: "#7F7F7F",
+                      legendFontColor: "#000",
                       legendFontSize: 15,
                   },
                   {
@@ -308,7 +347,7 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                           courseDetail.grade.c_per as string
                       ),
                       color: "#FFC107",
-                      legendFontColor: "#7F7F7F",
+                      legendFontColor: "#000",
                       legendFontSize: 15,
                   },
                   {
@@ -317,7 +356,7 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                           courseDetail.grade.d_per as string
                       ),
                       color: "#FF9800",
-                      legendFontColor: "#7F7F7F",
+                      legendFontColor: "#000",
                       legendFontSize: 15,
                   },
                   {
@@ -326,7 +365,7 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                           courseDetail.grade.f_per as string
                       ),
                       color: "#F44336",
-                      legendFontColor: "#7F7F7F",
+                      legendFontColor: "#000",
                       legendFontSize: 15,
                   },
                   {
@@ -335,7 +374,7 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                           courseDetail.grade.other_per as string
                       ),
                       color: "#9E9E9E",
-                      legendFontColor: "#7F7F7F",
+                      legendFontColor: "#000",
                       legendFontSize: 15,
                   },
               ];
@@ -356,6 +395,10 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
             day: "numeric",
         });
     };
+
+    // 표시할 섹션 수 제한 (5개)
+    const visibleSections = showMoreSections ? sections : sections.slice(0, 5);
+    const hasMoreSections = sections.length > 5;
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -388,9 +431,6 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                             {courseDetail?.instructors &&
                                 courseDetail.instructors.length > 0 && (
                                     <View style={styles.sectionContainer}>
-                                        <Text style={styles.sectionTitle}>
-                                            Instructors
-                                        </Text>
                                         {courseDetail.instructors.map(
                                             (instructor, idx) => (
                                                 <Text
@@ -403,14 +443,148 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                                 </Text>
                                             )
                                         )}
-                                        {courseDetail.averageGpa && (
-                                            <Text style={styles.averageGpa}>
-                                                Average GPA:{" "}
-                                                {courseDetail.averageGpa}
+                                    </View>
+                                )}
+
+                            {/* 섹션 드롭다운 추가 - FlatList 대신 map 사용 */}
+                            <View style={styles.sectionsContainer}>
+                                <TouchableOpacity
+                                    style={styles.sectionDropdownHeader}
+                                    onPress={() =>
+                                        setShowSections(!showSections)
+                                    }
+                                >
+                                    <Text style={styles.dropdownTitle}>
+                                        Sections ({sections.length})
+                                    </Text>
+                                    <Ionicons
+                                        name={
+                                            showSections
+                                                ? "chevron-up"
+                                                : "chevron-down"
+                                        }
+                                        size={20}
+                                        color="#8863e4"
+                                        style={styles.dropdownIcon}
+                                    />
+                                </TouchableOpacity>
+
+                                {showSections && (
+                                    <View style={styles.sectionsListContainer}>
+                                        {sectionsLoading ? (
+                                            <ActivityIndicator
+                                                size="small"
+                                                color="#8863e4"
+                                                style={{ padding: 20 }}
+                                            />
+                                        ) : sections.length > 0 ? (
+                                            <>
+                                                {visibleSections.map((item) => (
+                                                    <View
+                                                        key={item.id}
+                                                        style={
+                                                            styles.sectionItem
+                                                        }
+                                                    >
+                                                        <View
+                                                            style={[
+                                                                styles.sectionTypeTag,
+                                                                item.section_type ===
+                                                                    "LAB" &&
+                                                                    styles.labTypeTag,
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={
+                                                                    styles.sectionTypeText
+                                                                }
+                                                            >
+                                                                {
+                                                                    item.section_type
+                                                                }
+                                                            </Text>
+                                                        </View>
+                                                        <Text
+                                                            style={
+                                                                styles.sectionNumberText
+                                                            }
+                                                        >
+                                                            #{item.number}
+                                                        </Text>
+                                                        <Text
+                                                            style={
+                                                                styles.sectionTimeText
+                                                            }
+                                                        >
+                                                            {item.meeting_time}
+                                                        </Text>
+                                                    </View>
+                                                ))}
+
+                                                {hasMoreSections &&
+                                                    !showMoreSections && (
+                                                        <TouchableOpacity
+                                                            style={
+                                                                styles.showMoreButton
+                                                            }
+                                                            onPress={() =>
+                                                                setShowMoreSections(
+                                                                    true
+                                                                )
+                                                            }
+                                                        >
+                                                            <Text
+                                                                style={
+                                                                    styles.showMoreText
+                                                                }
+                                                            >
+                                                                Show More (
+                                                                {sections.length -
+                                                                    5}{" "}
+                                                                more sections)
+                                                            </Text>
+                                                            <Ionicons
+                                                                name="chevron-down"
+                                                                size={16}
+                                                                color="#8863e4"
+                                                            />
+                                                        </TouchableOpacity>
+                                                    )}
+
+                                                {showMoreSections && (
+                                                    <TouchableOpacity
+                                                        style={
+                                                            styles.showMoreButton
+                                                        }
+                                                        onPress={() =>
+                                                            setShowMoreSections(
+                                                                false
+                                                            )
+                                                        }
+                                                    >
+                                                        <Text
+                                                            style={
+                                                                styles.showMoreText
+                                                            }
+                                                        >
+                                                            Show Less
+                                                        </Text>
+                                                        <Ionicons
+                                                            name="chevron-up"
+                                                            size={16}
+                                                            color="#8863e4"
+                                                        />
+                                                    </TouchableOpacity>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <Text style={styles.noSectionsText}>
+                                                No sections available
                                             </Text>
                                         )}
                                     </View>
                                 )}
+                            </View>
 
                             {/* 등급 분포 섹션 */}
                             <View style={styles.sectionContainer}>
@@ -439,10 +613,20 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                         absolute
                                     />
                                 </View>
+                                {courseDetail.averageGpa && (
+                                    <Text style={styles.averageGpa}>
+                                        Average GPA: {courseDetail.averageGpa}
+                                    </Text>
+                                )}
                             </View>
 
-                            {/* 리뷰 섹션 - 새로운 디자인 */}
-                            <View style={styles.sectionContainer}>
+                            {/* 리뷰 섹션 - 마지막 섹션은 가로선 없음 */}
+                            <View
+                                style={[
+                                    styles.sectionContainer,
+                                    { borderBottomWidth: 0 },
+                                ]}
+                            >
                                 <Text style={styles.sectionTitle}>
                                     Latest Reviews
                                 </Text>

@@ -62,18 +62,13 @@ const styles = StyleSheet.create({
         fontFamily: "Nunito",
     },
     sectionContainer: {
-        backgroundColor: "#fff",
-        padding: 16,
-        borderRadius: 24,
-        marginBottom: 12,
-        shadowColor: "rgba(0, 0, 0, 0.1)",
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 6,
-        shadowOpacity: 0.3,
-        elevation: 3,
+        marginBottom: 8,
+        borderBottomWidth: 1, // 회색 가로선 추가
+        borderBottomColor: "rgba(200, 200, 200, 0.5)", // 반투명 회색
+        paddingBottom: 24,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: "bold",
         marginBottom: 16,
         fontFamily: "Nunito-ExtraBold",
@@ -85,7 +80,7 @@ const styles = StyleSheet.create({
     },
     chartContainer: {
         alignItems: "center",
-        marginBottom: 16,
+        marginBottom: -10,
     },
     gradeDetailsContainer: {
         flexDirection: "row",
@@ -174,9 +169,10 @@ const styles = StyleSheet.create({
     averageGpa: {
         fontSize: 16,
         fontWeight: "bold",
-        color: "#4CAF50",
+        color: "#000",
         marginTop: 16,
         fontFamily: "Nunito-Bold",
+        textAlign: "center",
     },
     instructorName: {
         fontSize: 14,
@@ -195,12 +191,12 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     reviewCard: {
-        backgroundColor: "#f8f9fa",
+        backgroundColor: "rgba(255, 255, 255, 0.4)", // 배경 반투명하게 변경
         borderRadius: 16,
         padding: 16,
         marginBottom: 12,
         borderWidth: 1,
-        borderColor: "#eee",
+        borderColor: "rgba(200, 200, 200, 0.5)",
     },
     reviewCardHeader: {
         flexDirection: "row",
@@ -249,6 +245,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         padding: 30,
+        backgroundColor: "rgba(255, 255, 255, 0.4)", // 반투명 배경
+        borderRadius: 16,
     },
     emptySubText: {
         fontSize: 14,
@@ -259,20 +257,16 @@ const styles = StyleSheet.create({
     buttonsContainer: {
         flexDirection: "row",
         justifyContent: "space-between",
+        marginTop: 8,
         marginBottom: 24,
     },
     actionButton: {
         flexDirection: "row",
-        backgroundColor: "#fff",
+        backgroundColor: "rgba(255, 255, 255, 0.7)", // 반투명 배경
         borderRadius: 24,
         padding: 12,
         alignItems: "center",
         justifyContent: "center",
-        shadowColor: "rgba(0, 0, 0, 0.1)",
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 6,
-        shadowOpacity: 0.3,
-        elevation: 3,
         borderWidth: 1,
         borderColor: "#8863e4",
         flex: 1,
@@ -295,6 +289,126 @@ const styles = StyleSheet.create({
         fontWeight: "500",
         fontFamily: "Nunito-Bold",
         marginLeft: 6,
+    },
+    // 섹션 드롭다운 관련 스타일 수정
+    sectionsContainer: {
+        marginBottom: 16,
+        position: "relative", // 상대 위치로 설정하여 내부 절대 위치 요소의 기준점 제공
+        zIndex: 1000, // zIndex 값 크게 증가
+    },
+    sectionDropdownHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingVertical: 12,
+        paddingHorizontal: 8,
+        backgroundColor: "rgba(255, 255, 255, 0.5)",
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: "rgba(200, 200, 200, 0.5)",
+    },
+    dropdownTitle: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: "#333",
+        fontFamily: "Nunito-Bold",
+    },
+    dropdownIcon: {
+        marginLeft: 8,
+    },
+    sectionsListContainer: {
+        position: "absolute", // 절대 위치 유지
+        top: 50, // 헤더 바로 아래
+        left: 0,
+        right: 0,
+        maxHeight: 280,
+        borderRadius: 12,
+        backgroundColor: "rgba(255, 255, 255, 0.95)",
+        overflow: "hidden",
+        zIndex: 2000, // zIndex 값 더 크게 증가
+        borderWidth: 1,
+        borderColor: "rgba(200, 200, 200, 0.5)",
+        shadowColor: "rgba(0, 0, 0, 0.15)",
+        shadowOffset: { width: 0, height: 3 },
+        shadowRadius: 5,
+        shadowOpacity: 1,
+        elevation: 8, // Android elevation 증가
+    },
+    sectionsScrollContainer: {
+        maxHeight: 280, // 스크롤이 가능한 최대 높이
+    },
+    // 오버레이 스타일 추가
+    overlay: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0, 0, 0, 0.1)", // 약간 어둡게 변경
+        zIndex: 900, // zIndex 값 조정 (sectionsContainer보다 낮고, 다른 요소보다 높게)
+    },
+    sectionItem: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: "rgba(200, 200, 200, 0.3)",
+        backgroundColor: "rgba(255, 255, 255, 0.9)", // 배경색 추가
+    },
+    sectionTypeTag: {
+        backgroundColor: "#8863e4",
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 4,
+        marginRight: 12,
+    },
+    sectionTypeText: {
+        color: "#fff",
+        fontSize: 12,
+        fontWeight: "bold",
+        fontFamily: "Nunito-Bold",
+    },
+    sectionNumberText: {
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#333",
+        fontFamily: "Nunito-Bold",
+        marginRight: 8,
+    },
+    sectionTimeText: {
+        fontSize: 14,
+        color: "#555",
+        fontFamily: "Nunito",
+        flex: 1, // 텍스트가 끝까지 확장되도록
+    },
+    labTypeTag: {
+        backgroundColor: "#F97CBD",
+    },
+    noSectionsText: {
+        textAlign: "center",
+        padding: 16,
+        color: "#777",
+        fontStyle: "italic",
+        fontFamily: "Nunito",
+    },
+    showMoreButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 12,
+        backgroundColor: "rgba(255, 255, 255, 0.8)", // 약간 더 불투명하게
+        borderBottomLeftRadius: 12,
+        borderBottomRightRadius: 12,
+        borderTopWidth: 1,
+        borderTopColor: "rgba(200, 200, 200, 0.3)",
+    },
+    showMoreText: {
+        color: "#8863e4",
+        fontSize: 14,
+        fontWeight: "500",
+        marginRight: 5,
+        fontFamily: "Nunito-Bold",
     },
 });
 
