@@ -26,7 +26,10 @@ export type RootStackParamList = {
             subject_abbreviation: string;
         };
     };
-    CourseChat: { courseId: string };
+    CourseChat: {
+        courseId: string;
+        courseName: string; // 코스 이름 추가
+    };
     PrivateChat: { chatId: string };
     ChatScreen: undefined;
 

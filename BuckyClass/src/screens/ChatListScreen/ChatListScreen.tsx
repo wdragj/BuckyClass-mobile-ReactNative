@@ -127,6 +127,7 @@ export default function ChatListScreen({
                     if (chat.type === "course") {
                         navigation.navigate("CourseChat", {
                             courseId: chat.id,
+                            courseName: chat.name, // 채팅방 이름을 코스 이름으로 전달
                         });
                     } else {
                         navigation.navigate("PrivateChat", { chatId: chat.id });

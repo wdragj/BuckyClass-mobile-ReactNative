@@ -773,6 +773,8 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                     onPress={() => {
                                         navigation.navigate("CourseChat", {
                                             courseId: course.id,
+                                            courseName:
+                                                courseDetail.course.name, // 코스 이름 추가
                                         });
                                     }}
                                 >

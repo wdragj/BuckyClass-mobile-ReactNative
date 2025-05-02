@@ -1,57 +1,70 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     SafeAreaView,
-    View,
     Text,
-    TextInput,
     TouchableOpacity,
+    TextInput,
+    View,
     ScrollView,
-    StyleSheet,
     Image,
+    Alert,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../types/navigation";
-import { onValue, push, ref, get, set, remove } from "firebase/database";
-import { getAuth } from "firebase/auth";
 import { realtimeDB, storage } from "../firebaseConfig";
-import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, push, onValue, get, set, remove } from "firebase/database";
 import * as ImagePicker from "expo-image-picker";
-
-
+import { getAuth } from "firebase/auth";
+import {
+    ref as storageRef,
+    uploadBytes,
+    getDownloadURL,
+} from "firebase/storage";
+import { StyleSheet } from "react-native";
 
 type CourseChatScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
     "CourseChat"
 >;
 
-type Message = {
-    id: string;
+type CourseChatScreenRouteProp = RouteProp<RootStackParamList, "CourseChat">;
+
+interface Member {
+    uid: string;
+    displayName: string;
+}
+
+interface Message {
+    id?: string;
     text?: string;
     imageUrl?: string;
     senderUid: string;
     senderName: string;
     timestamp: number;
-};
+}
 
-type Member = {
-    uid: string;
-    displayName: string;
-};
-
-export default function CourseChatScreen({ navigation, route }: { navigation: CourseChatScreenNavigationProp; route: { params: { courseId: string } } }) {
+export default function CourseChatScreen({
+    navigation,
+    route,
+}: {
+    navigation: CourseChatScreenNavigationProp;
+    route: CourseChatScreenRouteProp;
+}) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [memberList, setMemberList] = useState<Member[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [showMembers, setShowMembers] = useState(false);
     const scrollViewRef = useRef<ScrollView>(null);
     const courseId = route.params.courseId;
+    const courseName = route.params.courseName; // 코스 이름 받기
 
     const auth = getAuth();
     const currentUser = auth.currentUser;
 
     const sendMessage = async () => {
         if (!newMessage.trim() || !currentUser) return;
-    
+
         const messageRef = ref(realtimeDB, `chats/${courseId}/messages`);
         const messageData = {
             text: newMessage,
@@ -59,7 +72,7 @@ export default function CourseChatScreen({ navigation, route }: { navigation: Co
             senderName: currentUser.displayName || "Unknown",
             timestamp: Date.now(),
         };
-    
+
         try {
             await push(messageRef, messageData);
             setNewMessage("");
@@ -67,34 +80,38 @@ export default function CourseChatScreen({ navigation, route }: { navigation: Co
             console.error("Failed to send message:", err);
         }
     };
-    
+
     const sendImage = async () => {
         if (!currentUser) return;
-    
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        const permissionResult =
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!permissionResult.granted) {
             alert("사진 접근 권한이 필요합니다.");
             return;
         }
-    
+
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             quality: 0.7,
             allowsEditing: false,
         });
-    
+
         if (!result.assets || result.assets.length === 0) return;
-    
+
         const asset = result.assets[0];
         const uri = asset.uri;
         const name = asset.fileName || `image_${Date.now()}.jpg`;
-    
+
         try {
             const response = await fetch(uri);
             const blob = await response.blob();
-            const imageRef = storageRef(storage, `courseChatImages/${Date.now()}_${name}`);
+            const imageRef = storageRef(
+                storage,
+                `courseChatImages/${Date.now()}_${name}`
+            );
             await uploadBytes(imageRef, blob);
-    
+
             const downloadURL = await getDownloadURL(imageRef);
             const messageRef = ref(realtimeDB, `chats/${courseId}/messages`);
             await push(messageRef, {
@@ -107,18 +124,18 @@ export default function CourseChatScreen({ navigation, route }: { navigation: Co
             console.error("이미지 전송 실패:", err);
         }
     };
-    
-    const startPrivateChat = async (targetUid: string) => {
+
+    const startPrivateChat = async (receiverUid: string) => {
         if (!currentUser) return;
-    
+
         const uid1 = currentUser.uid;
-        const uid2 = targetUid;
+        const uid2 = receiverUid;
         const sortedIds = [uid1, uid2].sort();
         const chatId = `${sortedIds[0]}_${sortedIds[1]}`;
-    
+
         const chatRef = ref(realtimeDB, `chats/${chatId}`);
         const snapshot = await get(chatRef);
-    
+
         if (!snapshot.exists()) {
             await set(chatRef, {
                 type: "private",
@@ -126,10 +143,10 @@ export default function CourseChatScreen({ navigation, route }: { navigation: Co
                 messages: {},
             });
         }
-    
+
         navigation.navigate("PrivateChat", { chatId });
     };
-    
+
     const leaveCourseChat = async () => {
         if (!currentUser) return;
 
@@ -147,11 +164,17 @@ export default function CourseChatScreen({ navigation, route }: { navigation: Co
 
             if (participantCount <= 1) {
                 await remove(chatRef);
-                await fetch(`grow-ruddy.vercel.app/api/chats/${courseId}/participants/${currentUser.uid}`, {
-                    method: "DELETE",
-                });
+                await fetch(
+                    `grow-ruddy.vercel.app/api/chats/${courseId}/participants/${currentUser.uid}`,
+                    {
+                        method: "DELETE",
+                    }
+                );
             } else {
-                const participantRef = ref(realtimeDB, `chats/${courseId}/participants/${currentUser.uid}`);
+                const participantRef = ref(
+                    realtimeDB,
+                    `chats/${courseId}/participants/${currentUser.uid}`
+                );
                 await remove(participantRef);
                 await fetch(`grow-ruddy.vercel.app/chats/${courseId}`, {
                     method: "DELETE",
@@ -163,23 +186,63 @@ export default function CourseChatScreen({ navigation, route }: { navigation: Co
             console.error("Failed to exit chat:", err);
         }
     };
-    
+
     useEffect(() => {
+        // 채팅방 초기화 또는 참여
+        const initializeChat = async () => {
+            if (!currentUser) return;
+
+            const chatRef = ref(realtimeDB, `chats/${courseId}`);
+            const snapshot = await get(chatRef);
+
+            if (!snapshot.exists()) {
+                // 채팅방이 존재하지 않으면 새로 생성
+                await set(chatRef, {
+                    type: "course", // 명시적으로 "course" 타입으로 설정
+                    name: courseName, // 코스 ID 대신 코스 이름 사용
+                    createdAt: Date.now(),
+                    messages: {},
+                    participants: {
+                        [currentUser.uid]: true,
+                    },
+                });
+            } else {
+                // 채팅방이 존재하면 참가자에 추가
+                const participantRef = ref(
+                    realtimeDB,
+                    `chats/${courseId}/participants/${currentUser.uid}`
+                );
+                await set(participantRef, true);
+
+                // 기존 채팅방 이름 업데이트 (혹시 이름이 ID로 설정되어 있을 경우)
+                const nameRef = ref(realtimeDB, `chats/${courseId}/name`);
+                await set(nameRef, courseName);
+
+                // 기존 채팅방 타입 업데이트 (혹시 타입이 잘못 설정되어 있을 경우)
+                const typeRef = ref(realtimeDB, `chats/${courseId}/type`);
+                await set(typeRef, "course");
+            }
+        };
+
+        initializeChat();
+
         const messageRef = ref(realtimeDB, `chats/${courseId}/messages`);
         const unsubscribeMsg = onValue(messageRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                const messageList: Message[] = Object.entries(data).map(([id, value]: any) => ({
-                    id,
-                    ...value,
-                }));
+                const messageList: Message[] = Object.entries(data).map(
+                    ([id, value]: any) => ({
+                        id,
+                        ...value,
+                    })
+                );
                 messageList.sort((a, b) => a.timestamp - b.timestamp);
                 setMessages(messageList);
             } else {
                 setMessages([]);
             }
         });
-    
+
         const memberRef = ref(realtimeDB, `chats/${courseId}/participants`);
         const unsubscribeMembers = onValue(memberRef, (snapshot) => {
             const data = snapshot.val();
@@ -191,29 +254,37 @@ export default function CourseChatScreen({ navigation, route }: { navigation: Co
                 setMemberList(formatted);
             }
         });
-    
+
         return () => {
             unsubscribeMsg();
             unsubscribeMembers();
         };
-    }, [courseId]);
-    
+    }, [courseId, courseName, currentUser]);
+
     useEffect(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
     }, [messages]);
-    
+
     const formatTime = (timestamp: number) => {
         const date = new Date(timestamp);
-        return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        return date.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+        });
     };
 
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => setShowMembers(!showMembers)}>
-                    <Text style={{ color: "#fff", fontSize: 24, marginRight: 12 }}>☰</Text>
+                    <Text
+                        style={{ color: "#fff", fontSize: 24, marginRight: 12 }}
+                    >
+                        ☰
+                    </Text>
                 </TouchableOpacity>
-                <Text style={styles.headerText}>{courseId}</Text>
+                <Text style={styles.headerText}>{courseName}</Text>{" "}
+                {/* 코스 ID 대신 코스 이름 표시 */}
                 <TouchableOpacity onPress={leaveCourseChat}>
                     <Text style={{ color: "#fff", fontSize: 16 }}>나가기</Text>
                 </TouchableOpacity>
@@ -228,7 +299,9 @@ export default function CourseChatScreen({ navigation, route }: { navigation: Co
                                 key={member.uid}
                                 onPress={() => startPrivateChat(member.uid)}
                             >
-                                <Text style={styles.memberName}>• {member.displayName}</Text>
+                                <Text style={styles.memberName}>
+                                    • {member.displayName}
+                                </Text>
                             </TouchableOpacity>
                         ))}
                     </ScrollView>
@@ -245,12 +318,32 @@ export default function CourseChatScreen({ navigation, route }: { navigation: Co
                     return (
                         <View
                             key={msg.id}
-                            style={[styles.messageBubble, isMyMessage ? styles.myBubble : styles.otherBubble]}
+                            style={[
+                                styles.messageBubble,
+                                isMyMessage
+                                    ? styles.myBubble
+                                    : styles.otherBubble,
+                            ]}
                         >
-                            {!isMyMessage && <Text style={styles.sender}>{msg.senderName}</Text>}
-                            {msg.text && <Text style={styles.messageText}>{msg.text}</Text>}
-                            {msg.imageUrl && <Image source={{ uri: msg.imageUrl }} style={styles.image} />}
-                            <Text style={styles.timestamp}>{formatTime(msg.timestamp)}</Text>
+                            {!isMyMessage && (
+                                <Text style={styles.sender}>
+                                    {msg.senderName}
+                                </Text>
+                            )}
+                            {msg.text && (
+                                <Text style={styles.messageText}>
+                                    {msg.text}
+                                </Text>
+                            )}
+                            {msg.imageUrl && (
+                                <Image
+                                    source={{ uri: msg.imageUrl }}
+                                    style={styles.image}
+                                />
+                            )}
+                            <Text style={styles.timestamp}>
+                                {formatTime(msg.timestamp)}
+                            </Text>
                         </View>
                     );
                 })}
@@ -264,10 +357,16 @@ export default function CourseChatScreen({ navigation, route }: { navigation: Co
                     style={styles.input}
                     placeholderTextColor="#888"
                 />
-                <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+                <TouchableOpacity
+                    style={styles.sendButton}
+                    onPress={sendMessage}
+                >
                     <Text style={styles.sendButtonText}>Send</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.imageButton} onPress={sendImage}>
+                <TouchableOpacity
+                    style={styles.imageButton}
+                    onPress={sendImage}
+                >
                     <Text style={styles.sendButtonText}>📷</Text>
                 </TouchableOpacity>
             </View>
@@ -284,7 +383,13 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
     },
-    headerText: { color: "#fff", fontSize: 20, fontWeight: "bold", flex: 1, textAlign: "center" },
+    headerText: {
+        color: "#fff",
+        fontSize: 20,
+        fontWeight: "bold",
+        flex: 1,
+        textAlign: "center",
+    },
     sectionTitle: { fontSize: 16, fontWeight: "bold", marginBottom: 4 },
     memberListWrapper: {
         maxHeight: 200,
@@ -314,7 +419,12 @@ const styles = StyleSheet.create({
     },
     sender: { fontWeight: "bold", color: "#fff", marginBottom: 4 },
     messageText: { color: "#fff", fontSize: 16 },
-    timestamp: { marginTop: 4, fontSize: 12, color: "#ddd", alignSelf: "flex-end" },
+    timestamp: {
+        marginTop: 4,
+        fontSize: 12,
+        color: "#ddd",
+        alignSelf: "flex-end",
+    },
     image: {
         width: 200,
         height: 200,
