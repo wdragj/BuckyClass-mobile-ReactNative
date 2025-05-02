@@ -6,6 +6,7 @@ import {
     View,
     TextInput,
     FlatList,
+    Image,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../types/navigation";
@@ -47,7 +48,6 @@ export default function ChatListScreen({
         const chatsRef = ref(realtimeDB, "chats");
 
         const unsubscribe = onValue(chatsRef, (snapshot) => {
-            // ...existing code...
             const data = snapshot.val();
             const chatList: ChatItem[] = [];
 
@@ -98,48 +98,84 @@ export default function ChatListScreen({
     );
 
     // 채팅방 아이템 렌더링 함수
-    const renderChatItem = (chat: ChatItem) => (
-        <TouchableOpacity
-            key={chat.id}
-            style={styles.chatItem}
-            onPress={() => {
-                if (chat.type === "course") {
-                    navigation.navigate("CourseChat", { courseId: chat.id });
-                } else {
-                    navigation.navigate("PrivateChat", { chatId: chat.id });
-                }
-            }}
-        >
-            <View style={styles.chatItemLeft}>
-                <View
-                    style={[
-                        styles.avatar,
-                        chat.type === "course"
-                            ? styles.groupAvatar
-                            : styles.personalAvatar,
-                    ]}
-                >
-                    <Text style={styles.avatarText}>
-                        {chat.name.charAt(0).toUpperCase()}
+    const renderChatItem = (chat: ChatItem) => {
+        let imageSource;
+
+        if (chat.type === "course") {
+            // 그룹 채팅(코스)일 경우 교과목 아이콘 선택
+            // 채팅방 ID를 기준으로 세 가지 아이콘 중 하나를 결정
+            const courseType = Math.abs(chat.id.charCodeAt(0) % 3);
+
+            if (courseType === 0) {
+                imageSource = require("../../../assets/csIcon.png");
+            } else if (courseType === 1) {
+                imageSource = require("../../../assets/statIcon.png");
+            } else {
+                imageSource = require("../../../assets/mathIcon.png");
+            }
+        } else {
+            // 개인 채팅일 경우 아바타 이미지 사용
+            const avatarIndex = Math.abs(chat.id.charCodeAt(0) % 4) + 1;
+            imageSource = getAvatarSource(avatarIndex);
+        }
+
+        return (
+            <TouchableOpacity
+                key={chat.id}
+                style={styles.chatItem}
+                onPress={() => {
+                    if (chat.type === "course") {
+                        navigation.navigate("CourseChat", {
+                            courseId: chat.id,
+                        });
+                    } else {
+                        navigation.navigate("PrivateChat", { chatId: chat.id });
+                    }
+                }}
+            >
+                <View style={styles.chatItemLeft}>
+                    <Image
+                        source={imageSource}
+                        style={
+                            chat.type === "course"
+                                ? styles.courseIconImage
+                                : styles.avatarImage
+                        }
+                    />
+                </View>
+                <View style={styles.chatItemCenter}>
+                    <Text style={styles.chatName} numberOfLines={1}>
+                        {chat.name}
+                    </Text>
+                    <Text style={styles.lastMessage} numberOfLines={1}>
+                        {chat.lastMessage || "No messages yet"}
                     </Text>
                 </View>
-            </View>
-            <View style={styles.chatItemCenter}>
-                <Text style={styles.chatName} numberOfLines={1}>
-                    {chat.name}
-                </Text>
-                <Text style={styles.lastMessage} numberOfLines={1}>
-                    {chat.lastMessage || "No messages yet"}
-                </Text>
-            </View>
-            <Ionicons
-                name="chevron-forward"
-                size={24}
-                color="#8863e4"
-                style={styles.arrowIcon}
-            />
-        </TouchableOpacity>
-    );
+                <Ionicons
+                    name="chevron-forward"
+                    size={24}
+                    color="#8863e4"
+                    style={styles.arrowIcon}
+                />
+            </TouchableOpacity>
+        );
+    };
+
+    // 아바타 이미지 소스 가져오기
+    const getAvatarSource = (index: number) => {
+        switch (index) {
+            case 1:
+                return require("../../../assets/avatar_1.png");
+            case 2:
+                return require("../../../assets/avatar_2.png");
+            case 3:
+                return require("../../../assets/avatar_3.png");
+            case 4:
+                return require("../../../assets/avatar_4.png");
+            default:
+                return require("../../../assets/avatar_1.png");
+        }
+    };
 
     return (
         <SafeAreaView style={styles.safeArea}>

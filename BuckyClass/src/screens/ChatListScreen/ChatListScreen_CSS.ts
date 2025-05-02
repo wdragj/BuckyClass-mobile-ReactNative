@@ -97,17 +97,20 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         marginLeft: 8, // 들여쓰기 효과
     },
+    // 채팅방 아이템 스타일 - CoursesScreen의 listItem과 통일
     chatItem: {
         flexDirection: "row",
-        backgroundColor: "#fff",
         padding: 16,
         borderRadius: 16,
         marginBottom: 12,
-        shadowColor: "rgba(0, 0, 0, 0.05)",
+        shadowColor: "rgba(0, 0, 0, 0.1)",
         shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 3,
-        shadowOpacity: 1,
+        shadowRadius: 4,
+        shadowOpacity: 0.2,
         elevation: 2,
+        borderBottomWidth: 1,
+        borderBottomColor: "rgba(0, 0, 0, 0.1)",
+        backgroundColor: "rgba(255, 255, 255, 0.4)", // 반투명 배경으로 변경
         alignItems: "center",
         marginLeft: 16, // 들여쓰기 효과
         marginRight: 8,
@@ -115,6 +118,19 @@ const styles = StyleSheet.create({
     chatItemLeft: {
         marginRight: 12,
     },
+    // 아바타 이미지 스타일
+    avatarImage: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+    },
+    // 코스 아이콘 이미지 스타일 (추가)
+    courseIconImage: {
+        width: 50,
+        height: 50,
+        borderRadius: 12, // 아바타보다 덜 둥글게
+    },
+    // 기존 아바타 스타일은 유지 (혹시 필요할 경우를 대비)
     avatar: {
         width: 50,
         height: 50,
