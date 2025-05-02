@@ -34,30 +34,33 @@ interface CourseDetailData {
         name: string;
         number: number;
         views: number;
+        subject_abbreviation?: string;
     };
     grade: {
         course_id: string;
         total: number;
-        a_per: number;
-        ab_per: number;
-        b_per: number;
-        bc_per: number;
-        c_per: number;
-        d_per: number;
-        f_per: number;
-        other_per: number;
+        a_per: string | number;
+        ab_per: string | number;
+        b_per: string | number;
+        bc_per: string | number;
+        c_per: string | number;
+        d_per: string | number;
+        f_per: string | number;
+        other_per: string | number;
     };
-    reviews: Review[];
+    averageGpa: string;
+    instructors: string[];
 }
 
 interface Review {
     course_id: string;
     user_id: string;
-    rating: number;
+    rating: string | number;
     comment: string;
     edited: boolean;
     created_at: string;
-    like_count: number;
+    like_count: number | null;
+    username: string | null;
 }
 
 interface Props {
@@ -70,20 +73,24 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     const [courseDetail, setCourseDetail] = useState<CourseDetailData | null>(
         null
     );
+    const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
+    const [reviewsLoading, setReviewsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [authenticated, setAuthenticated] = useState(false);
 
     useEffect(() => {
-        // 강의 ID로 강의 상세 정보 가져오기
-        const fetchCourseDetail = async () => {
+        // 강의 상세 정보와 리뷰를 별도로 가져오기
+        const fetchCourseData = async () => {
             setLoading(true);
+            setReviewsLoading(true);
 
             const auth = getAuth();
             const currentUser = auth.currentUser;
 
             if (!currentUser) {
                 setLoading(false);
+                setReviewsLoading(false);
                 setError("로그인이 필요합니다. 로그인 후 다시 시도해주세요.");
                 return;
             }
@@ -93,7 +100,8 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                 const idToken = await currentUser.getIdToken(true);
                 setAuthenticated(true);
 
-                const response = await fetch(
+                // 1. 강의 상세 정보 가져오기
+                const courseResponse = await fetch(
                     `https://grow-ruddy.vercel.app/api/courses/${course.id}`,
                     {
                         headers: {
@@ -102,21 +110,45 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                     }
                 );
 
-                if (!response.ok) {
-                    throw new Error(`API 요청 실패: ${response.status}`);
+                if (!courseResponse.ok) {
+                    throw new Error(
+                        `강의 정보 API 요청 실패: ${courseResponse.status}`
+                    );
                 }
 
-                const data = await response.json();
-                setCourseDetail(data);
+                const courseData = await courseResponse.json();
+                setCourseDetail(courseData);
                 setLoading(false);
+
+                // 2. 강의 리뷰 정보 가져오기
+                const reviewsResponse = await fetch(
+                    `https://grow-ruddy.vercel.app/api/reviews/${course.id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${idToken}`,
+                        },
+                    }
+                );
+
+                if (!reviewsResponse.ok) {
+                    console.warn(
+                        `리뷰 API 요청 실패: ${reviewsResponse.status}`
+                    );
+                    setReviews([]);
+                } else {
+                    const reviewsData = await reviewsResponse.json();
+                    setReviews(Array.isArray(reviewsData) ? reviewsData : []);
+                }
             } catch (err) {
-                console.error("Error fetching course details:", err);
-                setError("강의 상세 정보를 불러오는데 실패했습니다.");
-                setLoading(false);
+                console.error("Error fetching course data:", err);
+                setError("강의 정보를 불러오는데 실패했습니다.");
+                setReviews([]);
+            } finally {
+                setReviewsLoading(false);
             }
         };
 
-        fetchCourseDetail();
+        fetchCourseData();
     }, [course.id]);
 
     if (loading) {
@@ -210,85 +242,103 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     }
 
     // 모든 등급의 비율이 0인지 확인
-    const allZeroGrades =
-        courseDetail.grade.a_per === 0 &&
-        courseDetail.grade.ab_per === 0 &&
-        courseDetail.grade.b_per === 0 &&
-        courseDetail.grade.bc_per === 0 &&
-        courseDetail.grade.c_per === 0 &&
-        courseDetail.grade.d_per === 0 &&
-        courseDetail.grade.f_per === 0 &&
-        courseDetail.grade.other_per === 0;
+    const allZeroGrades = courseDetail
+        ? parseFloat(courseDetail.grade.a_per as string) === 0 &&
+          parseFloat(courseDetail.grade.ab_per as string) === 0 &&
+          parseFloat(courseDetail.grade.b_per as string) === 0 &&
+          parseFloat(courseDetail.grade.bc_per as string) === 0 &&
+          parseFloat(courseDetail.grade.c_per as string) === 0 &&
+          parseFloat(courseDetail.grade.d_per as string) === 0 &&
+          parseFloat(courseDetail.grade.f_per as string) === 0 &&
+          parseFloat(courseDetail.grade.other_per as string) === 0
+        : true;
 
-    // 차트 데이터 - 모든 비율이 0이면 A를 100%로 표시
-    const chartData = allZeroGrades
-        ? [
-              {
-                  name: "No Grades",
-                  population: 100,
-                  color: "#4CAF50",
-                  legendFontColor: "#7F7F7F",
-                  legendFontSize: 15,
-              },
-          ]
-        : [
-              {
-                  name: "A",
-                  population: courseDetail.grade.a_per,
-                  color: "#4CAF50",
-                  legendFontColor: "#7F7F7F",
-                  legendFontSize: 15,
-              },
-              {
-                  name: "AB",
-                  population: courseDetail.grade.ab_per,
-                  color: "#8BC34A",
-                  legendFontColor: "#7F7F7F",
-                  legendFontSize: 15,
-              },
-              {
-                  name: "B",
-                  population: courseDetail.grade.b_per,
-                  color: "#CDDC39",
-                  legendFontColor: "#7F7F7F",
-                  legendFontSize: 15,
-              },
-              {
-                  name: "BC",
-                  population: courseDetail.grade.bc_per,
-                  color: "#FFEB3B",
-                  legendFontColor: "#7F7F7F",
-                  legendFontSize: 15,
-              },
-              {
-                  name: "C",
-                  population: courseDetail.grade.c_per,
-                  color: "#FFC107",
-                  legendFontColor: "#7F7F7F",
-                  legendFontSize: 15,
-              },
-              {
-                  name: "D",
-                  population: courseDetail.grade.d_per,
-                  color: "#FF9800",
-                  legendFontColor: "#7F7F7F",
-                  legendFontSize: 15,
-              },
-              {
-                  name: "F",
-                  population: courseDetail.grade.f_per,
-                  color: "#F44336",
-                  legendFontColor: "#7F7F7F",
-                  legendFontSize: 15,
-              },
-              {
-                  name: "Other",
-                  population: courseDetail.grade.other_per,
-                  color: "#9E9E9E",
-                  legendFontColor: "#7F7F7F",
-                  legendFontSize: 15,
-              },
-          ];
+    // 차트 데이터 생성
+    const chartData =
+        !courseDetail || allZeroGrades
+            ? [
+                  {
+                      name: "No Grades",
+                      population: 100,
+                      color: "#4CAF50",
+                      legendFontColor: "#7F7F7F",
+                      legendFontSize: 15,
+                  },
+              ]
+            : [
+                  {
+                      name: "A",
+                      population: parseFloat(
+                          courseDetail.grade.a_per as string
+                      ),
+                      color: "#4CAF50",
+                      legendFontColor: "#7F7F7F",
+                      legendFontSize: 15,
+                  },
+                  {
+                      name: "AB",
+                      population: parseFloat(
+                          courseDetail.grade.ab_per as string
+                      ),
+                      color: "#8BC34A",
+                      legendFontColor: "#7F7F7F",
+                      legendFontSize: 15,
+                  },
+                  {
+                      name: "B",
+                      population: parseFloat(
+                          courseDetail.grade.b_per as string
+                      ),
+                      color: "#CDDC39",
+                      legendFontColor: "#7F7F7F",
+                      legendFontSize: 15,
+                  },
+                  {
+                      name: "BC",
+                      population: parseFloat(
+                          courseDetail.grade.bc_per as string
+                      ),
+                      color: "#FFEB3B",
+                      legendFontColor: "#7F7F7F",
+                      legendFontSize: 15,
+                  },
+                  {
+                      name: "C",
+                      population: parseFloat(
+                          courseDetail.grade.c_per as string
+                      ),
+                      color: "#FFC107",
+                      legendFontColor: "#7F7F7F",
+                      legendFontSize: 15,
+                  },
+                  {
+                      name: "D",
+                      population: parseFloat(
+                          courseDetail.grade.d_per as string
+                      ),
+                      color: "#FF9800",
+                      legendFontColor: "#7F7F7F",
+                      legendFontSize: 15,
+                  },
+                  {
+                      name: "F",
+                      population: parseFloat(
+                          courseDetail.grade.f_per as string
+                      ),
+                      color: "#F44336",
+                      legendFontColor: "#7F7F7F",
+                      legendFontSize: 15,
+                  },
+                  {
+                      name: "Other",
+                      population: parseFloat(
+                          courseDetail.grade.other_per as string
+                      ),
+                      color: "#9E9E9E",
+                      legendFontColor: "#7F7F7F",
+                      legendFontSize: 15,
+                  },
+              ];
 
     // 빈 데이터 필터링 - 차트에서 0% 항목 제거 (시각적으로 더 깔끔)
     const filteredChartData = allZeroGrades
@@ -322,25 +372,53 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                             contentContainerStyle={styles.scrollContent}
                         >
                             <Text style={styles.courseName}>
-                                {courseDetail.course.name}
+                                {courseDetail?.course.name}
                             </Text>
                             <View style={styles.courseInfoRow}>
                                 <Text style={styles.courseInfoText}>
-                                    Course:{" "}
-                                    {courseDetail.course.subject_abbreviation}{" "}
-                                    {courseDetail.course.number}
+                                    Course: {course.subject_abbreviation}{" "}
+                                    {courseDetail?.course.number}
                                 </Text>
                                 <Text style={styles.courseInfoText}>
-                                    Views: {courseDetail.course.views}
+                                    Views: {courseDetail?.course.views}
                                 </Text>
                             </View>
 
+                            {/* 강사 정보 표시 */}
+                            {courseDetail?.instructors &&
+                                courseDetail.instructors.length > 0 && (
+                                    <View style={styles.sectionContainer}>
+                                        <Text style={styles.sectionTitle}>
+                                            Instructors
+                                        </Text>
+                                        {courseDetail.instructors.map(
+                                            (instructor, idx) => (
+                                                <Text
+                                                    key={idx}
+                                                    style={
+                                                        styles.instructorName
+                                                    }
+                                                >
+                                                    • {instructor}
+                                                </Text>
+                                            )
+                                        )}
+                                        {courseDetail.averageGpa && (
+                                            <Text style={styles.averageGpa}>
+                                                Average GPA:{" "}
+                                                {courseDetail.averageGpa}
+                                            </Text>
+                                        )}
+                                    </View>
+                                )}
+
+                            {/* 등급 분포 섹션 */}
                             <View style={styles.sectionContainer}>
                                 <Text style={styles.sectionTitle}>
-                                    Cumulate GPA
+                                    Grade Distribution
                                 </Text>
                                 <Text style={styles.totalStudents}>
-                                    Total Students: {courseDetail.grade.total}
+                                    Total Students: {courseDetail?.grade.total}
                                 </Text>
                                 <View style={styles.chartContainer}>
                                     <PieChart
@@ -364,127 +442,141 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 
                                 <View style={styles.gradeDetailsContainer}>
                                     <Text style={styles.gradeDetail}>
-                                        A: {courseDetail.grade.a_per}%
+                                        A: {courseDetail?.grade.a_per}%
                                     </Text>
                                     <Text style={styles.gradeDetail}>
-                                        AB: {courseDetail.grade.ab_per}%
+                                        AB: {courseDetail?.grade.ab_per}%
                                     </Text>
                                     <Text style={styles.gradeDetail}>
-                                        B: {courseDetail.grade.b_per}%
+                                        B: {courseDetail?.grade.b_per}%
                                     </Text>
                                     <Text style={styles.gradeDetail}>
-                                        BC: {courseDetail.grade.bc_per}%
+                                        BC: {courseDetail?.grade.bc_per}%
                                     </Text>
                                     <Text style={styles.gradeDetail}>
-                                        C: {courseDetail.grade.c_per}%
+                                        C: {courseDetail?.grade.c_per}%
                                     </Text>
                                     <Text style={styles.gradeDetail}>
-                                        D: {courseDetail.grade.d_per}%
+                                        D: {courseDetail?.grade.d_per}%
                                     </Text>
                                     <Text style={styles.gradeDetail}>
-                                        F: {courseDetail.grade.f_per}%
+                                        F: {courseDetail?.grade.f_per}%
                                     </Text>
                                     <Text style={styles.gradeDetail}>
-                                        Others: {courseDetail.grade.other_per}%
+                                        Others: {courseDetail?.grade.other_per}%
                                     </Text>
                                 </View>
                             </View>
 
+                            {/* 리뷰 섹션 */}
                             <View style={styles.sectionContainer}>
-                                <Text style={styles.sectionTitle}>
-                                    Latest Reviews
-                                </Text>
-                                {courseDetail.reviews.length > 0 ? (
-                                    courseDetail.reviews.map(
-                                        (review, index) => (
-                                            <View
-                                                key={index}
-                                                style={styles.reviewItem}
-                                            >
+                                <Text style={styles.sectionTitle}>Reviews</Text>
+                                {reviewsLoading ? (
+                                    <ActivityIndicator
+                                        size="small"
+                                        color="#8863e4"
+                                    />
+                                ) : reviews.length > 0 ? (
+                                    reviews.map((review, index) => (
+                                        <View
+                                            key={`${review.user_id}-${index}`}
+                                            style={styles.reviewItem}
+                                        >
+                                            <View style={styles.reviewHeader}>
                                                 <View
-                                                    style={styles.reviewHeader}
+                                                    style={
+                                                        styles.ratingContainer
+                                                    }
                                                 >
-                                                    <View
-                                                        style={
-                                                            styles.ratingContainer
-                                                        }
-                                                    >
-                                                        {/* 별점 표시 */}
-                                                        {[1, 2, 3, 4, 5].map(
-                                                            (star) => (
-                                                                <Ionicons
-                                                                    key={star}
-                                                                    name={
-                                                                        star <=
-                                                                        review.rating
-                                                                            ? "star"
-                                                                            : "star-outline"
-                                                                    }
-                                                                    size={16}
-                                                                    color="#FFD700"
-                                                                    style={
-                                                                        styles.starIcon
-                                                                    }
-                                                                />
-                                                            )
-                                                        )}
-                                                        <Text
-                                                            style={
-                                                                styles.ratingText
-                                                            }
-                                                        >
-                                                            {review.rating.toFixed(
-                                                                1
-                                                            )}
-                                                        </Text>
-                                                    </View>
+                                                    {/* 별점 표시 */}
+                                                    {[1, 2, 3, 4, 5].map(
+                                                        (star) => (
+                                                            <Ionicons
+                                                                key={`star-${star}-${index}`}
+                                                                name={
+                                                                    star <=
+                                                                    parseFloat(
+                                                                        review.rating as string
+                                                                    )
+                                                                        ? "star"
+                                                                        : "star-outline"
+                                                                }
+                                                                size={16}
+                                                                color="#FFD700"
+                                                                style={
+                                                                    styles.starIcon
+                                                                }
+                                                            />
+                                                        )
+                                                    )}
                                                     <Text
                                                         style={
-                                                            styles.reviewDate
+                                                            styles.ratingText
                                                         }
                                                     >
-                                                        {formatDate(
-                                                            review.created_at
-                                                        )}
-                                                        {review.edited &&
-                                                            " (edited)"}
+                                                        {parseFloat(
+                                                            review.rating as string
+                                                        ).toFixed(1)}
                                                     </Text>
                                                 </View>
-                                                <Text
-                                                    style={styles.reviewComment}
-                                                >
-                                                    {review.comment}
+                                                <Text style={styles.reviewDate}>
+                                                    {formatDate(
+                                                        review.created_at
+                                                    )}
+                                                    {review.edited &&
+                                                        " (edited)"}
                                                 </Text>
-                                                <View
-                                                    style={styles.reviewFooter}
+                                            </View>
+                                            {review.username && (
+                                                <Text
+                                                    style={
+                                                        styles.reviewUsername
+                                                    }
                                                 >
-                                                    <View
-                                                        style={
-                                                            styles.likeContainer
-                                                        }
+                                                    {review.username}
+                                                </Text>
+                                            )}
+                                            <Text style={styles.reviewComment}>
+                                                {review.comment}
+                                            </Text>
+                                            <View style={styles.reviewFooter}>
+                                                <View
+                                                    style={styles.likeContainer}
+                                                >
+                                                    <Ionicons
+                                                        name="heart"
+                                                        size={14}
+                                                        color="#F97CBD"
+                                                    />
+                                                    <Text
+                                                        style={styles.likeCount}
                                                     >
-                                                        <Ionicons
-                                                            name="heart"
-                                                            size={14}
-                                                            color="#F97CBD"
-                                                        />
-                                                        <Text
-                                                            style={
-                                                                styles.likeCount
-                                                            }
-                                                        >
-                                                            {review.like_count}
-                                                        </Text>
-                                                    </View>
+                                                        {review.like_count || 0}
+                                                    </Text>
                                                 </View>
                                             </View>
-                                        )
-                                    )
+                                        </View>
+                                    ))
                                 ) : (
                                     <Text style={styles.emptyText}>
                                         No reviews yet!
                                     </Text>
                                 )}
+
+                                {/* 리뷰 작성 버튼 */}
+                                <TouchableOpacity
+                                    style={styles.writeReviewButton}
+                                    onPress={() => {
+                                        // 리뷰 작성 화면으로 이동하는 로직 (향후 구현)
+                                        alert(
+                                            "리뷰 작성 기능은 준비 중입니다."
+                                        );
+                                    }}
+                                >
+                                    <Text style={styles.writeReviewButtonText}>
+                                        Write a Review
+                                    </Text>
+                                </TouchableOpacity>
                             </View>
 
                             <TouchableOpacity
@@ -695,6 +787,39 @@ const styles = StyleSheet.create({
     loginButtonText: {
         color: "#FFF",
         fontSize: 16,
+        fontFamily: "Nunito-Bold",
+    },
+    averageGpa: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: "#4CAF50",
+        marginTop: 16,
+        fontFamily: "Nunito-Bold",
+    },
+    instructorName: {
+        fontSize: 14,
+        marginBottom: 8,
+        color: "#555",
+        fontFamily: "Nunito",
+    },
+    reviewUsername: {
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#555",
+        marginBottom: 4,
+        fontFamily: "Nunito-Bold",
+    },
+    writeReviewButton: {
+        backgroundColor: "#F97CBD",
+        borderRadius: 20,
+        padding: 10,
+        marginTop: 16,
+        alignItems: "center",
+    },
+    writeReviewButtonText: {
+        color: "#fff",
+        fontSize: 14,
+        fontWeight: "500",
         fontFamily: "Nunito-Bold",
     },
 });
