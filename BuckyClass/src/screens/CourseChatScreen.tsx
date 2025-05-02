@@ -8,6 +8,8 @@ import {
     ScrollView,
     Image,
     Alert,
+    KeyboardAvoidingView,
+    Platform,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
@@ -21,7 +23,9 @@ import {
     uploadBytes,
     getDownloadURL,
 } from "firebase/storage";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 type CourseChatScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -275,196 +279,447 @@ export default function CourseChatScreen({
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => setShowMembers(!showMembers)}>
-                    <Text
-                        style={{ color: "#fff", fontSize: 24, marginRight: 12 }}
-                    >
-                        ☰
-                    </Text>
-                </TouchableOpacity>
-                <Text style={styles.headerText}>{courseName}</Text>
-                <TouchableOpacity onPress={leaveCourseChat}>
-                    <Text style={{ color: "#fff", fontSize: 16 }}>나가기</Text>
-                </TouchableOpacity>
-            </View>
-
-            {showMembers && (
-                <View style={styles.memberListWrapper}>
-                    <Text style={styles.sectionTitle}>참여자 목록</Text>
-                    <ScrollView style={styles.memberScroll}>
-                        {memberList.map((member) => (
+            <View style={styles.gradientBackground}>
+                <LinearGradient
+                    colors={[
+                        "rgba(230, 224, 252, 0.40)",
+                        "rgba(235, 218, 255, 0.40)",
+                    ]}
+                    style={styles.gradientStyle}
+                >
+                    <View style={styles.blurOverlay}>
+                        <View style={styles.header}>
                             <TouchableOpacity
-                                key={member.uid}
-                                onPress={() => startPrivateChat(member.uid)}
+                                style={styles.backButton}
+                                onPress={() => navigation.goBack()}
                             >
-                                <Text style={styles.memberName}>
-                                    • {member.displayName}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-                </View>
-            )}
-
-            <ScrollView
-                style={styles.messageContainer}
-                ref={scrollViewRef}
-                contentContainerStyle={styles.messagesContent}
-            >
-                {messages.map((msg) => {
-                    const isMyMessage = currentUser?.uid === msg.senderUid;
-                    return (
-                        <View
-                            key={msg.id}
-                            style={[
-                                styles.messageBubble,
-                                isMyMessage
-                                    ? styles.myBubble
-                                    : styles.otherBubble,
-                            ]}
-                        >
-                            {!isMyMessage && (
-                                <Text style={styles.sender}>
-                                    {msg.senderName}
-                                </Text>
-                            )}
-                            {msg.text && (
-                                <Text style={styles.messageText}>
-                                    {msg.text}
-                                </Text>
-                            )}
-                            {msg.imageUrl && (
-                                <Image
-                                    source={{ uri: msg.imageUrl }}
-                                    style={styles.image}
+                                <Ionicons
+                                    name="arrow-back"
+                                    size={24}
+                                    color="#8863e4"
                                 />
-                            )}
-                            <Text style={styles.timestamp}>
-                                {formatTime(msg.timestamp)}
-                            </Text>
-                        </View>
-                    );
-                })}
-            </ScrollView>
+                            </TouchableOpacity>
 
-            <View style={styles.inputContainer}>
-                <TextInput
-                    value={newMessage}
-                    onChangeText={setNewMessage}
-                    placeholder="Type a message..."
-                    style={styles.input}
-                    placeholderTextColor="#888"
-                />
-                <TouchableOpacity
-                    style={styles.sendButton}
-                    onPress={sendMessage}
-                >
-                    <Text style={styles.sendButtonText}>Send</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.imageButton}
-                    onPress={sendImage}
-                >
-                    <Text style={styles.sendButtonText}>📷</Text>
-                </TouchableOpacity>
+                            <Text style={styles.headerText}>{courseName}</Text>
+
+                            <TouchableOpacity
+                                style={styles.memberButton}
+                                onPress={() => setShowMembers(!showMembers)}
+                            >
+                                <Ionicons
+                                    name="people"
+                                    size={24}
+                                    color="#8863e4"
+                                />
+                            </TouchableOpacity>
+                        </View>
+
+                        {showMembers && (
+                            <View style={styles.memberListWrapper}>
+                                <Text style={styles.sectionTitle}>
+                                    참여자 목록
+                                </Text>
+                                <ScrollView style={styles.memberScroll}>
+                                    {memberList.map((member) => (
+                                        <TouchableOpacity
+                                            key={member.uid}
+                                            style={styles.memberItem}
+                                            onPress={() =>
+                                                startPrivateChat(member.uid)
+                                            }
+                                        >
+                                            <View style={styles.memberAvatar}>
+                                                <Text
+                                                    style={
+                                                        styles.memberAvatarText
+                                                    }
+                                                >
+                                                    {member.displayName
+                                                        .charAt(0)
+                                                        .toUpperCase()}
+                                                </Text>
+                                            </View>
+                                            <Text style={styles.memberName}>
+                                                {member.displayName}
+                                            </Text>
+                                            <Ionicons
+                                                name="chatbubble-outline"
+                                                size={18}
+                                                color="#8863e4"
+                                            />
+                                        </TouchableOpacity>
+                                    ))}
+                                </ScrollView>
+                            </View>
+                        )}
+
+                        <KeyboardAvoidingView
+                            style={styles.chatContainer}
+                            behavior={
+                                Platform.OS === "ios" ? "padding" : undefined
+                            }
+                            keyboardVerticalOffset={
+                                Platform.OS === "ios" ? 90 : 0
+                            }
+                        >
+                            <ScrollView
+                                style={styles.messageContainer}
+                                ref={scrollViewRef}
+                                contentContainerStyle={styles.messagesContent}
+                            >
+                                {messages.map((msg) => {
+                                    const isMyMessage =
+                                        currentUser?.uid === msg.senderUid;
+                                    return (
+                                        <View
+                                            key={msg.id}
+                                            style={[
+                                                styles.messageBubbleContainer,
+                                                isMyMessage
+                                                    ? styles.myMessageContainer
+                                                    : styles.otherMessageContainer,
+                                            ]}
+                                        >
+                                            {/* 내 메시지일 경우 왼쪽에 타임스탬프 표시 */}
+                                            {isMyMessage && (
+                                                <Text
+                                                    style={styles.timestampLeft}
+                                                >
+                                                    {formatTime(msg.timestamp)}
+                                                </Text>
+                                            )}
+
+                                            {!isMyMessage && (
+                                                <View
+                                                    style={styles.senderAvatar}
+                                                >
+                                                    <Text
+                                                        style={
+                                                            styles.senderAvatarText
+                                                        }
+                                                    >
+                                                        {msg.senderName
+                                                            .charAt(0)
+                                                            .toUpperCase()}
+                                                    </Text>
+                                                </View>
+                                            )}
+                                            <View
+                                                style={[
+                                                    styles.messageBubble,
+                                                    isMyMessage
+                                                        ? styles.myBubble
+                                                        : styles.otherBubble,
+                                                ]}
+                                            >
+                                                {!isMyMessage && (
+                                                    <Text style={styles.sender}>
+                                                        {msg.senderName}
+                                                    </Text>
+                                                )}
+                                                {msg.text && (
+                                                    <Text
+                                                        style={[
+                                                            styles.messageText,
+                                                            isMyMessage &&
+                                                                styles.myMessageText,
+                                                        ]}
+                                                    >
+                                                        {msg.text}
+                                                    </Text>
+                                                )}
+                                                {msg.imageUrl && (
+                                                    <Image
+                                                        source={{
+                                                            uri: msg.imageUrl,
+                                                        }}
+                                                        style={styles.image}
+                                                    />
+                                                )}
+                                            </View>
+
+                                            {/* 상대방 메시지일 경우 오른쪽에 타임스탬프 표시 */}
+                                            {!isMyMessage && (
+                                                <Text
+                                                    style={
+                                                        styles.timestampRight
+                                                    }
+                                                >
+                                                    {formatTime(msg.timestamp)}
+                                                </Text>
+                                            )}
+                                        </View>
+                                    );
+                                })}
+                            </ScrollView>
+
+                            <View style={styles.inputContainer}>
+                                <TextInput
+                                    value={newMessage}
+                                    onChangeText={setNewMessage}
+                                    placeholder="Message..."
+                                    style={styles.input}
+                                    placeholderTextColor="#888"
+                                    multiline={false}
+                                    returnKeyType="send"
+                                    onSubmitEditing={sendMessage}
+                                    blurOnSubmit={false}
+                                />
+                                <TouchableOpacity
+                                    style={styles.imageButton}
+                                    onPress={sendImage}
+                                >
+                                    <Ionicons
+                                        name="image-outline"
+                                        size={24}
+                                        color="#fff"
+                                    />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.sendButton}
+                                    onPress={sendMessage}
+                                >
+                                    <Ionicons
+                                        name="send"
+                                        size={24}
+                                        color="#fff"
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        </KeyboardAvoidingView>
+                    </View>
+                </LinearGradient>
             </View>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: "#fff" },
+    safeArea: {
+        flex: 1,
+    },
+    gradientBackground: {
+        flex: 1,
+        backgroundColor: "rgba(232, 221, 253, 0.60)",
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.20)",
+        borderRadius: 30,
+    },
+    gradientStyle: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.20)",
+    },
+    blurOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
+        shadowColor: "rgba(0, 0, 0, 0.25)",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 1,
+        shadowRadius: 4,
+        elevation: 8,
+    },
     header: {
-        padding: 16,
-        backgroundColor: "#4A90E2",
-        alignItems: "center",
         flexDirection: "row",
+        alignItems: "center",
         justifyContent: "space-between",
+        padding: 16,
+        backgroundColor: "rgba(255, 255, 255, 0.7)",
+        borderBottomWidth: 1,
+        borderBottomColor: "rgba(200, 200, 200, 0.5)",
+    },
+    backButton: {
+        padding: 8,
+    },
+    memberButton: {
+        padding: 8,
     },
     headerText: {
-        color: "#fff",
-        fontSize: 20,
-        fontWeight: "bold",
         flex: 1,
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#171717",
         textAlign: "center",
+        fontFamily: "Nunito-Bold",
     },
-    sectionTitle: { fontSize: 16, fontWeight: "bold", marginBottom: 4 },
+    chatContainer: {
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+    },
     memberListWrapper: {
-        maxHeight: 200,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: "#ccc",
-        backgroundColor: "#f5f5f5",
-    },
-    memberScroll: { maxHeight: 160 },
-    memberName: { fontSize: 14, color: "#333", marginBottom: 4 },
-    messageContainer: { flex: 1, padding: 16, backgroundColor: "#f9f9f9" },
-    messagesContent: { paddingBottom: 20 },
-    messageBubble: {
-        borderRadius: 12,
+        backgroundColor: "rgba(255, 255, 255, 0.7)",
+        borderRadius: 16,
+        margin: 8,
         padding: 12,
-        marginBottom: 10,
-        maxWidth: "80%",
+        maxHeight: 300,
+        borderWidth: 1,
+        borderColor: "rgba(200, 200, 200, 0.5)",
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: "bold",
+        marginBottom: 12,
+        fontFamily: "Nunito-Bold",
+        color: "#171717",
+    },
+    memberScroll: {
+        maxHeight: 250,
+    },
+    memberItem: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingVertical: 8,
+        paddingHorizontal: 4,
+        borderBottomWidth: 1,
+        borderBottomColor: "rgba(200, 200, 200, 0.3)",
+    },
+    memberAvatar: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: "#8863e4",
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: 12,
+    },
+    memberAvatarText: {
+        color: "#fff",
+        fontSize: 18,
+        fontWeight: "bold",
+        fontFamily: "Nunito-Bold",
+    },
+    memberName: {
+        flex: 1,
+        fontSize: 16,
+        color: "#333",
+        fontFamily: "Nunito",
+    },
+    messageContainer: {
+        flex: 1,
+        padding: 16,
+    },
+    messagesContent: {
+        paddingBottom: 8,
+    },
+    messageBubbleContainer: {
+        flexDirection: "row",
+        marginBottom: 16,
+        alignItems: "flex-end",
+    },
+    myMessageContainer: {
+        justifyContent: "flex-end",
+    },
+    otherMessageContainer: {
+        justifyContent: "flex-start",
+    },
+    senderAvatar: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: "#F97CBD",
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: 8,
+        marginBottom: 4,
+    },
+    senderAvatarText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "bold",
+        fontFamily: "Nunito-Bold",
+    },
+    messageBubble: {
+        borderRadius: 18,
+        padding: 12,
+        maxWidth: "70%",
+        shadowColor: "rgba(0, 0, 0, 0.1)",
+        shadowOffset: { width: 0, height: 1 },
+        shadowRadius: 2,
+        shadowOpacity: 1,
+        elevation: 2,
     },
     myBubble: {
-        alignSelf: "flex-end",
-        backgroundColor: "#007AFF",
+        backgroundColor: "#8863e4",
+        borderBottomRightRadius: 4,
     },
     otherBubble: {
-        alignSelf: "flex-start",
-        backgroundColor: "#4A90E2",
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
+        borderBottomLeftRadius: 4,
     },
-    sender: { fontWeight: "bold", color: "#fff", marginBottom: 4 },
-    messageText: { color: "#fff", fontSize: 16 },
-    timestamp: {
-        marginTop: 4,
+    sender: {
+        fontWeight: "bold",
+        color: "#333",
+        marginBottom: 4,
+        fontSize: 14,
+        fontFamily: "Nunito-Bold",
+    },
+    messageText: {
+        fontSize: 16,
+        color: "#333", // 상대방 메시지 텍스트는 검은색
+        fontFamily: "Nunito",
+    },
+    myMessageText: {
+        color: "#fff", // 내 메시지 텍스트는 흰색
+    },
+    // 타임스탬프 스타일 수정
+    timestampLeft: {
         fontSize: 12,
-        color: "#ddd",
+        color: "#777",
+        marginRight: 8,
         alignSelf: "flex-end",
+        marginBottom: 8,
+        fontFamily: "Nunito",
+    },
+    timestampRight: {
+        fontSize: 12,
+        color: "#777",
+        marginLeft: 8,
+        alignSelf: "flex-end",
+        marginBottom: 8,
+        fontFamily: "Nunito",
     },
     image: {
         width: 200,
         height: 200,
-        borderRadius: 8,
+        borderRadius: 12,
         marginTop: 8,
     },
     inputContainer: {
         flexDirection: "row",
-        padding: 16,
+        padding: 12,
+        backgroundColor: "rgba(255, 255, 255, 0.7)",
         borderTopWidth: 1,
-        borderTopColor: "#ddd",
-        backgroundColor: "#fff",
+        borderTopColor: "rgba(200, 200, 200, 0.5)",
         alignItems: "center",
     },
     input: {
         flex: 1,
         height: 40,
-        borderColor: "#ddd",
+        borderColor: "rgba(136, 99, 228, 0.3)",
         borderWidth: 1,
         borderRadius: 20,
         paddingHorizontal: 15,
         fontSize: 16,
-        backgroundColor: "#f2f2f2",
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
+        fontFamily: "Nunito",
+    },
+    imageButton: {
+        marginLeft: 10,
+        width: 40,
+        height: 40,
+        backgroundColor: "#8863e4",
+        borderRadius: 20,
+        justifyContent: "center",
+        alignItems: "center",
     },
     sendButton: {
         marginLeft: 10,
-        backgroundColor: "#4A90E2",
+        width: 40,
+        height: 40,
+        backgroundColor: "#F97CBD",
         borderRadius: 20,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
         justifyContent: "center",
         alignItems: "center",
     },
-    imageButton: {
-        marginLeft: 5,
-        backgroundColor: "#4A90E2",
-        borderRadius: 20,
-        paddingVertical: 10,
-        paddingHorizontal: 10,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    sendButtonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
 });
