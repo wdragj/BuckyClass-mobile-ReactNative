@@ -77,6 +77,8 @@ const ReviewScreen: React.FC<Props> = ({ route, navigation }) => {
                 comment: comment.trim(),
             };
 
+            console.log("Sending review data:", JSON.stringify(reviewData));
+
             // API 요청
             const response = await fetch(
                 "https://grow-ruddy.vercel.app/api/courses/reviews",
@@ -90,9 +92,44 @@ const ReviewScreen: React.FC<Props> = ({ route, navigation }) => {
                 }
             );
 
+            // 응답 상태 확인 및 개선된 에러 처리
+            console.log("Response status:", response.status);
+
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || "Failed to submit review");
+                // 텍스트로 먼저 응답을 읽고
+                const errorText = await response.text();
+                console.log("Error response:", errorText);
+
+                // JSON으로 파싱 시도 (가능한 경우)
+                let errorMessage = "Failed to submit review";
+                try {
+                    if (errorText) {
+                        const errorData = JSON.parse(errorText);
+                        errorMessage = errorData.message || errorMessage;
+                    }
+                } catch (parseError) {
+                    // JSON 파싱에 실패하면 텍스트 응답 사용
+                    errorMessage = errorText || errorMessage;
+                }
+
+                throw new Error(errorMessage);
+            }
+
+            // 성공 응답을 텍스트로 읽고 JSON 파싱 시도
+            const responseText = await response.text();
+            console.log("Success response:", responseText);
+
+            let responseData;
+            try {
+                if (responseText) {
+                    responseData = JSON.parse(responseText);
+                    console.log("Parsed response data:", responseData);
+                }
+            } catch (parseError) {
+                console.warn(
+                    "Could not parse success response as JSON",
+                    parseError
+                );
             }
 
             // 성공 시 처리
