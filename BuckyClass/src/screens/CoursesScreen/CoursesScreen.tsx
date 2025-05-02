@@ -30,6 +30,8 @@ interface Course {
     id: string;
     name: string;
     views: number;
+    number: number;
+    subject_abbreviation: string; // 과목 약어 필드 추가
 }
 
 export default function CoursesScreen({
@@ -177,7 +179,9 @@ export default function CoursesScreen({
                             {!loading && !error && (
                                 <FlatList
                                     data={filteredCourses}
-                                    keyExtractor={(item) => item.id}
+                                    keyExtractor={(item) =>
+                                        `${item.id}-${item.subject_abbreviation}`
+                                    } // id와 과목 약어를 조합한 고유 키 생성
                                     renderItem={({ item }) => (
                                         <TouchableOpacity
                                             style={styles.listItem}
@@ -200,11 +204,29 @@ export default function CoursesScreen({
                                                 >
                                                     {item.name}
                                                 </Text>
-                                                <Text
-                                                    style={styles.listItemSub}
+                                                <View
+                                                    style={
+                                                        styles.courseInfoContainer
+                                                    }
                                                 >
-                                                    Views: {item.views}
-                                                </Text>
+                                                    <Text
+                                                        style={
+                                                            styles.listItemSub
+                                                        }
+                                                    >
+                                                        {
+                                                            item.subject_abbreviation
+                                                        }{" "}
+                                                        {item.number}
+                                                    </Text>
+                                                    <Text
+                                                        style={
+                                                            styles.listItemSub
+                                                        }
+                                                    >
+                                                        Views: {item.views}
+                                                    </Text>
+                                                </View>
                                             </View>
                                             <Ionicons
                                                 name="chevron-forward"

@@ -326,7 +326,9 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                             </Text>
                             <View style={styles.courseInfoRow}>
                                 <Text style={styles.courseInfoText}>
-                                    Course Number: {courseDetail.course.number}
+                                    Course:{" "}
+                                    {courseDetail.course.subject_abbreviation}{" "}
+                                    {courseDetail.course.number}
                                 </Text>
                                 <Text style={styles.courseInfoText}>
                                     Views: {courseDetail.course.views}

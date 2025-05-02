@@ -257,6 +257,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontFamily: "Nunito-Bold",
     },
+
+    courseInfoContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginTop: 4,
+    },
 });
 
 export default styles;

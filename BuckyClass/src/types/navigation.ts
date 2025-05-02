@@ -17,7 +17,15 @@ export type RootStackParamList = {
     EditProfile: undefined;
 
     // 세부 화면들
-    CourseDetails: { course: { id: string; name: string; views: number } };
+    CourseDetails: {
+        course: {
+            id: string;
+            name: string;
+            views: number;
+            number: number;
+            subject_abbreviation: string;
+        };
+    };
     CourseChat: { courseId: string };
     PrivateChat: { chatId: string };
     ChatScreen: undefined;
