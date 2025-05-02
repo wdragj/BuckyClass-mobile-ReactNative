@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
         maxHeight: 280,
         borderRadius: 12,
         backgroundColor: "rgba(255, 255, 255, 0.95)",
-        overflow: "hidden",
+        overflow: "scroll", // hidden에서 scroll로 변경
         zIndex: 2000, // zIndex 값 더 크게 증가
         borderWidth: 1,
         borderColor: "rgba(200, 200, 200, 0.5)",
@@ -336,6 +336,7 @@ const styles = StyleSheet.create({
     },
     sectionsScrollContainer: {
         maxHeight: 280, // 스크롤이 가능한 최대 높이
+        flexGrow: 0, // 중요: 컨텐츠가 늘어나도 컨테이너는 고정
     },
     // 오버레이 스타일 추가
     overlay: {

@@ -90,7 +90,6 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     const [error, setError] = useState<string | null>(null);
     const [authenticated, setAuthenticated] = useState(false);
     const [showSections, setShowSections] = useState(false);
-    const [showMoreSections, setShowMoreSections] = useState(false);
 
     useEffect(() => {
         // 강의 상세 정보와 리뷰를 별도로 가져오기
@@ -396,9 +395,21 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
         });
     };
 
-    // 표시할 섹션 수 제한 (5개)
-    const visibleSections = showMoreSections ? sections : sections.slice(0, 5);
-    const hasMoreSections = sections.length > 5;
+    // 섹션 목록 렌더링
+    const renderSectionItem = ({ item }: { item: Section }) => (
+        <View style={styles.sectionItem}>
+            <View
+                style={[
+                    styles.sectionTypeTag,
+                    item.section_type === "LAB" && styles.labTypeTag,
+                ]}
+            >
+                <Text style={styles.sectionTypeText}>{item.section_type}</Text>
+            </View>
+            <Text style={styles.sectionNumberText}>#{item.number}</Text>
+            <Text style={styles.sectionTimeText}>{item.meeting_time}</Text>
+        </View>
+    );
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -446,7 +457,7 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                     </View>
                                 )}
 
-                            {/* 섹션 드롭다운 추가 - FlatList 대신 map 사용 */}
+                            {/* 섹션 드롭다운 추가 */}
                             <View style={styles.sectionsContainer}>
                                 <TouchableOpacity
                                     style={styles.sectionDropdownHeader}
@@ -478,105 +489,16 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                                 style={{ padding: 20 }}
                                             />
                                         ) : sections.length > 0 ? (
-                                            <>
-                                                {visibleSections.map((item) => (
-                                                    <View
-                                                        key={item.id}
-                                                        style={
-                                                            styles.sectionItem
-                                                        }
-                                                    >
-                                                        <View
-                                                            style={[
-                                                                styles.sectionTypeTag,
-                                                                item.section_type ===
-                                                                    "LAB" &&
-                                                                    styles.labTypeTag,
-                                                            ]}
-                                                        >
-                                                            <Text
-                                                                style={
-                                                                    styles.sectionTypeText
-                                                                }
-                                                            >
-                                                                {
-                                                                    item.section_type
-                                                                }
-                                                            </Text>
-                                                        </View>
-                                                        <Text
-                                                            style={
-                                                                styles.sectionNumberText
-                                                            }
-                                                        >
-                                                            #{item.number}
-                                                        </Text>
-                                                        <Text
-                                                            style={
-                                                                styles.sectionTimeText
-                                                            }
-                                                        >
-                                                            {item.meeting_time}
-                                                        </Text>
-                                                    </View>
-                                                ))}
-
-                                                {hasMoreSections &&
-                                                    !showMoreSections && (
-                                                        <TouchableOpacity
-                                                            style={
-                                                                styles.showMoreButton
-                                                            }
-                                                            onPress={() =>
-                                                                setShowMoreSections(
-                                                                    true
-                                                                )
-                                                            }
-                                                        >
-                                                            <Text
-                                                                style={
-                                                                    styles.showMoreText
-                                                                }
-                                                            >
-                                                                Show More (
-                                                                {sections.length -
-                                                                    5}{" "}
-                                                                more sections)
-                                                            </Text>
-                                                            <Ionicons
-                                                                name="chevron-down"
-                                                                size={16}
-                                                                color="#8863e4"
-                                                            />
-                                                        </TouchableOpacity>
-                                                    )}
-
-                                                {showMoreSections && (
-                                                    <TouchableOpacity
-                                                        style={
-                                                            styles.showMoreButton
-                                                        }
-                                                        onPress={() =>
-                                                            setShowMoreSections(
-                                                                false
-                                                            )
-                                                        }
-                                                    >
-                                                        <Text
-                                                            style={
-                                                                styles.showMoreText
-                                                            }
-                                                        >
-                                                            Show Less
-                                                        </Text>
-                                                        <Ionicons
-                                                            name="chevron-up"
-                                                            size={16}
-                                                            color="#8863e4"
-                                                        />
-                                                    </TouchableOpacity>
-                                                )}
-                                            </>
+                                            <FlatList
+                                                data={sections}
+                                                renderItem={renderSectionItem}
+                                                keyExtractor={(item) => item.id}
+                                                maxToRenderPerBatch={10}
+                                                initialNumToRender={5}
+                                                showsVerticalScrollIndicator={
+                                                    true
+                                                }
+                                            />
                                         ) : (
                                             <Text style={styles.noSectionsText}>
                                                 No sections available
