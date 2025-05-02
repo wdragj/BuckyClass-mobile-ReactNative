@@ -1,65 +1,204 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, Alert, StyleSheet } from "react-native";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebaseConfig";
+import {
+    SafeAreaView,
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    Image,
+} from "react-native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../../types/navigation";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { LinearGradient } from "expo-linear-gradient";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import styles from "./SignIn_CSS";
 
-const SignIn = ({ navigation }: any) => {
+type SignInScreenNavigationProp = StackNavigationProp<
+    RootStackParamList,
+    "SignIn"
+>;
+
+interface SignInScreenProps {
+    navigation: SignInScreenNavigationProp;
+}
+
+export default function SignIn({ navigation }: SignInScreenProps) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSignIn = async () => {
+        if (!email || !password) {
+            setError("Please enter your email and password");
+            return;
+        }
+
+        setLoading(true);
+        setError("");
+
         try {
+            const auth = getAuth();
             await signInWithEmailAndPassword(auth, email, password);
-            Alert.alert("Success", "Logged in successfully!");
-            navigation.navigate("UserInfo");
-        } catch (error: any) {
-            console.log("SignIn error:", error);
-            Alert.alert("Error", error.message);
+            navigation.navigate("MainTabs");
+        } catch (err: any) {
+            console.error("Login error:", err.message);
+
+            // User-friendly error messages
+            if (err.code === "auth/invalid-email") {
+                setError("Invalid email format");
+            } else if (err.code === "auth/user-not-found") {
+                setError("Email not registered");
+            } else if (err.code === "auth/wrong-password") {
+                setError("Incorrect password");
+            } else {
+                setError("Login failed. Please try again.");
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-                value={email}
-                onChangeText={setEmail}
-                style={styles.input}
-                keyboardType="email-address"
-                autoCapitalize="none"
-            />
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                style={styles.input}
-            />
-            <Button title="Sign In" onPress={handleSignIn} />
-            <Button
-                title="Create an account"
-                onPress={() => navigation.navigate("SignUp")}
-            />
-        </View>
+        <SafeAreaView style={styles.safeArea}>
+            <View style={styles.gradientBackground}>
+                <LinearGradient
+                    colors={[
+                        "rgba(230, 224, 252, 0.40)",
+                        "rgba(235, 218, 255, 0.40)",
+                    ]}
+                    style={styles.gradientStyle}
+                >
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === "ios" ? "padding" : "height"}
+                        style={styles.keyboardAvoidingView}
+                    >
+                        <ScrollView
+                            contentContainerStyle={styles.scrollContent}
+                            keyboardShouldPersistTaps="handled"
+                        >
+                            <View style={styles.blurOverlay}>
+                                <View style={styles.logoContainer}>
+                                    <Image
+                                        source={require("../../../assets/grow.png")}
+                                        style={styles.logo}
+                                        resizeMode="contain"
+                                    />
+                                </View>
+
+                                <View style={styles.inputContainer}>
+                                    <View style={styles.inputWrapper}>
+                                        <Ionicons
+                                            name="mail-outline"
+                                            size={20}
+                                            color="#8863e4"
+                                            style={styles.inputIcon}
+                                        />
+                                        <TextInput
+                                            style={styles.input}
+                                            placeholder="Email"
+                                            placeholderTextColor="#999"
+                                            value={email}
+                                            onChangeText={setEmail}
+                                            autoCapitalize="none"
+                                            keyboardType="email-address"
+                                        />
+                                    </View>
+
+                                    <View style={styles.inputWrapper}>
+                                        <Ionicons
+                                            name="lock-closed-outline"
+                                            size={20}
+                                            color="#8863e4"
+                                            style={styles.inputIcon}
+                                        />
+                                        <TextInput
+                                            style={styles.input}
+                                            placeholder="Password"
+                                            placeholderTextColor="#999"
+                                            secureTextEntry={!showPassword}
+                                            value={password}
+                                            onChangeText={setPassword}
+                                            autoCapitalize="none"
+                                        />
+                                        <TouchableOpacity
+                                            style={styles.eyeIcon}
+                                            onPress={() =>
+                                                setShowPassword(!showPassword)
+                                            }
+                                        >
+                                            <Ionicons
+                                                name={
+                                                    showPassword
+                                                        ? "eye-off-outline"
+                                                        : "eye-outline"
+                                                }
+                                                size={20}
+                                                color="#8863e4"
+                                            />
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    {error ? (
+                                        <Text style={styles.errorText}>
+                                            {error}
+                                        </Text>
+                                    ) : null}
+
+                                    <TouchableOpacity
+                                        style={styles.forgotPassword}
+                                    >
+                                        <Text style={styles.forgotPasswordText}>
+                                            Forgot password?
+                                        </Text>
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.button,
+                                            loading && styles.buttonDisabled,
+                                        ]}
+                                        onPress={handleSignIn}
+                                        disabled={loading}
+                                    >
+                                        {loading ? (
+                                            <ActivityIndicator
+                                                size="small"
+                                                color="#fff"
+                                            />
+                                        ) : (
+                                            <Text style={styles.buttonText}>
+                                                Sign In
+                                            </Text>
+                                        )}
+                                    </TouchableOpacity>
+
+                                    <View style={styles.signupContainer}>
+                                        <Text style={styles.signupText}>
+                                            Don't have an account?
+                                        </Text>
+                                        <TouchableOpacity
+                                            onPress={() =>
+                                                navigation.navigate("SignUp")
+                                            }
+                                        >
+                                            <Text style={styles.signupLink}>
+                                                Sign Up
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </View>
+                        </ScrollView>
+                    </KeyboardAvoidingView>
+                </LinearGradient>
+            </View>
+        </SafeAreaView>
     );
-};
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        padding: 20,
-    },
-    label: {
-        marginBottom: 5,
-        fontFamily: "Nunito",
-    },
-    input: {
-        borderBottomWidth: 1,
-        marginBottom: 20,
-        paddingVertical: 5,
-        fontFamily: "Nunito",
-    },
-});
-
-export default SignIn;
+}

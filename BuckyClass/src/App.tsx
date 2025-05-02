@@ -199,7 +199,7 @@ const App = () => {
                 <Stack.Screen
                     name="SignUp"
                     component={SignUp}
-                    options={{ headerTitle: "회원가입" }}
+                    options={{ headerShown: false }}
                 />
                 <Stack.Screen
                     name="MainTabs"
