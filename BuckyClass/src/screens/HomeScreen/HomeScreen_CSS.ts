@@ -64,16 +64,18 @@ const styles = StyleSheet.create({
     },
 
     userPhoto: {
-        width: 50,
-        height: 50,
+        width: 60,
+        height: 60,
         borderRadius: 25,
-        backgroundColor: "#ccc",
+
         marginLeft: 0, // 오른쪽에 위치하므로 왼쪽 마진 제거
+        marginRight: 16, // 이미지와 텍스트 사이 간격 추가
     },
 
     userTextContainer: {
         flexDirection: "column", // 세로 방향 레이아웃
         alignItems: "flex-start", // 왼쪽 정렬
+        flex: 1, // 남은 공간 모두 사용
     },
 
     userGreeting: {
@@ -466,6 +468,12 @@ const styles = StyleSheet.create({
     // 마지막 섹션 여백 축소
     lastSectionContainer: {
         marginBottom: 40, // 80에서 40으로 줄임
+    },
+    headerSection: {
+        flexDirection: "row",
+        justifyContent: "flex-start", // 왼쪽 정렬로 변경
+        alignItems: "center",
+        marginBottom: 24,
     },
 });
 

@@ -160,12 +160,12 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                             contentContainerStyle={styles.contentContainer}
                             showsVerticalScrollIndicator={false}
                         >
-                            <View style={styles.topBar}>
-                                <Text style={styles.appName}>GROW</Text>
-                            </View>
-
                             {/* 사용자 정보 - 수정된 부분 */}
                             <View style={styles.userInfoContainer}>
+                                <Image
+                                    source={require("../../../assets/avatar_1.png")}
+                                    style={styles.userPhoto}
+                                />
                                 <View style={styles.userTextContainer}>
                                     <Text style={styles.userGreeting}>
                                         Hello,
@@ -177,7 +177,6 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                                         Class of 2026
                                     </Text>
                                 </View>
-                                <View style={styles.userPhoto} />
                             </View>
 
                             {/* Hot Courses 섹션 */}
