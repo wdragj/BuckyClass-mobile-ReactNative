@@ -9,7 +9,7 @@ import {
     SafeAreaView,
     FlatList,
 } from "react-native";
-import { RouteProp } from "@react-navigation/native";
+import { RouteProp, useFocusEffect } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { PieChart } from "react-native-chart-kit";
 import { RootStackParamList } from "../../types/navigation";
@@ -188,6 +188,44 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 
         fetchCourseData();
     }, [course.id]);
+
+    // 리뷰만 새로고침하는 함수
+    const refreshReviews = async () => {
+        const auth = getAuth();
+        const currentUser = auth.currentUser;
+
+        if (!currentUser) return;
+
+        try {
+            setReviewsLoading(true);
+            const idToken = await currentUser.getIdToken(true);
+
+            const reviewsResponse = await fetch(
+                `https://grow-ruddy.vercel.app/api/reviews/${course.id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${idToken}`,
+                    },
+                }
+            );
+
+            if (reviewsResponse.ok) {
+                const reviewsData = await reviewsResponse.json();
+                setReviews(Array.isArray(reviewsData) ? reviewsData : []);
+            }
+        } catch (err) {
+            console.error("Error refreshing reviews:", err);
+        } finally {
+            setReviewsLoading(false);
+        }
+    };
+
+    // 화면이 포커스될 때 리뷰 새로고침
+    useFocusEffect(
+        React.useCallback(() => {
+            refreshReviews();
+        }, [course.id])
+    );
 
     if (loading) {
         return (
@@ -597,36 +635,49 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                         color="#8863e4"
                                     />
                                 ) : reviews.length > 0 ? (
-                                    <View style={styles.reviewsContainer}>
+                                    <ScrollView
+                                        horizontal
+                                        showsHorizontalScrollIndicator={false}
+                                        style={styles.horizontalScrollContainer}
+                                    >
                                         {reviews.map((review, index) => (
-                                            <View
+                                            <TouchableOpacity
                                                 key={`${review.user_id}-${index}`}
-                                                style={[
-                                                    styles.reviewCard,
-                                                    index ===
-                                                        reviews.length - 1 && {
-                                                        marginBottom: 0,
-                                                    },
-                                                ]}
+                                                style={
+                                                    styles.horizontalReviewCard
+                                                }
+                                                onPress={() => {
+                                                    navigation.navigate(
+                                                        "ReviewDetail",
+                                                        {
+                                                            review: review,
+                                                            courseName:
+                                                                courseDetail
+                                                                    ?.course
+                                                                    .name ||
+                                                                "Unknown Course",
+                                                        }
+                                                    );
+                                                }}
                                             >
                                                 <View
                                                     style={
-                                                        styles.reviewCardHeader
+                                                        styles.horizontalReviewHeader
                                                     }
                                                 >
                                                     <View
                                                         style={
-                                                            styles.reviewUser
+                                                            styles.horizontalReviewUser
                                                         }
                                                     >
                                                         <View
                                                             style={
-                                                                styles.reviewUserAvatar
+                                                                styles.horizontalReviewUserAvatar
                                                             }
                                                         >
                                                             <Text
                                                                 style={
-                                                                    styles.reviewUserAvatarText
+                                                                    styles.horizontalReviewUserAvatarText
                                                                 }
                                                             >
                                                                 {review.username
@@ -638,10 +689,14 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                                                     : "U"}
                                                             </Text>
                                                         </View>
-                                                        <View>
+                                                        <View
+                                                            style={
+                                                                styles.horizontalReviewUserInfo
+                                                            }
+                                                        >
                                                             <Text
                                                                 style={
-                                                                    styles.reviewUsername
+                                                                    styles.horizontalReviewUsername
                                                                 }
                                                             >
                                                                 {review.username ||
@@ -649,7 +704,7 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                                             </Text>
                                                             <Text
                                                                 style={
-                                                                    styles.reviewDate
+                                                                    styles.horizontalReviewDate
                                                                 }
                                                             >
                                                                 {formatDate(
@@ -662,7 +717,7 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                                     </View>
                                                     <View
                                                         style={
-                                                            styles.ratingContainer
+                                                            styles.horizontalRatingContainer
                                                         }
                                                     >
                                                         {[1, 2, 3, 4, 5].map(
@@ -677,17 +732,17 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                                                             ? "star"
                                                                             : "star-outline"
                                                                     }
-                                                                    size={14}
+                                                                    size={12}
                                                                     color="#FFD700"
                                                                     style={
-                                                                        styles.starIcon
+                                                                        styles.horizontalStarIcon
                                                                     }
                                                                 />
                                                             )
                                                         )}
                                                         <Text
                                                             style={
-                                                                styles.ratingText
+                                                                styles.horizontalRatingText
                                                             }
                                                         >
                                                             {parseFloat(
@@ -698,56 +753,61 @@ const CourseDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                                                 </View>
 
                                                 <Text
-                                                    style={styles.reviewComment}
+                                                    style={
+                                                        styles.horizontalReviewComment
+                                                    }
+                                                    numberOfLines={1}
+                                                    ellipsizeMode="tail"
                                                 >
                                                     {review.comment}
                                                 </Text>
 
                                                 <View
-                                                    style={styles.reviewFooter}
+                                                    style={
+                                                        styles.horizontalReviewFooter
+                                                    }
                                                 >
-                                                    <TouchableOpacity
+                                                    <View
                                                         style={
-                                                            styles.reviewAction
+                                                            styles.horizontalReviewAction
                                                         }
                                                     >
                                                         <Ionicons
                                                             name="heart-outline"
-                                                            size={18}
+                                                            size={16}
                                                             color="#777"
                                                         />
                                                         <Text
                                                             style={
-                                                                styles.reviewActionText
+                                                                styles.horizontalReviewActionText
                                                             }
                                                         >
                                                             {review.like_count ||
                                                                 0}
                                                         </Text>
-                                                    </TouchableOpacity>
-
-                                                    <TouchableOpacity
+                                                    </View>
+                                                    <View
                                                         style={
-                                                            styles.reviewAction
+                                                            styles.horizontalReviewAction
                                                         }
                                                     >
                                                         <Ionicons
                                                             name="chatbubble-outline"
-                                                            size={18}
+                                                            size={16}
                                                             color="#777"
                                                         />
                                                         <Text
                                                             style={
-                                                                styles.reviewActionText
+                                                                styles.horizontalReviewActionText
                                                             }
                                                         >
                                                             Reply
                                                         </Text>
-                                                    </TouchableOpacity>
+                                                    </View>
                                                 </View>
-                                            </View>
+                                            </TouchableOpacity>
                                         ))}
-                                    </View>
+                                    </ScrollView>
                                 ) : (
                                     <View style={styles.emptyReviewsContainer}>
                                         <Ionicons

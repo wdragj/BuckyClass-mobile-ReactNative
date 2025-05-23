@@ -18,6 +18,7 @@ import WelcomeScreen from "./screens/WelcomeScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import EditProfileScreen from "./screens/EditProfileScreen";
 import ReviewScreen from "./screens/ReviewScreen";
+import ReviewDetailScreen from "./screens/ReviewDetailScreen";
 import * as Font from "expo-font";
 import { View, Text } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -229,6 +230,11 @@ const App = () => {
                 <Stack.Screen
                     name="Review"
                     component={ReviewScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="ReviewDetail"
+                    component={ReviewDetailScreen}
                     options={{ headerShown: false }}
                 />
                 {/* EditProfileScreen */}

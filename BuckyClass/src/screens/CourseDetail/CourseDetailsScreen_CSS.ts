@@ -222,13 +222,6 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontFamily: "Nunito-Bold",
     },
-    reviewComment: {
-        fontSize: 14,
-        color: "#333",
-        lineHeight: 20,
-        marginBottom: 12,
-        fontFamily: "Nunito",
-    },
     reviewAction: {
         flexDirection: "row",
         alignItems: "center",
@@ -408,6 +401,107 @@ const styles = StyleSheet.create({
         fontWeight: "500",
         marginRight: 5,
         fontFamily: "Nunito-Bold",
+    },
+    // 가로 스크롤 리뷰 레이아웃 스타일
+    horizontalScrollContainer: {
+        marginTop: 8,
+    },
+    horizontalReviewCard: {
+        backgroundColor: "rgba(255, 255, 255, 0.6)",
+        borderRadius: 16,
+        padding: 16,
+        marginRight: 12,
+        width: screenWidth * 0.7, // 화면 너비의 70%
+        borderWidth: 1,
+        borderColor: "rgba(200, 200, 200, 0.5)",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    horizontalReviewHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        marginBottom: 8,
+    },
+    horizontalReviewUser: {
+        flexDirection: "row",
+        alignItems: "center",
+        flex: 1,
+    },
+    horizontalReviewUserAvatar: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: "#8863e4",
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: 8,
+    },
+    horizontalReviewUserAvatarText: {
+        color: "white",
+        fontSize: 14,
+        fontWeight: "bold",
+        fontFamily: "Nunito-Bold",
+    },
+    horizontalReviewUserInfo: {
+        flex: 1,
+    },
+    horizontalReviewUsername: {
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#333",
+        fontFamily: "Nunito-Bold",
+    },
+    horizontalReviewDate: {
+        fontSize: 12,
+        color: "#666",
+        fontFamily: "Nunito",
+    },
+    horizontalRatingContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginLeft: 8,
+    },
+    horizontalStarIcon: {
+        marginRight: 1,
+    },
+    horizontalRatingText: {
+        marginLeft: 4,
+        fontSize: 12,
+        fontWeight: "bold",
+        color: "#333",
+        fontFamily: "Nunito-Bold",
+    },
+    horizontalReviewComment: {
+        fontSize: 14,
+        color: "#333",
+        lineHeight: 18,
+        fontFamily: "Nunito",
+    },
+    horizontalReviewFooter: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginTop: 8,
+        paddingTop: 8,
+        borderTopWidth: 1,
+        borderTopColor: "rgba(200, 200, 200, 0.3)",
+    },
+    horizontalReviewAction: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    horizontalReviewActionText: {
+        marginLeft: 4,
+        fontSize: 12,
+        color: "#777",
+        fontFamily: "Nunito",
     },
 });
 

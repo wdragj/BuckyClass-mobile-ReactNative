@@ -81,7 +81,7 @@ const ReviewScreen: React.FC<Props> = ({ route, navigation }) => {
 
             // API 요청
             const response = await fetch(
-                "https://grow-ruddy.vercel.app/api/courses/reviews",
+                "https://grow-ruddy.vercel.app/api/reviews",
                 {
                     method: "POST",
                     headers: {
