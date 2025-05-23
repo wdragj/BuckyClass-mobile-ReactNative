@@ -38,4 +38,17 @@ export type RootStackParamList = {
         courseId: string;
         courseName: string;
     };
+    ReviewDetail: {
+        review: {
+            course_id: string;
+            user_id: string;
+            rating: string | number;
+            comment: string;
+            edited: boolean;
+            created_at: string;
+            like_count: number | null;
+            username: string | null;
+        };
+        courseName: string;
+    };
 };
