@@ -75,6 +75,7 @@ Built with a **hybrid architecture** that leverages both Firebase services for r
 
 ### Frontend Framework
 
+-   [Frontend Repository](https://github.com/wdragj/BuckyClass-mobile-ReactNative/)
 -   **React Native** (0.76.7) - Cross-platform mobile development
 -   **Expo SDK** (~52.0.35) - Development platform and build tools
 -   **TypeScript** (5.3.3) - Static type checking and enhanced developer experience
@@ -92,6 +93,7 @@ Built with a **hybrid architecture** that leverages both Firebase services for r
 
 ### UI/UX Libraries
 
+-   [Figma Design](https://www.figma.com/design/bJjRpJXbGpqlclTwMhRGYa/GROW-wireframe?node-id=0-1&m=dev)
 -   **Expo Linear Gradient** - Gradient backgrounds and visual effects
 -   **React Native Vector Icons** (Ionicons) - Consistent icon system
 -   **React Native Reanimated** (3.17.5) - Smooth animations and transitions
