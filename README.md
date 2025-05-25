@@ -1,5 +1,7 @@
 # GROW 🌱
 
+_Building connections, sharing knowledge, fostering academic success_
+
 A comprehensive student-centric platform that provides course information, real-time chat functionality, and course review features to enhance the academic experience.
 
 ## 📋 Table of Contents
@@ -9,13 +11,10 @@ A comprehensive student-centric platform that provides course information, real-
 -   [Tech Stack](#tech-stack)
 -   [Architecture](#architecture)
 -   [Project Structure](#project-structure)
--   [Authentication Flow](#authentication-flow)
 -   [Installation](#installation)
 -   [Usage](#usage)
 -   [API Integration](#api-integration)
 -   [Environment Configuration](#environment-configuration)
--   [Contributing](#contributing)
-<!-- -   [Screenshots](#screenshots) -->
 
 ## 🎯 Overview
 
@@ -83,6 +82,7 @@ Built with a **hybrid architecture** that leverages both Firebase services for r
 
 ### Backend & Database (Hybrid Architecture)
 
+-   [Backend Repository](https://github.com/raphy0316/BuckyClass-general-api)
 -   **Vercel-hosted REST API** (`grow-ruddy.vercel.app`) - Course data, reviews, and complex queries
 -   **PostgreSQL** - Primary relational database for course information, reviews, and user data
 -   **Firebase Realtime Database** - Real-time chat message synchronization
@@ -109,8 +109,9 @@ Built with a **hybrid architecture** that leverages both Firebase services for r
 ### Development Tools
 
 -   **Expo Font** - Custom font integration (Nunito family)
--   **Babel Core** - JavaScript compilation
--   **Metro** - React Native bundler
+-   **Babel Core** (7.25.2) - JavaScript compilation and transpilation
+-   **Metro** (0.81.4) - React Native bundler (managed by Expo CLI)
+-   **@expo/metro-config** (0.19.12) - Expo-optimized Metro configuration
 
 ## 🏗 Architecture
 
@@ -222,29 +223,6 @@ BuckyClass/
 └── index.ts                      # Application entry point
 ```
 
-## 🔐 Authentication Flow
-
-```mermaid
-graph TD
-    A[Welcome Screen] --> B{User Action}
-    B -->|Sign In| C[Email/Password Input]
-    B -->|Sign Up| D[Registration Form]
-    C --> E{Firebase Authentication}
-    D --> F[User Info Collection]
-    F --> G[Avatar Selection]
-    G --> H[Profile Creation]
-    E -->|Success| I[JWT Token Generated]
-    E -->|Failure| C
-    H --> I
-    I --> J[Main Application Access]
-    J --> K[Dashboard]
-    J --> L[Course Browser]
-    J --> M[Chat Rooms]
-    J --> N[Profile Management]
-
-    style E fill:#f9f,stroke:#333,stroke-width:2px
-    style I fill:#9f9,stroke:#333,stroke-width:2px
-```
 
 ## 🚀 Installation
 
@@ -450,38 +428,6 @@ const firebaseConfig = {
 };
 ```
 
-## 🤝 Contributing
-
-### Development Guidelines
-
-1. **Fork** the repository and create a feature branch
-2. **Follow** TypeScript best practices and existing code patterns
-3. **Test** all features on both iOS and Android platforms
-4. **Document** new features and API changes
-5. **Submit** a detailed Pull Request with screenshots
-
-### Code Style Guidelines
-
--   Use **TypeScript** for all new components and features
--   Follow **React Native** best practices for performance
--   Implement **proper error handling** for network requests
--   Add **loading states** and **user feedback** for async operations
--   Ensure **responsive design** for different screen sizes
--   Include **comments** for complex business logic
-
-<!-- ### Commit Message Format
-
-```
-feat: add course section filtering functionality
-fix: resolve chat message ordering issue
-docs: update API documentation
-style: improve course card component styling
-``` -->
-
-<!-- ## 📸 Screenshots
-
-_[Screenshots would be inserted here showcasing key features like the dashboard, course browser, chat interface, and review system]_ -->
-
 ## 🔮 Future Enhancements
 
 -   **Push Notifications**: Real-time chat and course update notifications
@@ -491,17 +437,13 @@ _[Screenshots would be inserted here showcasing key features like the dashboard,
 -   **Calendar Integration**: Sync with university course schedules
 -   **Accessibility**: Enhanced screen reader and navigation support
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 👥 Development Team
 
--   **Mobile Development**: React Native with TypeScript
--   **Backend Architecture**: Firebase + PostgreSQL hybrid system
--   **UI/UX Design**: Modern, accessible mobile interface
-<!-- -   **Real-time Systems**: Firebase Realtime Database integration
--   **API Development**: RESTful services with JWT authentication -->
+-   **Mentor**: [Fredrick Seo](https://www.linkedin.com/in/fseo/)
+-   [**Mobile Development**](https://github.com/wdragj/BuckyClass-mobile-ReactNative): [Leo Jeong](https://www.linkedin.com/in/Leo-Jeong/), [Sean Baek](https://www.linkedin.com/in/sean-baek/)
+-   [**Backend Development**](https://github.com/raphy0316/BuckyClass-general-api): [Raphael Oh](https://www.linkedin.com/in/raphael-oh-3155b1332/), [Cheryn Kim](https://www.linkedin.com/in/cheryn-kim-826667271/), [Leo Jeong](https://www.linkedin.com/in/Leo-Jeong/)
+-   [**UI/UX Design**](https://www.figma.com/design/bJjRpJXbGpqlclTwMhRGYa/GROW-wireframe?node-id=0-1&m=dev): [Brynn Shin](https://www.linkedin.com/in/brynn-s-ba93802b3/), [Hyunbin Jung](https://www.linkedin.com/in/hyunbin-jung-160553260/)
+
 
 ## 🙏 Acknowledgments
 
@@ -511,8 +453,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 -   **React Native Community** for excellent documentation and support
 -   **University Students** for feedback and feature suggestions
 
----
 
-**GROW** - Growing together through collaborative learning 🌱
+## 📄 License
 
-_Building connections, sharing knowledge, fostering academic success_
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
