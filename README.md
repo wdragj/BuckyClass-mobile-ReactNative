@@ -225,7 +225,6 @@ BuckyClass/
 └── index.ts                      # Application entry point
 ```
 
-
 ## 🚀 Installation
 
 ### Prerequisites
@@ -441,11 +440,10 @@ const firebaseConfig = {
 
 ## 👥 Development Team
 
--   **Mentor**: [Fredrick Seo](https://www.linkedin.com/in/fseo/)
+-   **Mentor**: [Frederick Seo](https://www.linkedin.com/in/fseo/)
 -   [**Mobile Development**](https://github.com/wdragj/BuckyClass-mobile-ReactNative): [Leo Jeong](https://www.linkedin.com/in/Leo-Jeong/), [Sean Baek](https://www.linkedin.com/in/sean-baek/)
 -   [**Backend Development**](https://github.com/raphy0316/BuckyClass-general-api): [Raphael Oh](https://www.linkedin.com/in/raphael-oh-3155b1332/), [Cheryn Kim](https://www.linkedin.com/in/cheryn-kim-826667271/), [Leo Jeong](https://www.linkedin.com/in/Leo-Jeong/)
 -   [**UI/UX Design**](https://www.figma.com/design/bJjRpJXbGpqlclTwMhRGYa/GROW-wireframe?node-id=0-1&m=dev): [Brynn Shin](https://www.linkedin.com/in/brynn-s-ba93802b3/), [Hyunbin Jung](https://www.linkedin.com/in/hyunbin-jung-160553260/)
-
 
 ## 🙏 Acknowledgments
 
@@ -455,8 +453,6 @@ const firebaseConfig = {
 -   **React Native Community** for excellent documentation and support
 -   **University Students** for feedback and feature suggestions
 
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
