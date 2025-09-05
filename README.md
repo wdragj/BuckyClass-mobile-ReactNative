@@ -4,6 +4,10 @@ _Building connections, sharing knowledge, fostering academic success_
 
 A comprehensive student-centric platform that provides course information, real-time chat functionality, and course review features to enhance the academic experience.
 
+<p>
+  <img src="BuckyClass/assets/GROW-final.png" alt="GROW app preview" width="650"/>
+</p>
+
 ## 📋 Table of Contents
 
 -   [Overview](#overview)
