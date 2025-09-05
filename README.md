@@ -4,6 +4,10 @@ _Building connections, sharing knowledge, fostering academic success_
 
 A comprehensive student-centric platform that provides course information, real-time chat functionality, and course review features to enhance the academic experience.
 
+<p>
+  <img src="BuckyClass/assets/GROW-final.png" alt="GROW app preview" width="650"/>
+</p>
+
 ## 📋 Table of Contents
 
 -   [Overview](#overview)
@@ -407,10 +411,14 @@ fetch("https://grow-ruddy.vercel.app/api/courses", {
 
 ```bash
 # .env file
-EXPO_PUBLIC_API_URL=https://grow-ruddy.vercel.app
-EXPO_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+EXPO_PUBLIC_API_URL=https://your-api-domain.vercel.app
+EXPO_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key_here
 EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+EXPO_PUBLIC_FIREBASE_DATABASE_URL=https://your_project.firebaseio.com
 EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+EXPO_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
 
 ### Firebase Configuration
